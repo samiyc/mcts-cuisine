@@ -89,6 +89,14 @@ trois règles.
 
 ## La suite
 
-1. **Jouer le cuisinier** dans la page, au clavier, avec les robots.
-2. **Des recettes plus longues** (plusieurs ingrédients), et poser un ingrédient sur le comptoir pour qu'un
-   autre le reprenne.
+1. **Jouer le chef** (Sami, 23/10) : le cuisinier humain piloté au clavier dans la page, pour voir si les
+   robots s'adaptent à ses mouvements. Z Q S D pour se déplacer, E pour interagir (prendre un
+   ingrédient, travailler à un poste, prendre ou poser un plat). Les robots ne connaissent pas ses
+   habitudes : c'est là que deviner l'humain devrait enfin compter (plus haut, avec trois humains
+   simulés, le connaître ne rapportait presque rien).
+2. **Les comptoirs** : préparer une recette et la poser en attente sur un comptoir ; un robot qui voit un
+   plat fini sur un comptoir peut le reprendre et le livrer au passe. Le plan distingue alors les murs
+   des comptoirs (un caractère de plus, par exemple `#` le mur et `_` le comptoir), ce qui limite le nombre
+   de comptoirs, donc de plats en attente. La recherche choisit aussi qui reprend quoi.
+3. **Des recettes plus longues** (plusieurs ingrédients), où l'on se passe les ingrédients d'un
+   comptoir à l'autre.
