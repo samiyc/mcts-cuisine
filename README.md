@@ -5,7 +5,10 @@ arrivent. Les recettes s'enchaînent : couper, cuire, dresser, servir. Les robot
 cuisinier : ils devinent ce qu'il va faire, comme le bot de Lopin devine la main adverse, et montrent la
 tâche qu'ils visent.
 
-Statut (22/10/2026) : pas commencé. Étape 3 de la
+Statut (22/10/2026) : le simulateur d'un service sur trois cuisines, deux règles pour les robots et trois
+cuisiniers simulés, comparés par paires (`npm run compare`, [`docs/modele.md`](docs/modele.md)), et la page
+(`npm run page`, http://127.0.0.1:4803/web/) où l'on regarde le service et où l'on dessine sa cuisine. Pas
+encore de recherche. Étape 3 de la
 [feuille de route](https://github.com/samiyc/lopin/blob/main/docs/ismcts-ailleurs/feuille-de-route.md),
 après l'entrepôt, dont elle reprend le moteur de grille (`grid` de `mcts-commun`) et ajoute les
 enchaînements.
