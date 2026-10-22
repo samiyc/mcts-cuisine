@@ -1,4 +1,4 @@
-import { KITCHENS } from "../src/kitchens.js";
+import { KITCHENS, RECIPES } from "../src/kitchens.js";
 import { HUMAN_LABELS, HUMANS, RULE_LABELS, RULES, compareRules, summaryOf } from "../src/rules.js";
 import { searchRule } from "../src/search.js";
 import { createService, drawOrders, isOver, measuresOf, runService, stepService } from "../src/simulate.js";
@@ -15,8 +15,8 @@ const CELL = 36;
 const COMPARED = 100;
 const COMPARED_WITH_SEARCH = 12;
 const app = document.getElementById("app");
-const state = { kitchenId: "petite", setup: { ...KITCHENS.petite }, rule: "quickest", human: "urgent", seed: 1, speed: 4, service: null, timer: null, compared: null, error: "", busy: "", run: 0 };
-const SYMBOLS = { o: "🧅", t: "🍅", C: "🔪", P: "🍲", S: "🛎" };
+const state = { kitchenId: "petite", setup: { ...KITCHENS.petite }, rule: "quickest", human: "urgent", seed: 1, speed: 2, service: null, timer: null, compared: null, error: "", busy: "", run: 0 };
+const SYMBOLS = { o: "🧅", t: "🍅", C: "🔪", P: "🔥", S: "🛎" };
 
 function el(tag, attrs = {}, ...children) {
   const node = document.createElement(tag);
@@ -106,7 +106,7 @@ function controls() {
     el("label", {}, "Les robots prennent", select("rule", Object.entries(RULE_LABELS), state.rule)),
     el("label", {}, "Le cuisinier", select("human", Object.entries(HUMAN_LABELS), state.human)),
     el("label", {}, "Service n°", el("input", { type: "number", min: "1", value: String(state.seed), "data-knob": "seed", inputmode: "numeric" })),
-    el("label", {}, "Vitesse", select("speed", [["2", "lente"], ["4", "normale"], ["10", "rapide"]], String(state.speed))),
+    el("label", {}, "Vitesse", select("speed", [["0.5", "très lente (2 s par tour)"], ["1", "lente (1 s par tour)"], ["2", "2 tours par seconde"], ["4", "normale (4 tours par s)"], ["10", "rapide (10 tours par s)"]], String(state.speed))),
     el("button", { type: "button", "data-action": playing ? "pause" : "play" }, playing ? "Pause" : "Jouer"),
     el("button", { type: "button", class: "quiet", "data-action": "step" }, "Un tour"),
     el("button", { type: "button", class: "quiet", "data-action": "finish" }, "Jusqu'au bout"),
@@ -121,11 +121,12 @@ function board() {
   for (const cell of cellsOf(state.service)) {
     const x = cell.x * CELL;
     const y = cell.y * CELL;
-    const kind = cell.kind === "floor" || cell.kind === "counter" ? cell.kind : "station";
+    const kind = ["floor", "wall", "counter"].includes(cell.kind) ? cell.kind : "station";
     const tile = svg("rect", { x: x + 1, y: y + 1, width: CELL - 2, height: CELL - 2, rx: 5, class: `cell ${kind}` });
     if (cell.label) tile.append(svg("title", {}, cell.label));
     map.append(tile);
-    if (cell.label) map.append(svg("text", { x: x + CELL / 2, y: y + CELL / 2 + 6, class: "symbol" }, SYMBOLS[cell.kind]));
+    if (cell.label && SYMBOLS[cell.kind]) map.append(svg("text", { x: x + CELL / 2, y: y + CELL / 2 + 6, class: "symbol" }, SYMBOLS[cell.kind]));
+    if (cell.dish) map.append(svg("text", { x: x + CELL / 2, y: y + CELL / 2 + 7, class: "symbol dish" }, RECIPES[cell.dish].emoji));
     if (cell.progress !== null) map.append(svg("rect", { x: x + 4, y: y + CELL - 8, width: (CELL - 8) * cell.progress, height: 4, rx: 2, class: "progress" }));
   }
   const cooks = cooksOf(state.service);
@@ -134,16 +135,32 @@ function board() {
     const group = svg("g", { class: `cook ${cook.kind} c${cook.id}`, transform: `translate(${cook.x * CELL + CELL / 2} ${cook.y * CELL + CELL / 2})` });
     const shape = cook.kind === "human" ? svg("rect", { x: -CELL / 2 + 5, y: -CELL / 2 + 5, width: CELL - 10, height: CELL - 10, rx: 4 }) : svg("circle", { r: CELL / 2 - 5 });
     group.append(svg("title", {}, cook.label), shape, svg("text", { y: 4, class: "cook-id" }, cook.kind === "human" ? "H" : String(cook.id)));
-    if (cook.holding) group.append(svg("text", { x: 9, y: -7, class: "held" }, SYMBOLS[cook.holding === "soupe" ? "o" : "t"]));
+    if (cook.holding) group.append(svg("text", { x: 9, y: -7, class: "held" }, cook.ready ? RECIPES[cook.holding].emoji : SYMBOLS[RECIPES[cook.holding].ingredient]));
     map.append(group);
   }
   return el("div", { class: "board-wrap" }, map);
 }
 
+/** An order: its dish's emoji and colour, its age, a patience bar (full when it comes, empty at its deadline), where it stands. */
+function orderItem(order) {
+  const level = order.patience === null ? "" : order.patience > 0.5 ? "ok" : order.patience > 0.2 ? "warn" : "out";
+  const bar = order.patience === null ? null : el("span", { class: `patience ${level}`, role: "meter", "aria-label": "patience restante", "aria-valuemin": "0", "aria-valuemax": "100", "aria-valuenow": String(Math.round(100 * order.patience)) }, el("span", { style: `width:${(100 * order.patience).toFixed(1)}%` }));
+  return el(
+    "li",
+    { class: `order ${order.recipe}${order.served ? " served" : ""}${order.late ? " late" : ""}` },
+    el("span", { class: "dish", "aria-hidden": "true" }, order.emoji),
+    el("span", { class: "order-body" }, el("span", { class: "order-head" }, el("strong", {}, `${order.id}. ${order.dish}`), el("span", { class: "age" }, `il y a ${order.age} tours`)), bar, el("span", { class: "order-status" }, order.status)),
+  );
+}
+
+function legend() {
+  return el("p", { class: "hint legend" }, ...Object.entries(RECIPES).map(([name, recipe]) => el("span", { class: `legend-item ${name}` }, `${recipe.emoji} ${recipe.label}`)), " · la barre : la patience du client, pleine à la commande, vide à l'échéance.");
+}
+
 function orders() {
   const list = ordersOf(state.service);
   if (list.length === 0) return el("p", { class: "hint" }, "Pas encore de commande.");
-  return el("ol", { class: "orders", reversed: true }, ...list.map((order) => el("li", { class: order.served ? "served" : order.late ? "late" : null }, el("strong", {}, `${order.id}. ${order.dish}`), el("br"), order.status)));
+  return el("ol", { class: "orders" }, ...list.map(orderItem));
 }
 
 function editor() {
@@ -153,7 +170,7 @@ function editor() {
     "details",
     { class: "editor" },
     el("summary", {}, "Changer de cuisine"),
-    el("p", { class: "hint" }, "Le plan en texte : « . » le sol, « R » un robot, « H » le cuisinier, « # » un comptoir, « o » et « t » les caisses d'oignons et de tomates, « C » une planche, « P » un fourneau, « S » le passe."),
+    el("p", { class: "hint" }, "Le plan en texte : « . » le sol, « R » un robot, « H » le cuisinier, « # » un mur, « _ » un comptoir où un plat prêt peut attendre (un seul par comptoir), « o » et « t » les caisses d'oignons et de tomates, « C » une planche, « P » un fourneau, « S » le passe."),
     el("form", { "data-form": "kitchen" }, el("textarea", { name: "text", rows: String(setup.text.split("\n").length + 1), spellcheck: "false" }, setup.text), el("div", { class: "fields" }, field("Une commande tous les (tours)", "every", setup.every), field("Patience d'un client (tours)", "patience", setup.patience), field("Dernière commande (tour)", "lastOrder", setup.lastOrder), field("Fin du service (tour)", "service", setup.service)), el("button", { type: "submit" }, "Appliquer")),
     state.error ? el("p", { class: "error", role: "alert" }, state.error) : null,
   );
@@ -176,7 +193,7 @@ function comparison() {
 
 function render() {
   const over = isOver(state.service);
-  app.replaceChildren(controls(), el("p", { class: "summary", "aria-live": "polite" }, state.busy || statusLine(state.service, over ? measuresOf(state.service) : null)), el("div", { class: "layout" }, board(), el("aside", {}, el("h2", {}, "Les commandes"), orders())), ...comparison(), editor());
+  app.replaceChildren(controls(), el("p", { class: "summary", "aria-live": "polite" }, state.busy || statusLine(state.service, over ? measuresOf(state.service) : null)), el("div", { class: "layout" }, board(), el("aside", {}, el("h2", {}, "Les commandes"), legend(), orders())), ...comparison(), editor());
 }
 
 function applyKitchen(form) {

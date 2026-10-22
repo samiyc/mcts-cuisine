@@ -10,6 +10,9 @@ cuisiniers simulés, comparés par paires (`npm run compare`, [`docs/modele.md`]
 (`npm run page`, http://127.0.0.1:4803/web/) où l'on regarde le service et où l'on dessine sa cuisine.
 Depuis le soir du 22/10, les robots choisissent par la recherche (`src/search.js`,
 `npm run compare -- --search`) : un plat à temps de plus par service environ, dans les trois cuisines.
+Le 23/10, les comptoirs (`_`, les murs restent `#`) : le cuisinier y pose un plat prêt, un robot vient le
+reprendre et le sert ; et dans la page, des vitesses lentes, la couleur et l'âge des commandes, une barre de
+patience.
 Étape 3 de la
 [feuille de route](https://github.com/samiyc/lopin/blob/main/docs/ismcts-ailleurs/feuille-de-route.md),
 après l'entrepôt, dont elle reprend le moteur de grille (`grid` de `mcts-commun`) et ajoute les

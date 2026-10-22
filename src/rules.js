@@ -7,7 +7,8 @@ import { runService } from "./simulate.js";
  * order`: `open` the orders nobody has taken, `reach(order)` the floor distance to its ingredient's crate.
  */
 const first = (open, before) => open.reduce((best, order) => (before(order, best) ? order : best));
-const workOf = (order) => RECIPES[order.recipe].cut + RECIPES[order.recipe].cook;
+/** The work left on an order: a dish ready on a counter has none. */
+const workOf = (order) => (order.status === "ready" ? 0 : RECIPES[order.recipe].cut + RECIPES[order.recipe].cook);
 
 export const RULES = Object.freeze({
   /** The order that came first. */

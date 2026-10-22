@@ -6,7 +6,9 @@ import { parsePlan } from "mcts-commun/grid.js";
  * simulate.js.
  */
 const FLOOR = new Set([".", "R", "H"]);
-export const STATIONS = Object.freeze({ o: "caisse d'oignons", t: "caisse de tomates", C: "planche", P: "fourneau", S: "passe" });
+export const STATIONS = Object.freeze({ o: "caisse d'oignons", t: "caisse de tomates", C: "planche", P: "fourneau", S: "passe", _: "comptoir" });
+/** The stations every kitchen needs (a counter is optional). */
+const REQUIRED = ["o", "t", "C", "P", "S"];
 const SIDES = [
   [1, 0],
   [-1, 0],
@@ -28,7 +30,7 @@ export function readKitchen(text) {
   }
   const robots = plan.find("R");
   const [human] = plan.find("H");
-  for (const kind of Object.keys(STATIONS)) {
+  for (const kind of REQUIRED) {
     if (!stations.some((station) => station.kind === kind && station.access.length > 0)) throw new Error(`il manque une ${STATIONS[kind]} accessible (${kind})`);
   }
   if (!human) throw new Error("le plan n'a pas de place pour le cuisinier humain (H)");

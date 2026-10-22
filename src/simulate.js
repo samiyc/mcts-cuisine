@@ -12,6 +12,11 @@ import { RECIPES } from "./kitchens.js";
  *
  * The robots choose their orders with a rule; the human with a model of a human (`HUMANS`): the nearest
  * dish, the most urgent, or any. The robots see an order the human took once he has taken it.
+ *
+ * **Counters** (`_`, 23/10/2026): a counter holds one finished dish. The human, his dish ready, puts it on the
+ * nearest free counter when one is nearer than the pass, and goes back to cooking; the dish is then "ready",
+ * and a free robot may take it (`open` holds it beside the orders to cook): pick it up there, serve it. The
+ * robots serve their own dishes. A kitchen without counters plays as before.
  */
 const LEG_HORIZON = 80;
 
@@ -38,17 +43,21 @@ export function stepsOf(recipe) {
  */
 export function createService(setup, orders, { human = "urgent", seed = 1 } = {}) {
   const kitchen = readKitchen(setup.text);
-  const cook = (id, kind, at) => ({ id, kind, x: at.x, y: at.y, home: at, order: null, step: 0, phase: "idle", station: null, target: null, path: null, until: null, moves: 0, waits: 0, stalled: 0 });
+  const cook = (id, kind, at) => ({ id, kind, x: at.x, y: at.y, home: at, order: null, steps: null, step: 0, phase: "idle", station: null, target: null, path: null, until: null, moves: 0, waits: 0, stalled: 0 });
   const cooks = kitchen.robots.map((at, i) => cook(i + 1, "robot", at));
   if (human) cooks.push(cook(cooks.length + 1, "human", kitchen.human));
   const reservations = createReservations();
   // Every cook holds its place from the start: nobody plans through a cook standing still.
   for (const one of cooks) reservations.reserve(one.id, [{ x: one.x, y: one.y, t: 0 }], { stay: true });
-  return { kitchen, setup, human, rng: createRng(seed + 7_919), t: 0, cooks, upcoming: orders.map((order) => ({ ...order, status: "upcoming", cook: null, servedAt: null })), claims: new Map(), reservations, log: [], cursor: null };
+  return { kitchen, setup, human, rng: createRng(seed + 7_919), t: 0, cooks, upcoming: orders.map((order) => ({ ...order, status: "upcoming", cook: null, servedAt: null })), claims: new Map(), shelf: new Map(), reservations, log: [], cursor: null };
 }
 
-const isWorkStation = (kind) => kind === "C" || kind === "P";
+const isWorkStation = (kind) => kind === "C" || kind === "P" || kind === "_";
 const keyOf = (cell) => `${cell.x},${cell.y}`;
+/** Putting a finished dish down on a counter. */
+const PUT = Object.freeze({ type: "put", kind: "_", turns: 1 });
+/** A dish waiting on counter `counter` ("x,y"): pick it up there, then serve it. */
+const pickupSteps = (counter) => [{ type: "pickup", kind: "_", counter, turns: 1 }, { type: "serve", kind: "S", turns: 1 }];
 const orderOf = (state, cook) => state.upcoming.find((order) => order.id === cook.order);
 
 /** Plans `cook`'s leg to `target` and reserves it, its last cell kept; false when no path is found. */
@@ -66,13 +75,20 @@ function takenCells(state, cook) {
   return new Set(state.cooks.filter((other) => other !== cook).flatMap((other) => [keyOf(other), ...(other.target ? [keyOf(other.target)] : [])]));
 }
 
-/** The station of `kind` to go to for `cook`, and the cell to work it from: the nearest free one, or null. */
-function stationFor(state, cook, kind) {
+/** Is `station` of no use to `step`: another kind, taken, or (a counter) holding a dish, or not the dish's counter? */
+function unfit(state, station, step) {
+  if (station.kind !== step.kind) return true;
+  if (step.counter) return keyOf(station) !== step.counter;
+  return isWorkStation(step.kind) && (state.claims.has(keyOf(station)) || state.shelf.has(keyOf(station)));
+}
+
+/** The station for `cook`'s `step`, and the cell to work it from: the nearest free one, or null. */
+function stationFor(state, cook, step) {
   const distances = distancesFrom(state.kitchen, cook);
   const taken = takenCells(state, cook);
   let best = null;
   for (const station of state.kitchen.stations) {
-    if (station.kind !== kind || (isWorkStation(kind) && state.claims.has(keyOf(station)))) continue;
+    if (unfit(state, station, step)) continue;
     for (const cell of station.access) {
       const steps = distances.get(keyOf(cell));
       if (steps !== undefined && !taken.has(keyOf(cell)) && (!best || steps < best.steps)) best = { station, cell, steps };
@@ -110,38 +126,69 @@ function stepAside(state, cook) {
   else if (cook.phase === "next" || inFront) giveWay(state, cook);
 }
 
+/** The human, his dish ready to serve, puts it down when a free counter saves him `handOff` steps or more on the pass. */
+function handsOff(state, cook) {
+  if (cook.kind !== "human" || cook.steps[cook.step].type !== "serve") return false;
+  const counter = stationFor(state, cook, PUT);
+  const pass = stationFor(state, cook, cook.steps[cook.step]);
+  return Boolean(counter) && (!pass || counter.steps + (state.setup.handOff ?? 0) <= pass.steps);
+}
+
 /** Sends `cook` to its current step's station; waits a turn when none is free or no path is found. */
 function startStep(state, cook) {
-  const step = stepsOf(orderOf(state, cook).recipe)[cook.step];
-  const choice = stationFor(state, cook, step.kind);
+  if (handsOff(state, cook)) cook.steps = [...cook.steps.slice(0, cook.step), PUT];
+  const step = cook.steps[cook.step];
+  const choice = stationFor(state, cook, step);
   if (!choice || !planLeg(state, cook, choice.cell)) {
     cook.waits += 1;
     stepAside(state, cook);
     return;
   }
-  if (isWorkStation(step.kind)) state.claims.set(keyOf(choice.station), cook.id);
+  if (isWorkStation(step.kind) && step.type !== "pickup") state.claims.set(keyOf(choice.station), cook.id);
   Object.assign(cook, { phase: "moving", station: choice.station, stalled: 0 });
 }
 
-/** Work that ends now: the next step, or the dish served. */
+/** A finished dish put down on `cook`'s counter: ready for anyone to serve, the cook free. */
+function putDown(state, cook, order, counter) {
+  state.shelf.set(counter, order.id);
+  Object.assign(order, { status: "ready", cook: null, counter });
+  state.log.push({ t: state.t, type: "put", cook: cook.id, order: order.id });
+  Object.assign(cook, { order: null, steps: null, step: 0, phase: "idle" });
+}
+
+/** Work that ends now: the next step, a dish put down or picked up, or the dish served. */
 function finishWork(state) {
   for (const cook of state.cooks) {
     if (cook.until !== state.t) continue;
     const order = orderOf(state, cook);
-    if (cook.station && state.claims.get(keyOf(cook.station)) === cook.id) state.claims.delete(keyOf(cook.station));
+    const step = cook.steps[cook.step];
+    const counter = cook.station && keyOf(cook.station);
+    if (cook.station && state.claims.get(counter) === cook.id) state.claims.delete(counter);
     Object.assign(cook, { until: null, station: null, step: cook.step + 1, phase: "next" });
-    if (cook.step < stepsOf(order.recipe).length) continue;
+    if (step.type === "put") {
+      putDown(state, cook, order, counter);
+      continue;
+    }
+    if (step.type === "pickup") {
+      state.shelf.delete(counter);
+      order.counter = null;
+    }
+    if (cook.step < cook.steps.length) continue;
     Object.assign(order, { status: "served", servedAt: state.t });
     state.log.push({ t: state.t, type: "served", cook: cook.id, order: order.id });
-    Object.assign(cook, { order: null, step: 0, phase: "idle" });
+    Object.assign(cook, { order: null, steps: null, step: 0, phase: "idle" });
   }
 }
 
-/** What a free cook is asked: the open orders, and `reach(order)`, the floor distance to its ingredient's crate. */
+/**
+ * What a free cook is asked: the open orders (and, for a robot, the dishes ready on a counter), and
+ * `reach(order)`, the floor distance to its ingredient's crate, or to the counter its dish waits on.
+ */
 function choiceOf(state, cook) {
-  const open = state.upcoming.filter((order) => order.status === "open");
+  const open = state.upcoming.filter((order) => order.status === "open" || (cook.kind === "robot" && order.status === "ready"));
   const distances = distancesFrom(state.kitchen, cook);
-  const reach = (order) => Math.min(...state.kitchen.stations.filter((station) => station.kind === RECIPES[order.recipe].ingredient).flatMap((station) => station.access.map((cell) => distances.get(keyOf(cell)) ?? Infinity)));
+  const distanceTo = (station) => Math.min(...station.access.map((cell) => distances.get(keyOf(cell)) ?? Infinity));
+  const reach = (order) => Math.min(...state.kitchen.stations.filter((station) => (order.status === "ready" ? keyOf(station) === order.counter : station.kind === RECIPES[order.recipe].ingredient)).map(distanceTo));
   return { cook, open, reach };
 }
 
@@ -153,8 +200,9 @@ function take(state, choice, id) {
     stepAside(state, cook);
     return;
   }
+  const steps = chosen.status === "ready" ? pickupSteps(chosen.counter) : stepsOf(chosen.recipe);
   Object.assign(chosen, { status: "taken", cook: cook.id });
-  Object.assign(cook, { order: chosen.id, step: 0, phase: "next" });
+  Object.assign(cook, { order: chosen.id, steps, step: 0, phase: "next" });
   state.log.push({ t: state.t, type: "taken", cook: cook.id, order: chosen.id });
 }
 
@@ -215,7 +263,7 @@ function move(state) {
     }
     if (cook.target && cook.x === cook.target.x && cook.y === cook.target.y) {
       cook.target = null;
-      if (cook.phase === "moving") Object.assign(cook, { phase: "working", until: state.t + stepsOf(orderOf(state, cook).recipe)[cook.step].turns });
+      if (cook.phase === "moving") Object.assign(cook, { phase: "working", until: state.t + cook.steps[cook.step].turns });
     }
   }
 }
@@ -253,6 +301,7 @@ export function cloneService(state) {
     cooks: state.cooks.map((cook) => ({ ...cook })),
     upcoming: state.upcoming.map((order) => ({ ...order })),
     claims: new Map(state.claims),
+    shelf: new Map(state.shelf),
     reservations: state.reservations.clone(),
     rng: state.rng.clone(),
     log: [],

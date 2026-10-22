@@ -12,7 +12,7 @@ describe("what the page shows (web/view.js)", () => {
     const service = createService(setup, drawOrders(1, setup), { seed: 1 });
     const cells = cellsOf(service);
     assert.equal(cells.length, service.kitchen.plan.width * service.kitchen.plan.height);
-    assert.deepEqual([...new Set(cells.map((cell) => cell.kind))].sort(), ["C", "P", "S", "counter", "floor", "o", "t"]);
+    assert.deepEqual([...new Set(cells.map((cell) => cell.kind))].sort(), ["C", "P", "S", "floor", "o", "t", "wall"]);
   });
 
   it("tells the cooks, the orders and the service as it goes", () => {
@@ -28,5 +28,23 @@ describe("what the page shows (web/view.js)", () => {
     while (!isOver(service)) stepService(service, RULES.quickest, HUMANS.urgent);
     assert.match(statusLine(service, measuresOf(service)), /\d+ pas servies · \d+ tours en moyenne de la commande à la table$/);
     assert.ok(cellsOf(service).every((cell) => cell.progress === null || (cell.progress >= 0 && cell.progress <= 1)));
+  });
+
+  it("shows each order's dish, age and patience, and the dishes waiting on the counters", () => {
+    const kitchen = KITCHENS.comptoirs;
+    const service = createService(kitchen, drawOrders(2, kitchen), { seed: 2 });
+    let seenOnCounter = false;
+    while (!isOver(service)) {
+      stepService(service, RULES.quickest, HUMANS.urgent);
+      const counters = cellsOf(service).filter((cell) => cell.kind === "counter");
+      assert.equal(counters.length, 2);
+      if (counters.some((cell) => cell.dish)) seenOnCounter = true;
+      for (const order of ordersOf(service)) {
+        assert.equal(order.age, service.t - service.upcoming.find((one) => one.id === order.id).arrival);
+        assert.ok(order.served ? order.patience === null : order.patience >= 0 && order.patience <= 1);
+        assert.ok(["🍲", "🥗"].includes(order.emoji));
+      }
+    }
+    assert.ok(seenOnCounter, "un plat posé sur un comptoir");
   });
 });

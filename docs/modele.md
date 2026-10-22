@@ -7,9 +7,10 @@ leurs commandes par la recherche (plus bas).
 ## Ce qui se passe
 
 - **La cuisine** est un texte (`src/kitchens.js`) : `.` le sol, `R` un robot, `H` le cuisinier, `#` un
-  comptoir, `o` et `t` les caisses d'oignons et de tomates, `C` une planche, `P` un fourneau, `S` le passe.
-  Trois cuisines pour commencer : une petite (2 robots), une en couloir (1 robot, deux passages étroits), une
-  grande brigade (4 robots). La page permet d'en dessiner une autre.
+  mur, `_` un comptoir (depuis le 23/10, plus bas), `o` et `t` les caisses d'oignons et de tomates, `C` une
+  planche, `P` un fourneau, `S` le passe. Quatre cuisines : une petite (2 robots), une en couloir (1 robot,
+  deux passages étroits), une grande brigade (4 robots) et le passe-plats (2 robots, deux comptoirs). La
+  page permet d'en dessiner une autre.
 - **Les recettes** : la soupe à l'oignon (prendre, couper 3 tours, cuire 8, servir) et la salade de tomates
   (prendre, couper 4, servir).
 - **Les commandes** arrivent pendant le service (une tous les 9 tours en moyenne dans la petite cuisine),
@@ -87,6 +88,37 @@ le deviner compte, il faut qu'il gêne davantage les robots : des postes partag�
 plus longues où l'on se passe des ingrédients, ou un vrai joueur dans la page, bien moins prévisible que
 trois règles.
 
+## Les comptoirs (23/10, Sami)
+
+**Ce qui est modélisé.** Un comptoir (`_`) tient un seul plat prêt. Le cuisinier, son plat fini, le pose sur
+le comptoir libre le plus proche quand il est plus près que le passe (`handOff` : de combien de pas au
+moins), puis retourne cuisiner. Le plat attend, et un robot libre le voit parmi ses choix, à côté des
+commandes à cuisiner : il va le reprendre (un tour) et le sert. Les robots servent eux-mêmes leurs plats.
+Les cuisines sans `_` jouent exactement comme avant (vérifié sur 120 services) : les murs `#` ne
+prennent rien. La cuisine **passe-plats** (11 × 6, deux comptoirs au milieu, une commande tous les 12 tours)
+est faite pour l'essayer.
+
+**Ce que ça donne** (40 services, le cuisinier « le plus urgent », plats servis à temps) :
+
+| Passe-plats | les robots : le plat le plus rapide | la recherche (20 services) |
+|---|---|---|
+| des murs à la place des comptoirs | 11,4 | — |
+| avec les comptoirs | 10,5 | **11,8** (+1,25 sur la règle, +0,63 à +1,87 ; 12 gagnés, 0 perdu) |
+
+- **Avec les règles, les comptoirs coûtent un peu** (0,6 à 0,9 plat, quel que soit le seuil `handOff`) :
+  poser puis reprendre coûte deux tours et un trajet de robot, et ce robot ne cuisine pas pendant ce temps.
+  Ici les robots cuisinent aussi bien que le cuisinier ; un relais ne paie que si quelqu'un est plus
+  lent à quelque chose.
+- **La recherche, elle, en tire parti** : elle choisit quand reprendre un plat posé et quand cuisiner, et
+  sert plus de plats à temps qu'avec des murs.
+- C'est la mécanique qu'il fallait pour **jouer le chef** : poser un plat et voir si un robot vient le
+  chercher.
+
+**La page** : des vitesses lentes (jusqu'à 2 s par tour) pour suivre les commandes ; chaque commande avec
+l'emoji et la couleur de son plat (🍲 soupe, 🥗 salade), son âge et une **barre de patience** (pleine à la
+commande, vide à l'échéance, verte puis orange puis rouge) ; les plats posés sur les comptoirs ; le
+fourneau devient 🔥.
+
 ## La suite
 
 1. **Jouer le chef** (Sami, 23/10) : le cuisinier humain piloté au clavier dans la page, pour voir si les
@@ -94,9 +126,5 @@ trois règles.
    ingrédient, travailler à un poste, prendre ou poser un plat). Les robots ne connaissent pas ses
    habitudes : c'est là que deviner l'humain devrait enfin compter (plus haut, avec trois humains
    simulés, le connaître ne rapportait presque rien).
-2. **Les comptoirs** : préparer une recette et la poser en attente sur un comptoir ; un robot qui voit un
-   plat fini sur un comptoir peut le reprendre et le livrer au passe. Le plan distingue alors les murs
-   des comptoirs (un caractère de plus, par exemple `#` le mur et `_` le comptoir), ce qui limite le nombre
-   de comptoirs, donc de plats en attente. La recherche choisit aussi qui reprend quoi.
-3. **Des recettes plus longues** (plusieurs ingrédients), où l'on se passe les ingrédients d'un
+2. **Des recettes plus longues** (plusieurs ingrédients), où l'on se passe les ingrédients d'un
    comptoir à l'autre.

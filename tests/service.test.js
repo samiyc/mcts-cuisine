@@ -62,6 +62,31 @@ describe("the kitchen (src/kitchen.js, src/simulate.js)", () => {
     assert.deepEqual(measuresOf(createService(KITCHENS.petite, [])), { orders: 0, onTime: 0, late: 0, missed: 0, meanServe: 0, moves: 0, waits: 0 });
   });
 
+  it("lets the human leave a ready dish on a counter, one dish a counter, and a robot serve it", () => {
+    for (let seed = 1; seed <= 5; seed += 1) {
+      const kitchen = KITCHENS.comptoirs;
+      const state = createService(kitchen, drawOrders(seed, kitchen), { human: "urgent", seed });
+      while (!isOver(state)) {
+        stepService(state, RULES.quickest, HUMANS.urgent);
+        // On a counter: ready, or taken by a robot not there yet.
+        const waiting = state.upcoming.filter((order) => order.counter);
+        assert.equal(waiting.length, state.shelf.size);
+        assert.equal(new Set(waiting.map((order) => order.counter)).size, waiting.length, `service ${seed}, tour ${state.t} : deux plats sur un comptoir`);
+      }
+      const put = state.log.filter((event) => event.type === "put");
+      assert.ok(put.length > 0);
+      assert.ok(put.every((event) => event.cook === state.cooks.find((cook) => cook.kind === "human").id));
+      // Every dish put down and then served was served by a robot.
+      for (const { order } of put) {
+        const served = state.log.find((event) => event.type === "served" && event.order === order);
+        if (served) assert.equal(state.cooks.find((cook) => cook.id === served.cook).kind, "robot");
+      }
+    }
+    // Walls instead of counters: nothing is ever put down.
+    const walls = { ...KITCHENS.comptoirs, text: KITCHENS.comptoirs.text.replaceAll("_", "#") };
+    assert.equal(runService(walls, 1, RULES.quickest, HUMANS.urgent).state.log.filter((event) => event.type === "put").length, 0);
+  });
+
   it("compares the robots' rules by pairs on the same services", () => {
     const result = compareRules(KITCHENS.petite, { services: 20, humanName: "urgent" });
     assert.deepEqual(Object.keys(result), ["oldest", "quickest"]);

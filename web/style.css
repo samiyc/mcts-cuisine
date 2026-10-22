@@ -7,6 +7,10 @@
   --accent: #b5552b;
   --floor: #efe7d8;
   --counter: #8b7a62;
+  --shelf: #c9a46a;
+  --soupe: #c8702a;
+  --salade: #3c9a4a;
+  --warn: #d39b1c;
   --station: #d9c7a4;
   --late: #c8352e;
   --progress: #3c9a4a;
@@ -28,6 +32,7 @@
     --accent: #e0805a;
     --floor: #2b2a2f;
     --counter: #4d4538;
+    --shelf: #8a6d3e;
     --station: #6b5d45;
     --human: #ece9e4;
     color-scheme: dark;
@@ -52,7 +57,9 @@ button.quiet { background: var(--panel); color: var(--ink); border-color: var(--
 .board-wrap { background: var(--panel); border: 1px solid var(--line); border-radius: 6px; padding: 8px; overflow-x: auto; }
 .board { width: 100%; height: auto; display: block; max-height: 70vh; }
 .cell.floor { fill: var(--floor); }
-.cell.counter { fill: var(--counter); }
+.cell.wall { fill: var(--counter); }
+.cell.counter { fill: var(--shelf); stroke: var(--counter); stroke-width: 1.5; }
+.symbol.dish { font-size: 20px; }
 .cell.station { fill: var(--station); stroke: var(--counter); stroke-width: 1.5; }
 .symbol { font-size: 18px; text-anchor: middle; pointer-events: none; }
 .progress { fill: var(--progress); }
@@ -66,10 +73,24 @@ button.quiet { background: var(--panel); color: var(--ink); border-color: var(--
 .c1 { --c: var(--c1); } .c2 { --c: var(--c2); } .c3 { --c: var(--c3); } .c4 { --c: var(--c4); } .c5 { --c: var(--c5); }
 aside { background: var(--panel); border: 1px solid var(--line); border-radius: 6px; padding: 4px 12px 8px; max-height: 70vh; overflow-y: auto; }
 aside h2 { margin-top: 8px; }
-.orders { margin: 0; padding-left: 1.8em; font-size: 0.86rem; }
-.orders li { margin: 4px 0; }
-.orders li.served { color: var(--ink-2); }
-.orders li.late { color: var(--late); }
+.orders { margin: 0; padding: 0; list-style: none; font-size: 0.86rem; }
+.order { display: flex; gap: 8px; align-items: flex-start; margin: 6px 0; padding: 4px 6px; border-left: 4px solid var(--dish-colour); border-radius: 4px; background: color-mix(in srgb, var(--dish-colour) 8%, transparent); }
+.order.soupe, .legend-item.soupe { --dish-colour: var(--soupe); }
+.order.salade, .legend-item.salade { --dish-colour: var(--salade); }
+.order.served { opacity: 0.55; }
+.order.late .order-status { color: var(--late); font-weight: 600; }
+.order .dish { font-size: 1.3rem; line-height: 1.2; }
+.order-body { display: grid; gap: 2px; flex: 1; min-width: 0; }
+.order-head { display: flex; justify-content: space-between; gap: 6px; }
+.order-head .age { color: var(--ink-2); white-space: nowrap; font-variant-numeric: tabular-nums; }
+.order-status { color: var(--ink-2); }
+.patience { display: block; height: 6px; border-radius: 3px; background: var(--line); overflow: hidden; }
+.patience span { display: block; height: 100%; }
+.patience.ok span { background: var(--progress); }
+.patience.warn span { background: var(--warn); }
+.patience.out span { background: var(--late); }
+.legend { display: flex; flex-wrap: wrap; gap: 4px 10px; margin: 0 0 6px; }
+.legend-item { border-left: 4px solid var(--dish-colour); padding-left: 4px; }
 .hint { color: var(--ink-2); font-size: 0.85rem; }
 .editor { margin-top: 16px; }
 .editor summary { cursor: pointer; font-weight: 600; }
