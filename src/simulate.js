@@ -44,7 +44,7 @@ export function createService(setup, orders, { human = "urgent", seed = 1 } = {}
   const reservations = createReservations();
   // Every cook holds its place from the start: nobody plans through a cook standing still.
   for (const one of cooks) reservations.reserve(one.id, [{ x: one.x, y: one.y, t: 0 }], { stay: true });
-  return { kitchen, setup, human, rng: createRng(seed + 7_919), t: 0, cooks, upcoming: orders.map((order) => ({ ...order, status: "upcoming", cook: null, servedAt: null })), claims: new Map(), reservations, log: [] };
+  return { kitchen, setup, human, rng: createRng(seed + 7_919), t: 0, cooks, upcoming: orders.map((order) => ({ ...order, status: "upcoming", cook: null, servedAt: null })), claims: new Map(), reservations, log: [], cursor: null };
 }
 
 const isWorkStation = (kind) => kind === "C" || kind === "P";
@@ -137,24 +137,68 @@ function finishWork(state) {
   }
 }
 
-/** Free cooks take an order (the human first: he does not wait for the robots), or go back to their place. */
-function takeOrders(state, rule, human) {
-  for (const order of state.upcoming) if (order.status === "upcoming" && order.arrival <= state.t) order.status = "open";
-  const free = state.cooks.filter((cook) => cook.phase === "idle").sort((a, b) => (a.kind === "human" ? -1 : 0) - (b.kind === "human" ? -1 : 0));
-  for (const cook of free) {
-    const open = state.upcoming.filter((order) => order.status === "open");
-    const distances = distancesFrom(state.kitchen, cook);
-    const reach = (order) => Math.min(...state.kitchen.stations.filter((station) => station.kind === RECIPES[order.recipe].ingredient).flatMap((station) => station.access.map((cell) => distances.get(keyOf(cell)) ?? Infinity)));
-    const chosen = open.length ? (cook.kind === "human" ? human : rule)(open, { t: state.t, reach, rng: state.rng }) : null;
-    if (chosen) {
-      Object.assign(chosen, { status: "taken", cook: cook.id });
-      Object.assign(cook, { order: chosen.id, step: 0, phase: "next" });
-      state.log.push({ t: state.t, type: "taken", cook: cook.id, order: chosen.id });
-    } else {
-      stepAside(state, cook);
-    }
+/** What a free cook is asked: the open orders, and `reach(order)`, the floor distance to its ingredient's crate. */
+function choiceOf(state, cook) {
+  const open = state.upcoming.filter((order) => order.status === "open");
+  const distances = distancesFrom(state.kitchen, cook);
+  const reach = (order) => Math.min(...state.kitchen.stations.filter((station) => station.kind === RECIPES[order.recipe].ingredient).flatMap((station) => station.access.map((cell) => distances.get(keyOf(cell)) ?? Infinity)));
+  return { cook, open, reach };
+}
+
+/** `choice.cook` takes order `id`, or, with none, goes back to its place or out of the way. */
+function take(state, choice, id) {
+  const chosen = choice.open.find((order) => order.id === id);
+  const { cook } = choice;
+  if (!chosen) {
+    stepAside(state, cook);
+    return;
   }
+  Object.assign(chosen, { status: "taken", cook: cook.id });
+  Object.assign(cook, { order: chosen.id, step: 0, phase: "next" });
+  state.log.push({ t: state.t, type: "taken", cook: cook.id, order: chosen.id });
+}
+
+/** What a rule or the human is given: the open orders and `{ t, reach, rng, state }` (only the search reads `state`). */
+const ask = (state, choice, rule) => (choice.open.length ? rule(choice.open, { t: state.t, reach: choice.reach, rng: state.rng, state })?.id : null);
+
+/** The start of a turn, up to the robots' choices: work ended, orders come in, the human takes his (he does not wait for the robots). */
+export function beginTurn(state, human) {
+  finishWork(state);
+  for (const order of state.upcoming) if (order.status === "upcoming" && order.arrival <= state.t) order.status = "open";
+  const person = state.cooks.find((cook) => cook.kind === "human" && cook.phase === "idle");
+  if (person) {
+    const choice = choiceOf(state, person);
+    take(state, choice, ask(state, choice, human));
+  }
+  state.cursor = 0;
+}
+
+/**
+ * The next free robot of this turn with orders to choose from: `{ cook, open, reach }`, or null once every
+ * robot has had its turn. A free robot with no order open goes back to its place on the way.
+ */
+export function nextChoice(state) {
+  for (; state.cursor < state.cooks.length; state.cursor += 1) {
+    const cook = state.cooks[state.cursor];
+    if (cook.kind !== "robot" || cook.phase !== "idle") continue;
+    const choice = choiceOf(state, cook);
+    if (choice.open.length > 0) return choice;
+    stepAside(state, cook);
+  }
+  return null;
+}
+
+/** `choice.cook` takes order `id`, and the turn moves to the next robot. */
+export function choose(state, choice, id) {
+  state.cursor += 1;
+  take(state, choice, id);
+}
+
+/** The end of a turn, after the choices: cooks set off for their step's station, and everyone moves. */
+export function endTurn(state) {
   for (const cook of state.cooks) if (cook.phase === "next") startStep(state, cook);
+  move(state);
+  state.cursor = null;
 }
 
 const positionAt = (path, t) => path.find((step) => step.t === t) ?? path.at(-1);
@@ -178,13 +222,42 @@ function move(state) {
 
 /** Plays one turn of `state`: robots under `rule`, the human under `human` (HUMANS, rules.js). */
 export function stepService(state, rule, human) {
-  finishWork(state);
-  takeOrders(state, rule, human);
-  move(state);
+  if (state.cursor === null) beginTurn(state, human);
+  for (let choice = nextChoice(state); choice; choice = nextChoice(state)) choose(state, choice, ask(state, choice, rule));
+  endTurn(state);
   return state;
 }
 
 export const isOver = (state) => state.t >= state.setup.service;
+
+/**
+ * Runs the service to the robots' next choice (turns go by while no robot has one), the human under `human`:
+ * the choice, or null once the service is over or turn `until` is reached.
+ */
+export function advance(state, human, until = state.setup.service) {
+  for (;;) {
+    if (state.cursor === null) {
+      if (isOver(state) || state.t >= until) return null;
+      beginTurn(state, human);
+    }
+    const choice = nextChoice(state);
+    if (choice) return choice;
+    endTurn(state);
+  }
+}
+
+/** A copy of `state` the search may play forward: cooks, orders, claims, reservations and the draws copied. */
+export function cloneService(state) {
+  return {
+    ...state,
+    cooks: state.cooks.map((cook) => ({ ...cook })),
+    upcoming: state.upcoming.map((order) => ({ ...order })),
+    claims: new Map(state.claims),
+    reservations: state.reservations.clone(),
+    rng: state.rng.clone(),
+    log: [],
+  };
+}
 
 /**
  * The service's measures: orders come, served in time (the score a team should raise), served late, not

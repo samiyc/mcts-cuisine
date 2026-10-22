@@ -15,7 +15,7 @@ export const RULES = Object.freeze({
   /** The quickest dish first, the older between equals: more dishes out, the long ones wait. */
   quickest: (open) => first(open, (a, b) => workOf(a) < workOf(b) || (workOf(a) === workOf(b) && a.arrival < b.arrival)),
 });
-export const RULE_LABELS = Object.freeze({ oldest: "la plus ancienne", quickest: "le plat le plus rapide" });
+export const RULE_LABELS = Object.freeze({ oldest: "la plus ancienne", quickest: "le plat le plus rapide", search: "recherche (ISMCTS)" });
 
 /** Three simulated humans (docs: the human's model is the heart of the project; start with three). */
 export const HUMANS = Object.freeze({
@@ -36,6 +36,11 @@ export function compareRules(setup, { services = 100, seed = 1, humanName = "urg
   const human = HUMANS[humanName] ?? null;
   const runs = Object.fromEntries(Object.keys(rules).map((name) => [name, []]));
   for (let i = 0; i < services; i += 1) for (const [name, rule] of Object.entries(rules)) runs[name].push(runService(setup, seed + i, rule, human, humanName).measures);
+  return summaryOf(runs);
+}
+
+/** Each rule's services (`{ name: measures[] }`, the same services for all) summed up as `compareRules` does. */
+export function summaryOf(runs) {
   const baseline = runs.oldest?.map((one) => one.onTime);
   return Object.fromEntries(Object.entries(runs).map(([name, measures]) => [name, { ...Object.fromEntries(MEASURES.map((key) => [key, mean(measures.map((one) => one[key]))])), gain: baseline ? paired(measures.map((one) => one.onTime), baseline) : null }]));
 }

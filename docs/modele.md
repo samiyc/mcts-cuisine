@@ -1,7 +1,8 @@
 # Le modèle de la cuisine, première version (22/10/2026)
 
-Un service joué tour par tour, sans recherche encore : des commandes qui arrivent, des recettes en
-étapes, des postes qu'on ne partage pas, des robots et un cuisinier humain simulé.
+Un service joué tour par tour : des commandes qui arrivent, des recettes en étapes, des postes qu'on ne
+partage pas, des robots et un cuisinier humain simulé ; depuis le soir du 22/10, les robots choisissent
+leurs commandes par la recherche (plus bas).
 
 ## Ce qui se passe
 
@@ -39,11 +40,55 @@ Plats servis à temps, en moyenne par service :
   à 14. La façon dont il choisit change peu les résultats des robots aujourd'hui, parce qu'ils ne le
   devinent pas encore : ils voient seulement ce qu'il a déjà pris.
 
+## La recherche (22/10, `src/search.js`)
+
+**Comment elle joue.** Chaque fois qu'un robot libre a au moins deux commandes possibles, `search` de
+`mcts-commun` joue des services compatibles avec ce que savent les robots :
+- les **commandes à venir** sont retirées au sort, au rythme habituel du service ;
+- le **cuisinier** est l'un des trois humains simulés, tiré au sort à chaque monde : les robots ne
+  connaissent pas ses habitudes. Ses propres tirages (et ceux des robots qui se poussent) le sont aussi.
+
+Elle choisit parmi 4 commandes : le plat le plus rapide, la commande la plus ancienne, l'ingrédient le plus
+proche, puis les autres. L'arbre va deux choix plus loin (ce robot, puis le suivant qui se libère), puis le
+plat le plus rapide joue pendant 60 tours. Un monde est noté sur les plats servis à temps (un plat encore
+dans les temps à l'horizon compte pour moitié), comparés à ceux du plat le plus rapide depuis le même
+point. 64 itérations par choix, sur des mondes communs.
+
+**Ce qu'elle donne** (`scripts/search-bench.js`, 30 services par cuisine, le cuisinier « le plus urgent »,
+les mêmes services pour toutes les règles). Plats servis à temps par service, et gain sur le plat le plus
+rapide, la meilleure règle :
+
+| Cuisine | commandes | la plus ancienne | le plat le plus rapide | recherche | gain (IC 95 %) | services gagnés / nuls / perdus |
+|---|---|---|---|---|---|---|
+| petite | 19,9 | 11,3 | 12,7 | **13,6** | **+0,87 (+0,40 à +1,33)** | 16 / 13 / 1 |
+| en couloir | 13,3 | 5,4 | 6,3 | **7,0** | **+0,73 (+0,32 à +1,14)** | 17 / 9 / 4 |
+| grande brigade | 34,3 | 10,3 | 16,4 | **17,5** | **+1,10 (+0,04 à +2,16)** | 17 / 7 / 6 |
+
+- **La recherche bat la meilleure règle dans les trois cuisines**, d'un plat à temps environ par service
+  (+7 à +12 %), et laisse moins de plats en retard (2,2 par service dans la petite cuisine, contre 4,1
+  pour la plus ancienne).
+- Ses réglages par défaut tiennent : explorer moins (0,15) ne fait pas mieux ; un horizon de 90 tours ou un
+  budget de 128 gagnent un dixième de plat, dans l'intervalle.
+- Un service prend 1 à 6 s de recherche.
+
+**Ce que vaut de connaître le cuisinier.** Une recherche à qui l'on donne les vraies habitudes du
+cuisinier (une mesure, jamais ce que savent les robots) :
+
+| Cuisine, cuisinier | recherche (cuisinier tiré au sort) | recherche (cuisinier connu) |
+|---|---|---|
+| petite, le plus urgent | +0,87 (+0,40 à +1,33) | +1,13 (+0,69 à +1,58) |
+| petite, le plus proche | +0,90 (+0,16 à +1,64) | +1,20 (+0,53 à +1,87) |
+| grande brigade, le plus urgent | +1,10 (+0,04 à +2,16) | +0,73 (−0,47 à +1,94) |
+
+**Le connaître rapporte peu ici** : 0,3 plat dans la petite cuisine, rien dans la brigade, chaque fois dans
+les intervalles. C'est la cuisine qui le veut : le cuisinier prend une commande à la fois, et les robots
+voient ce qu'il a pris dès qu'il l'a pris. Ses habitudes ne pèsent que sur la commande suivante. Pour que
+le deviner compte, il faut qu'il gêne davantage les robots : des postes partagés plus rares, des recettes
+plus longues où l'on se passe des ingrédients, ou un vrai joueur dans la page, bien moins prévisible que
+trois règles.
+
 ## La suite
 
-1. **Deviner le cuisinier** : les robots tirent ce qu'il va probablement prendre (son modèle) et choisissent
-   en conséquence, par la recherche (`search` de `mcts-commun`). C'est le cœur du projet : Carroll et al.
-   (2019) ont montré qu'un agent qui ne s'est entraîné qu'avec lui-même coordonne mal avec un humain.
-2. **Jouer le cuisinier** dans la page, au clavier, avec les robots.
-3. **Des recettes plus longues** (plusieurs ingrédients), et poser un ingrédient sur le comptoir pour qu'un
+1. **Jouer le cuisinier** dans la page, au clavier, avec les robots.
+2. **Des recettes plus longues** (plusieurs ingrédients), et poser un ingrédient sur le comptoir pour qu'un
    autre le reprenne.

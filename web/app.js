@@ -1,18 +1,21 @@
 import { KITCHENS } from "../src/kitchens.js";
-import { HUMAN_LABELS, HUMANS, RULE_LABELS, RULES, compareRules } from "../src/rules.js";
-import { createService, drawOrders, isOver, measuresOf, stepService } from "../src/simulate.js";
+import { HUMAN_LABELS, HUMANS, RULE_LABELS, RULES, compareRules, summaryOf } from "../src/rules.js";
+import { searchRule } from "../src/search.js";
+import { createService, drawOrders, isOver, measuresOf, runService, stepService } from "../src/simulate.js";
 import { cellsOf, cooksOf, ordersOf, statusLine } from "./view.js";
 
 /**
  * The page: a service in the chosen kitchen, the robots under the chosen rule beside the chosen simulated
  * human, played turn by turn (or all at once), then the rules on the same 100 services. The kitchen can be
- * edited (text and service): a new kitchen is a new text. What it shows is computed in view.js; this module
- * only draws and listens.
+ * edited (text and service): a new kitchen is a new text. The search (src/search.js) thinks for a while at
+ * each choice: its services are played turn by turn, the page breathing between two, and compared on fewer
+ * services. What it shows is computed in view.js; this module only draws and listens.
  */
 const CELL = 36;
 const COMPARED = 100;
+const COMPARED_WITH_SEARCH = 12;
 const app = document.getElementById("app");
-const state = { kitchenId: "petite", setup: { ...KITCHENS.petite }, rule: "quickest", human: "urgent", seed: 1, speed: 4, service: null, timer: null, compared: null, error: "" };
+const state = { kitchenId: "petite", setup: { ...KITCHENS.petite }, rule: "quickest", human: "urgent", seed: 1, speed: 4, service: null, timer: null, compared: null, error: "", busy: "", run: 0 };
 const SYMBOLS = { o: "🧅", t: "🍅", C: "🔪", P: "🍲", S: "🛎" };
 
 function el(tag, attrs = {}, ...children) {
@@ -29,15 +32,58 @@ function svg(tag, attrs = {}, text = null) {
 }
 
 const humanRule = () => HUMANS[state.human] ?? null;
+const ruleOf = (name) => (name === "search" ? searchRule() : RULES[name]);
+const breathe = () => new Promise((resolve) => setTimeout(resolve, 0));
 function restart() {
   stop();
+  Object.assign(state, { run: state.run + 1, busy: "" });
   state.service = createService(state.setup, drawOrders(state.seed, state.setup), { human: humanRule() ? state.human : null, seed: state.seed });
 }
 function stop() {
   clearInterval(state.timer);
   state.timer = null;
 }
-const step = () => stepService(state.service, RULES[state.rule], humanRule());
+const step = () => stepService(state.service, ruleOf(state.rule), humanRule());
+
+/** Plays `service` to its end, the robots under `rule`, breathing every turn; false if a newer run started meanwhile. */
+async function playOut(service, rule, run, label) {
+  while (!isOver(service)) {
+    stepService(service, rule, humanRule());
+    state.busy = `${label} : tour ${service.t} / ${service.setup.service}`;
+    render();
+    await breathe();
+    if (run !== state.run) return false;
+  }
+  return true;
+}
+
+async function finish() {
+  stop();
+  const run = ++state.run;
+  if (state.rule !== "search") {
+    while (!isOver(state.service)) step();
+  } else if (!(await playOut(state.service, ruleOf("search"), run, "La recherche réfléchit"))) {
+    return;
+  }
+  state.busy = "";
+  render();
+}
+
+/** The rules and the search on the same few services, breathing between two turns of the search. */
+async function compareWithSearch() {
+  stop();
+  const run = ++state.run;
+  const human = humanRule();
+  const runs = { ...Object.fromEntries(Object.keys(RULES).map((name) => [name, []])), search: [] };
+  for (let i = 0; i < COMPARED_WITH_SEARCH; i += 1) {
+    for (const [name, rule] of Object.entries(RULES)) runs[name].push(runService(state.setup, state.seed + i, rule, human, state.human).measures);
+    const service = createService(state.setup, drawOrders(state.seed + i, state.setup), { human: human ? state.human : null, seed: state.seed + i });
+    if (!(await playOut(service, ruleOf("search"), run, `Comparaison, service ${i + 1} sur ${COMPARED_WITH_SEARCH}`))) return;
+    runs.search.push(measuresOf(service));
+  }
+  Object.assign(state, { compared: { services: COMPARED_WITH_SEARCH, rows: summaryOf(runs) }, busy: "" });
+  render();
+}
 function play() {
   stop();
   state.timer = setInterval(() => {
@@ -114,16 +160,23 @@ function editor() {
 }
 
 function comparison() {
-  if (!state.compared) return [el("button", { type: "button", class: "quiet compare", "data-action": "compare" }, `Comparer les règles des robots sur ${COMPARED} services`)];
+  const buttons = el(
+    "div",
+    { class: "controls" },
+    el("button", { type: "button", class: "quiet compare", "data-action": "compare" }, `Comparer les règles des robots sur ${COMPARED} services`),
+    el("button", { type: "button", class: "quiet compare", "data-action": "compareSearch" }, `Comparer avec la recherche sur ${COMPARED_WITH_SEARCH} services`),
+  );
+  if (!state.compared) return [buttons];
+  const { services, rows: compared } = state.compared;
   const fixed = (value, digits = 1) => value.toFixed(digits).replace(".", ",");
-  const rows = Object.entries(state.compared).map(([name, row]) => el("tr", { class: name === state.rule ? "current" : null }, el("td", {}, RULE_LABELS[name]), el("td", { class: "num" }, fixed(row.orders)), el("td", { class: "num" }, fixed(row.onTime)), el("td", { class: "num" }, fixed(row.late)), el("td", { class: "num" }, fixed(row.missed)), el("td", { class: "num" }, name === "oldest" ? "—" : `${fixed(row.gain.mean, 2)} (${fixed(row.gain.low, 2)} à ${fixed(row.gain.high, 2)})`)));
+  const rows = Object.entries(compared).map(([name, row]) => el("tr", { class: name === state.rule ? "current" : null }, el("td", {}, RULE_LABELS[name]), el("td", { class: "num" }, fixed(row.orders)), el("td", { class: "num" }, fixed(row.onTime)), el("td", { class: "num" }, fixed(row.late)), el("td", { class: "num" }, fixed(row.missed)), el("td", { class: "num" }, name === "oldest" ? "—" : `${fixed(row.gain.mean, 2)} (${fixed(row.gain.low, 2)} à ${fixed(row.gain.high, 2)})`)));
   const head = ["Les robots prennent", "commandes", "à temps", "en retard", "pas servies", "gain à temps (IC 95 %)"].map((label) => el("th", {}, label));
-  return [el("h2", {}, `Sur les mêmes ${COMPARED} services, le cuisinier ${HUMAN_LABELS[state.human]}`), el("div", { class: "scroll" }, el("table", {}, el("thead", {}, el("tr", {}, ...head)), el("tbody", {}, ...rows)))];
+  return [el("h2", {}, `Sur les mêmes ${services} services, le cuisinier ${HUMAN_LABELS[state.human]}`), el("div", { class: "scroll" }, el("table", {}, el("thead", {}, el("tr", {}, ...head)), el("tbody", {}, ...rows))), buttons];
 }
 
 function render() {
   const over = isOver(state.service);
-  app.replaceChildren(controls(), el("p", { class: "summary" }, statusLine(state.service, over ? measuresOf(state.service) : null)), el("div", { class: "layout" }, board(), el("aside", {}, el("h2", {}, "Les commandes"), orders())), ...comparison(), editor());
+  app.replaceChildren(controls(), el("p", { class: "summary", "aria-live": "polite" }, state.busy || statusLine(state.service, over ? measuresOf(state.service) : null)), el("div", { class: "layout" }, board(), el("aside", {}, el("h2", {}, "Les commandes"), orders())), ...comparison(), editor());
 }
 
 function applyKitchen(form) {
@@ -146,18 +199,17 @@ const ACTIONS = {
     stop();
     if (!isOver(state.service)) step();
   },
-  finish: () => {
-    stop();
-    while (!isOver(state.service)) step();
-  },
+  finish,
   restart,
   next: () => {
     state.seed += 1;
     restart();
   },
   compare: () => {
-    state.compared = compareRules(state.setup, { services: COMPARED, humanName: state.human });
+    state.run += 1;
+    Object.assign(state, { compared: { services: COMPARED, rows: compareRules(state.setup, { services: COMPARED, humanName: state.human }) }, busy: "" });
   },
+  compareSearch: compareWithSearch,
 };
 
 app.addEventListener("change", (event) => {

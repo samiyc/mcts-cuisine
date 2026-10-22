@@ -7,8 +7,10 @@ tâche qu'ils visent.
 
 Statut (22/10/2026) : le simulateur d'un service sur trois cuisines, deux règles pour les robots et trois
 cuisiniers simulés, comparés par paires (`npm run compare`, [`docs/modele.md`](docs/modele.md)), et la page
-(`npm run page`, http://127.0.0.1:4803/web/) où l'on regarde le service et où l'on dessine sa cuisine. Pas
-encore de recherche. Étape 3 de la
+(`npm run page`, http://127.0.0.1:4803/web/) où l'on regarde le service et où l'on dessine sa cuisine.
+Depuis le soir du 22/10, les robots choisissent par la recherche (`src/search.js`,
+`npm run compare -- --search`) : un plat à temps de plus par service environ, dans les trois cuisines.
+Étape 3 de la
 [feuille de route](https://github.com/samiyc/lopin/blob/main/docs/ismcts-ailleurs/feuille-de-route.md),
 après l'entrepôt, dont elle reprend le moteur de grille (`grid` de `mcts-commun`) et ajoute les
 enchaînements.
