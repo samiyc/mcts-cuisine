@@ -332,6 +332,14 @@ Ce que coûte la cuisson sans surveillance partout (60 services, le plus rapide 
 
 **Les écarts du chef** (l'étape 2 de la feuille de route : les replays avec un humain, pour analyser les écarts). À chaque commande que le chef a prise, chaque commande qu'il aurait pu prendre est rejouée avec le recul : depuis l'état juste avant, le chef la prend, puis continue en humain simulé « le plus urgent », les robots sous « le plat le plus rapide » (pour la vitesse), les vraies commandes du service à venir, pendant 60 tours ; un choix vaut les plats servis à temps à la fin, ceux encore dans les temps comptés à moitié. Son propre choix est rejoué de la même façon, pour que l'écart ne soit que celui du choix (`gapsOf`, `src/replay.js`). Dans la page, « Analyser les écarts » sur un replay gardé ; `npm run replay -- fichier.json --gaps` sous Node. C'est une analyse avec le recul : elle dit où un choix a coûté, pas ce qu'on pouvait deviner sur le moment.
 
+
+## Les premières mesures de nuit (23/10 au soir, mcts-backlog)
+
+50 services par cuisine, avec chaque humain simulé et sans humain, la cuisson sans surveillance ; plats servis à temps, le cuisinier « au hasard » (la plus ancienne / le plat le plus rapide / la recherche) : petite 9,5 / 11,7 / **12,8** ; en couloir 4,3 / 5,3 / **5,7** ; grande brigade 8,9 / 16,9 / **17,0** ; passe-plats 6,7 / 7,0 / **7,9** ; postes 8,4 / 8,9 / **10,6** ; coupée en deux 11,1 / 11,0 / **12,7** ; le grand détour 5,8 / 8,9 / **10,1**.
+- **La recherche fait au moins aussi bien que la meilleure règle dans toutes les cuisines, avec chaque humain et sans humain.** Son avance est la plus nette sur le grand détour (+2,1 avec le cuisinier « le plus proche ») et dans « Postes » (+1,5 à +2,5).
+- **La grande brigade** : la mesure de l'après-midi sur 12 services donnait la recherche derrière (−1,3) ; sur 50, elle est devant avec chaque humain (+0,1 à +1,2) : les 12 services étaient trop peu.
+- Chaque job a pris 8 à 39 min sur un fil ; les quinze mesures des trois projets ont tourné côte à côte en 39 min.
+
 ## La suite
 
 Les étapes communes aux trois dépôts sont dans la [feuille de route](https://github.com/samiyc/lopin/blob/main/docs/ismcts-ailleurs/feuille-de-route.md) § 6 (Sami, 23/10 au soir) : l'ordonnanceur en commun pour les mesures de nuit, les replays avec un humain pour analyser les écarts, la vitrine. Le journal des versions est dans la page (`web/changelog.html`).

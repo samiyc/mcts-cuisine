@@ -16,22 +16,32 @@
     <main class="changelog">
       <section>
         <h2>Ce que gagne la recherche (ISMCTS)</h2>
-        <p class="hint">Plats servis à temps par service, 12 services par cuisine, mêmes services pour tous ; le cuisinier « au hasard », la cuisson sans surveillance (les réglages par défaut du 23/10). Peu de services : un ordre de grandeur, pas une preuve ; les mesures de nuit viendront avec l'ordonnanceur en commun.</p>
+        <p class="hint">Plats servis à temps par service, 50 services par cuisine, mêmes services pour tous ; le cuisinier « au hasard », la cuisson sans surveillance (les réglages par défaut). Les mesures du 23/10 au soir, jouées par l'ordonnanceur commun (mcts-backlog, night.json) ; avec les autres cuisiniers simulés, la recherche gagne aussi partout (docs/modele.md).</p>
         <div class="scroll"><table>
           <thead><tr><th>Cuisine</th><th class="num">la plus ancienne</th><th class="num">le plat le plus rapide</th><th class="num">recherche</th><th class="num">écart sur la meilleure règle</th></tr></thead>
           <tbody>
-          <tr><td>Petite cuisine</td><td class="num">10,2</td><td class="num">13,8</td><td class="num"><strong>13,9</strong></td><td class="num">+0,2</td></tr>
-          <tr><td>En couloir</td><td class="num">4,3</td><td class="num">5,6</td><td class="num"><strong>5,7</strong></td><td class="num">+0,1</td></tr>
-          <tr><td>Grande brigade</td><td class="num">9,3</td><td class="num">17,7</td><td class="num"><strong>16,4</strong></td><td class="num">−1,3</td></tr>
-          <tr><td>Passe-plats</td><td class="num">7,5</td><td class="num">8,1</td><td class="num"><strong>8,6</strong></td><td class="num">+0,5</td></tr>
-          <tr><td>Postes</td><td class="num">8,8</td><td class="num">9,3</td><td class="num"><strong>10,8</strong></td><td class="num">+1,5</td></tr>
-          <tr><td>Coupée en deux</td><td class="num">11,9</td><td class="num">12,0</td><td class="num"><strong>13,3</strong></td><td class="num">+1,3</td></tr>
-          <tr><td>Le grand détour</td><td class="num">5,8</td><td class="num">8,8</td><td class="num"><strong>10,5</strong></td><td class="num">+1,7</td></tr>
+          <tr><td>Petite cuisine</td><td class="num">9,5</td><td class="num">11,7</td><td class="num"><strong>12,8</strong></td><td class="num">+1,1</td></tr>
+          <tr><td>En couloir</td><td class="num">4,3</td><td class="num">5,3</td><td class="num"><strong>5,7</strong></td><td class="num">+0,4</td></tr>
+          <tr><td>Grande brigade</td><td class="num">8,9</td><td class="num">16,9</td><td class="num"><strong>17,0</strong></td><td class="num">+0,1</td></tr>
+          <tr><td>Passe-plats</td><td class="num">6,7</td><td class="num">7,0</td><td class="num"><strong>7,9</strong></td><td class="num">+0,9</td></tr>
+          <tr><td>Postes</td><td class="num">8,4</td><td class="num">8,9</td><td class="num"><strong>10,6</strong></td><td class="num">+1,7</td></tr>
+          <tr><td>Coupée en deux</td><td class="num">11,1</td><td class="num">11,0</td><td class="num"><strong>12,7</strong></td><td class="num">+1,6</td></tr>
+          <tr><td>Le grand détour</td><td class="num">5,8</td><td class="num">8,9</td><td class="num"><strong>10,1</strong></td><td class="num">+1,2</td></tr>
           </tbody>
         </table></div>
       </section>
       <section>
         <h2>Les versions</h2>
+
+      <article class="version">
+        <h3><span class="tag">0.10</span> Les replays du chef et les écarts de ses choix <span class="date">23/10, soir</span></h3>
+        <ul>
+          <li>Les services joués au clavier sont gardés dans le navigateur, se téléchargent et se rejouent ; npm run replay dit ce qui semble anormal, et à quel tour.</li>
+          <li>« Analyser les écarts » : chaque commande que le chef aurait pu prendre, rejouée avec le recul, et ce que son choix a coûté.</li>
+          <li>Les mesures de nuit (night.json), jouées par l'ordonnanceur commun de mcts-commun.</li>
+        </ul>
+        <p class="commits"><code>ea24e07</code> <code>0539d7e</code></p>
+      </article>
 
       <article class="version">
         <h3><span class="tag">0.9</span> Les réglages de Sami, la soupe du chef <span class="date">23/10, soir</span></h3>
