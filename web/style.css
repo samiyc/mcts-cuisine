@@ -117,3 +117,5 @@ label.check { flex-direction: row; align-items: center; gap: 6px; }
 .requests li.taken { opacity: 0.75; }
 .held.cut-mark { font-size: 11px; }
 .symbol.dish.cut-mark { font-size: 13px; }
+.masthead .links { margin: 0 0 4px; font-size: 0.9rem; }
+.masthead .links a { color: var(--accent); }

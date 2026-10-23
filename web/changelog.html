@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Journal des versions</title>
+    <link rel="stylesheet" href="style.css" />
+    <link rel="stylesheet" href="changelog.css" />
+  </head>
+  <body>
+    <header class="masthead">
+      <p class="links"><a href="index.html">← la cuisine</a></p>
+      <h1>Cuisine en équipe : journal des versions</h1>
+      <p>Des robots et un cuisinier se partagent les commandes ; les robots choisissent par une recherche (ISMCTS) qui imagine les commandes à venir et ce que fera le cuisinier.</p>
+    </header>
+    <main class="changelog">
+      <section>
+        <h2>Ce que gagne la recherche (ISMCTS)</h2>
+        <p class="hint">Plats servis à temps par service, 12 services par cuisine, mêmes services pour tous ; le cuisinier « au hasard », la cuisson sans surveillance (les réglages par défaut du 23/10). Peu de services : un ordre de grandeur, pas une preuve ; les mesures de nuit viendront avec l'ordonnanceur en commun.</p>
+        <div class="scroll"><table>
+          <thead><tr><th>Cuisine</th><th class="num">la plus ancienne</th><th class="num">le plat le plus rapide</th><th class="num">recherche</th><th class="num">écart sur la meilleure règle</th></tr></thead>
+          <tbody>
+          <tr><td>Petite cuisine</td><td class="num">10,2</td><td class="num">13,8</td><td class="num"><strong>13,9</strong></td><td class="num">+0,2</td></tr>
+          <tr><td>En couloir</td><td class="num">4,3</td><td class="num">5,6</td><td class="num"><strong>5,7</strong></td><td class="num">+0,1</td></tr>
+          <tr><td>Grande brigade</td><td class="num">9,3</td><td class="num">17,7</td><td class="num"><strong>16,4</strong></td><td class="num">−1,3</td></tr>
+          <tr><td>Passe-plats</td><td class="num">7,5</td><td class="num">8,1</td><td class="num"><strong>8,6</strong></td><td class="num">+0,5</td></tr>
+          <tr><td>Postes</td><td class="num">8,8</td><td class="num">9,3</td><td class="num"><strong>10,8</strong></td><td class="num">+1,5</td></tr>
+          <tr><td>Coupée en deux</td><td class="num">11,9</td><td class="num">12,0</td><td class="num"><strong>13,3</strong></td><td class="num">+1,3</td></tr>
+          <tr><td>Le grand détour</td><td class="num">5,8</td><td class="num">8,8</td><td class="num"><strong>10,5</strong></td><td class="num">+1,7</td></tr>
+          </tbody>
+        </table></div>
+      </section>
+      <section>
+        <h2>Les versions</h2>
+
+      <article class="version">
+        <h3><span class="tag">0.9</span> Les réglages de Sami, la soupe du chef <span class="date">23/10, soir</span></h3>
+        <ul>
+          <li>La page démarre avec la recherche, le cuisinier « au hasard », et la cuisson sans surveillance active dans toutes les cuisines.</li>
+          <li>La soupe du chef au clavier lui est laissée ; il la reprend toujours devant son fourneau, même si un robot y allait ; un robot ne part plus chercher une soupe qu'il n'atteindrait pas avant qu'elle brûle.</li>
+          <li>Corrigé : la recherche plantait avec le chef au clavier (« rule is not a function », la page se figeait).</li>
+        </ul>
+        <p class="commits"><code>d33e777</code> <code>4875f9a</code></p>
+      </article>
+
+      <article class="version">
+        <h3><span class="tag">0.8</span> Céder sa place, le cuisinier qui relaie <span class="date">23/10</span></h3>
+        <ul>
+          <li>Un cuisinier loin d'un poste laisse la place à celui qui aura fini avant son arrivée (l'unique case devant le passe, réservée de l'autre bout de la cuisine).</li>
+          <li>Le cuisinier simulé pose ses plats sur un comptoir pour un robot, comme les robots : +2,6 plats sur le grand détour.</li>
+        </ul>
+        <p class="commits"><code>353d3a5</code></p>
+      </article>
+
+      <article class="version">
+        <h3><span class="tag">0.7</span> Les comptoirs en relais, l'avance, le fourneau à récurer <span class="date">23/10</span></h3>
+        <ul>
+          <li>Le tableau des comptoirs : un plat posé dit ce qu'il lui faut (« il faut un fourneau », « il faut le passe ») et qui vient le prendre.</li>
+          <li>Relais forcés (cuisine coupée en deux : de 0 à 12 plats à temps) et relais choisis ; le rôle « passe ».</li>
+          <li>Le chef au clavier prépare en avance, sans commande ; E devant un fourneau brûlé le récure.</li>
+          <li>Les oignons entiers et coupés se distinguent (🧅, 🧅🔪) ; deux cuisines de Sami : coupée en deux, le grand détour.</li>
+        </ul>
+        <p class="commits"><code>e5e0600</code> <code>bf81a47</code></p>
+      </article>
+
+      <article class="version">
+        <h3><span class="tag">0.6</span> La cuisson sans surveillance <span class="date">23/10</span></h3>
+        <ul>
+          <li>La soupe cuit seule ; prête, elle brûle si personne ne la retire : le plat est perdu, le fourneau à nettoyer.</li>
+          <li>Les cuisiniers surveillent leur marmite ; corrigé : le robot qui coupe reposait sans fin les oignons qu'il venait de reprendre.</li>
+        </ul>
+        <p class="commits"><code>66d5ffe</code></p>
+      </article>
+
+      <article class="version">
+        <h3><span class="tag">0.5</span> Les postes, les rôles, le chef au clavier <span class="date">23/10</span></h3>
+        <ul>
+          <li>Les comptoirs gardent des oignons coupés ; des rôles pour les robots (coupe, cuisson, salade), avec un coup de main quand le travail s'empile.</li>
+          <li>Le chef se joue au clavier (Z Q S D, E) ; les robots replanifient autour de lui.</li>
+          <li>La cuisine « Postes » de Sami.</li>
+        </ul>
+        <p class="commits"><code>a2812ee</code></p>
+      </article>
+
+      <article class="version">
+        <h3><span class="tag">0.4</span> Les comptoirs et la page des commandes <span class="date">23/10</span></h3>
+        <ul>
+          <li>Le caractère _ pour un comptoir ; des vitesses lentes, la couleur et l'âge des commandes, une barre de patience.</li>
+        </ul>
+        <p class="commits"><code>bb5a0bc</code> <code>d70454c</code> <code>fe258e3</code></p>
+      </article>
+
+      <article class="version">
+        <h3><span class="tag">0.3</span> La recherche <span class="date">22/10, soir</span></h3>
+        <ul>
+          <li>Les robots choisissent leurs commandes par ISMCTS : environ un plat de plus à temps par service ; ce que vaut de connaître le cuisinier.</li>
+        </ul>
+        <p class="commits"><code>58a1996</code></p>
+      </article>
+
+      <article class="version">
+        <h3><span class="tag">0.2</span> Le service, sa page et son modèle <span class="date">22/10</span></h3>
+        <ul>
+          <li>Des cuisines en texte, des commandes qui arrivent, des chemins réservés dans le temps (A*), trois humains simulés, deux règles de référence.</li>
+        </ul>
+        <p class="commits"><code>58ed669</code></p>
+      </article>
+
+      <article class="version">
+        <h3><span class="tag">0.1</span> Le dépôt <span class="date">22/10</span></h3>
+        <ul>
+          <li>Le départ du projet, sur la bibliothèque commune mcts-commun.</li>
+        </ul>
+        <p class="commits"><code>f5d7cc1</code></p>
+      </article>
+      </section>
+      <p class="hint">Le détail de chaque version, ses chiffres et ses erreurs corrigées, est dans <code>docs/modele.md</code> du dépôt mcts-cuisine.</p>
+    </main>
+  </body>
+</html>

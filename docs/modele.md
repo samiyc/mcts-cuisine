@@ -328,9 +328,14 @@ Ce que coûte la cuisson sans surveillance partout (60 services, le plus rapide 
 
 ## La suite
 
-1. **Les robots en avance** : qu'un robot libre prépare un lot sans commande, du plat le plus demandé, et le
-   pose. C'est un pari sur les commandes à venir, que la recherche sait déjà tirer au sort.
-2. **Laisser la recherche décider de revenir au feu** : retirer la soupe ou finir ce qu'on fait. Puis un
-   troisième robot pour les salades, avec la cuisson seule, comme Sami le décrivait.
-2. **Des recettes plus longues** (plusieurs ingrédients), où l'on se passe les ingrédients d'un
-   comptoir à l'autre.
+Les étapes communes aux trois dépôts sont dans la [feuille de route](https://github.com/samiyc/lopin/blob/main/docs/ismcts-ailleurs/feuille-de-route.md) § 6 (Sami, 23/10 au soir) : l'ordonnanceur en commun pour les mesures de nuit, les replays avec un humain pour analyser les écarts, la vitrine. Le journal des versions est dans la page (`web/changelog.html`).
+
+1. **Les mesures de nuit** : la recherche contre les règles sur des centaines de services, avec chaque humain
+   simulé.
+2. **Les replays du chef au clavier** : enregistrer les services joués dans la page, les rejouer, et comparer
+   à chaque geste ce que le chef a fait et ce que la recherche aurait fait faire ; ajuster le modèle de
+   l'humain sur ces parties.
+3. **Les robots en avance** : qu'un robot libre prépare un lot sans commande, du plat le plus demandé.
+4. **Laisser la recherche décider de revenir au feu** : retirer la soupe ou finir ce qu'on fait.
+5. **Des recettes plus longues** (plusieurs ingrédients), où l'on se passe les ingrédients d'un comptoir à
+   l'autre.
