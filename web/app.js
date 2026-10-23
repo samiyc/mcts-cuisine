@@ -3,6 +3,7 @@ import { HUMAN_LABELS, HUMANS, RULE_LABELS, RULES, compareRules, summaryOf } fro
 import { searchRule } from "../src/search.js";
 import { createService, drawOrders, interact, isOver, measuresOf, runService, steer, stepService } from "../src/simulate.js";
 import { boardOf, cellsOf, cooksOf, ordersOf, statusLine } from "./view.js";
+import { pressKey, replayOf, REPLAY_FORMAT } from "../src/replay.js";
 
 /**
  * The page: a service in the chosen kitchen, the robots under the chosen rule beside the chosen simulated
@@ -40,8 +41,60 @@ const keyboard = { pending: null, message: "" };
 const KEYS = Object.freeze({ z: [0, -1], arrowup: [0, -1], s: [0, 1], arrowdown: [0, 1], q: [-1, 0], arrowleft: [-1, 0], d: [1, 0], arrowright: [1, 0] });
 const ruleOf = (name) => (name === "search" ? searchRule() : RULES[name]);
 const breathe = () => new Promise((resolve) => setTimeout(resolve, 0));
+/**
+ * Replays (Sami, 23/10): the keys of a service played at the keyboard, kept in this browser (the last
+ * `KEPT_REPLAYS`), downloaded as a file for `npm run replay`, or played again here. While a replay plays, the
+ * keys come from it, not from the keyboard.
+ */
+const KEPT_REPLAYS = 20;
+const REPLAYS_KEY = "cuisine-replays";
+const replays = {
+  inputs: [],
+  playing: null,
+  load() {
+    try {
+      return JSON.parse(localStorage.getItem(REPLAYS_KEY) ?? "[]");
+    } catch {
+      return [];
+    }
+  },
+  keep(replay) {
+    try {
+      const kept = [replay, ...this.load()].slice(0, KEPT_REPLAYS);
+      localStorage.setItem(REPLAYS_KEY, JSON.stringify(kept));
+    } catch {
+      // Storage refused (private window, full): the replay can still be downloaded.
+    }
+  },
+};
+const currentReplay = () => replayOf({ kitchenId: state.kitchenId, setup: state.setup, seed: state.seed, rule: state.rule, inputs: replays.inputs });
+/** Keeps the service just played at the keyboard, if a key was pressed. */
+function keepReplay() {
+  if (manual() && !replays.playing && replays.inputs.length > 0) replays.keep(currentReplay());
+}
+function download(replay) {
+  const link = el("a", { href: URL.createObjectURL(new Blob([JSON.stringify(replay, null, 1)], { type: "application/json" })), download: `cuisine-${replay.kitchenId}-service${replay.seed}-${replay.savedAt.slice(0, 16).replace(/[:T]/g, "-")}.json` });
+  document.body.append(link);
+  link.click();
+  link.remove();
+}
+/** Loads `replay` and plays it from the start, its keys at their turns. */
+function startReplay(replay) {
+  if (replay?.format !== REPLAY_FORMAT) {
+    state.error = "Ce fichier n'est pas un replay de la cuisine.";
+    return;
+  }
+  Object.assign(state, { kitchenId: KITCHENS[replay.kitchenId] ? replay.kitchenId : state.kitchenId, setup: replay.setup, seed: replay.seed, rule: replay.rule, human: "clavier", error: "", compared: null });
+  restart();
+  replays.playing = { inputs: [...replay.inputs] };
+  keyboard.message = `Replay du ${replay.savedAt.slice(0, 16).replace("T", " à ")} : ${replay.inputs.length} touches.`;
+}
+
 function restart() {
   stop();
+  keepReplay();
+  replays.inputs = [];
+  replays.playing = null;
   Object.assign(state, { run: state.run + 1, busy: "" });
   state.service = createService(state.setup, drawOrders(state.seed, state.setup), { human: humanRule() ? state.human : null, seed: state.seed, manual: manual() });
   Object.assign(keyboard, { pending: null, message: manual() ? "Jouer, puis Z Q S D pour bouger le chef, E pour prendre, travailler, poser, servir." : "" });
@@ -52,14 +105,23 @@ function stop() {
 }
 /** One turn: the chef's pending key first, then everyone. */
 function step() {
-  if (manual() && keyboard.pending) {
+  // A replay plays its keys; otherwise the key pressed, recorded with its turn.
+  if (replays.playing) {
+    const { inputs } = replays.playing;
+    while (inputs.length && inputs[0].t === state.service.t) {
+      const said = pressKey(state.service, inputs.shift().key);
+      if (said) keyboard.message = said;
+    }
+  } else if (manual() && keyboard.pending) {
     const key = keyboard.pending;
     keyboard.pending = null;
+    replays.inputs.push({ t: state.service.t, key });
     const said = key === "e" ? interact(state.service) : steer(state.service, ...KEYS[key]);
     if (said) keyboard.message = said;
     else if (key === "e") keyboard.message = "";
   }
   stepService(state.service, ruleOf(state.rule), humanRule());
+  if (isOver(state.service)) keepReplay();
 }
 
 /** Plays `service` to its end, the robots under `rule`, breathing every turn; false if a newer run started meanwhile. */
@@ -129,6 +191,26 @@ function controls() {
     el("button", { type: "button", class: "quiet", "data-action": "finish" }, "Jusqu'au bout"),
     el("button", { type: "button", class: "quiet", "data-action": "restart" }, "Recommencer"),
     el("button", { type: "button", class: "quiet", "data-action": "next" }, "Service suivant"),
+  );
+}
+
+/** The replays: this service's to download, the ones kept in this browser, a file to play again. */
+function replayPanel() {
+  const kept = replays.load();
+  return el(
+    "details",
+    { class: "editor replays" },
+    el("summary", {}, `Replays du chef au clavier (${kept.length} gardés dans ce navigateur)`),
+    el("p", { class: "hint" }, "Chaque service joué au clavier est gardé ici (les 20 derniers). Téléchargez-en un pour le rejouer avec npm run replay -- fichier.json, qui dit ce qui a semblé anormal et à quel tour."),
+    el(
+      "div",
+      { class: "controls" },
+      manual() && replays.inputs.length > 0 ? el("button", { type: "button", "data-action": "downloadReplay" }, `Télécharger ce service (${replays.inputs.length} touches)`) : null,
+      el("label", {}, "Rejouer un fichier", el("input", { type: "file", accept: "application/json,.json", "data-file": "replay" })),
+    ),
+    kept.length > 0
+      ? el("ol", { class: "replay-list" }, ...kept.map((replay, i) => el("li", {}, `${replay.savedAt.slice(0, 16).replace("T", " ")} · ${KITCHENS[replay.kitchenId]?.label ?? replay.kitchenId} · service ${replay.seed} · ${RULE_LABELS[replay.rule] ?? replay.rule} · ${replay.inputs.length} touches `, el("button", { type: "button", class: "quiet", "data-replay": String(i), "data-do": "play" }, "Rejouer"), " ", el("button", { type: "button", class: "quiet", "data-replay": String(i), "data-do": "download" }, "Télécharger"))))
+      : null,
   );
 }
 
@@ -238,7 +320,7 @@ function comparison() {
 function render() {
   const over = isOver(state.service);
   const chef = manual() ? el("p", { class: "summary chef", "aria-live": "polite" }, `Le chef (H) : ${keyboard.message || "à vous"}`) : "";
-  app.replaceChildren(controls(), el("p", { class: "summary", "aria-live": "polite" }, state.busy || statusLine(state.service, over ? measuresOf(state.service) : null)), chef, el("div", { class: "layout" }, board(), el("aside", {}, el("h2", {}, "Les commandes"), legend(), orders(), counterBoard())), ...comparison(), editor());
+  app.replaceChildren(controls(), el("p", { class: "summary", "aria-live": "polite" }, state.busy || statusLine(state.service, over ? measuresOf(state.service) : null)), chef, el("div", { class: "layout" }, board(), el("aside", {}, el("h2", {}, "Les commandes"), legend(), orders(), counterBoard())), ...comparison(), replayPanel(), editor());
 }
 
 function applyKitchen(form) {
@@ -272,6 +354,7 @@ const ACTIONS = {
     Object.assign(state, { compared: { services: COMPARED, rows: compareRules(state.setup, { services: COMPARED, humanName: state.human }) }, busy: "" });
   },
   compareSearch: compareWithSearch,
+  downloadReplay: () => download(currentReplay()),
 };
 
 app.addEventListener("change", (event) => {
@@ -287,9 +370,26 @@ app.addEventListener("change", (event) => {
   render();
 });
 app.addEventListener("click", (event) => {
+  const saved = event.target.closest?.("[data-replay]");
+  if (saved) {
+    const replay = replays.load()[Number(saved.dataset.replay)];
+    if (saved.dataset.do === "download") download(replay);
+    else startReplay(replay);
+    render();
+    return;
+  }
   const action = event.target.closest?.("[data-action]")?.dataset.action;
   if (!ACTIONS[action]) return;
   ACTIONS[action]();
+  render();
+});
+app.addEventListener("change", async (event) => {
+  if (event.target.dataset?.file !== "replay" || !event.target.files?.[0]) return;
+  try {
+    startReplay(JSON.parse(await event.target.files[0].text()));
+  } catch {
+    state.error = "Fichier illisible : ce n'est pas un replay de la cuisine.";
+  }
   render();
 });
 app.addEventListener("submit", (event) => {
@@ -299,7 +399,7 @@ app.addEventListener("submit", (event) => {
 });
 // The chef's keys, kept for the next turn while the service plays; a key in a form field is the field's.
 document.addEventListener("keydown", (event) => {
-  if (!manual() || event.target.closest?.("input, textarea, select") || event.ctrlKey || event.altKey || event.metaKey) return;
+  if (!manual() || replays.playing || event.target.closest?.("input, textarea, select") || event.ctrlKey || event.altKey || event.metaKey) return;
   const key = event.key.toLowerCase();
   if (key !== "e" && !KEYS[key]) return;
   event.preventDefault();

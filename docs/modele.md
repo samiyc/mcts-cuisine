@@ -326,6 +326,9 @@ Sami joue avec la recherche, le cuisinier « au hasard » (les robots comblent s
 
 Ce que coûte la cuisson sans surveillance partout (60 services, le plus rapide ; le cuisinier « le plus urgent » / « le plus proche » / sans humain) : petite 14,2 → 13,0, en couloir 6,3 → 5,7, brigade 17,7 → 16,8, passe-plats 9,9 → 7,5, postes 12,3 → 9,3, coupée en deux 12,1 → 11,3, le grand détour 10,2 → 8,6 (cuisinier le plus urgent). Comme mesuré plus haut, la soupe seule ne gagne pas de plats ici ; elle donne des soupes brûlées, des fourneaux à nettoyer, et des décisions de plus.
 
+
+**Les replays du chef au clavier** (Sami, 23/10, pour déboguer ce qu'il voit dans le grand détour). Un service se rejoue à l'identique depuis sa cuisine, son numéro, la règle des robots et les touches pressées avec leur tour (`src/replay.js`, format `cuisine-replay/1`). Dans la page, « Replays du chef au clavier » : les 20 derniers services joués au clavier sont gardés dans le navigateur, se téléchargent ou se rejouent (les touches viennent alors du replay). `npm run replay -- fichier.json [--trace]` rejoue un fichier sous Node et dit ce qui semble anormal, avec le tour : un cuisinier qui « travaille » encore après la fin de son geste, ou loin du poste où il travaille, un poste pris par quelqu'un qui n'y travaille pas. 60 services joués au hasard au clavier (et 6 avec la recherche) n'en montrent aucun : le blocage que Sami a vu attend son replay.
+
 ## La suite
 
 Les étapes communes aux trois dépôts sont dans la [feuille de route](https://github.com/samiyc/lopin/blob/main/docs/ismcts-ailleurs/feuille-de-route.md) § 6 (Sami, 23/10 au soir) : l'ordonnanceur en commun pour les mesures de nuit, les replays avec un humain pour analyser les écarts, la vitrine. Le journal des versions est dans la page (`web/changelog.html`).

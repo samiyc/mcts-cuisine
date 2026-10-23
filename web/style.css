@@ -119,3 +119,5 @@ label.check { flex-direction: row; align-items: center; gap: 6px; }
 .symbol.dish.cut-mark { font-size: 13px; }
 .masthead .links { margin: 0 0 4px; font-size: 0.9rem; }
 .masthead .links a { color: var(--accent); }
+.replay-list { font-size: 0.88rem; padding-left: 20px; }
+.replay-list li { margin: 4px 0; }
