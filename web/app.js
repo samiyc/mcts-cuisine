@@ -51,6 +51,8 @@ const REPLAYS_KEY = "cuisine-replays";
 const replays = {
   inputs: [],
   playing: null,
+  // The service's start: every save of it carries this date, so it replaces the last one (here and in replays/).
+  startedAt: new Date().toISOString(),
   load() {
     try {
       return JSON.parse(localStorage.getItem(REPLAYS_KEY) ?? "[]");
@@ -62,14 +64,16 @@ const replays = {
     // Also to the project's replays/ folder, through the page server (out of git; nothing if no server takes it).
     fetch("/api/replays", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(replay) }).catch(() => {});
     try {
-      const kept = [replay, ...this.load()].slice(0, KEPT_REPLAYS);
+      const kept = [replay, ...this.load().filter((one) => one.savedAt !== replay.savedAt)].slice(0, KEPT_REPLAYS);
       localStorage.setItem(REPLAYS_KEY, JSON.stringify(kept));
     } catch {
       // Storage refused (private window, full): the replay can still be downloaded.
     }
   },
 };
-const currentReplay = () => replayOf({ kitchenId: state.kitchenId, setup: state.setup, seed: state.seed, rule: state.rule, inputs: replays.inputs });
+const currentReplay = () => ({ ...replayOf({ kitchenId: state.kitchenId, setup: state.setup, seed: state.seed, rule: state.rule, inputs: replays.inputs }), savedAt: replays.startedAt });
+/** Every this many turns at the keyboard, the service so far is kept: a page that freezes still leaves its replay. */
+const KEEP_EVERY = 20;
 /** Keeps the service just played at the keyboard, if a key was pressed. */
 function keepReplay() {
   if (manual() && !replays.playing && replays.inputs.length > 0) replays.keep(currentReplay());
@@ -97,6 +101,7 @@ function restart() {
   keepReplay();
   replays.inputs = [];
   replays.playing = null;
+  replays.startedAt = new Date().toISOString();
   Object.assign(state, { run: state.run + 1, busy: "" });
   state.service = createService(state.setup, drawOrders(state.seed, state.setup), { human: humanRule() ? state.human : null, seed: state.seed, manual: manual() });
   Object.assign(keyboard, { pending: null, message: manual() ? "Jouer, puis Z Q S D pour bouger le chef, E pour prendre, travailler, poser, servir." : "" });
@@ -104,6 +109,7 @@ function restart() {
 function stop() {
   clearInterval(state.timer);
   state.timer = null;
+  keepReplay();
 }
 /** One turn: the chef's pending key first, then everyone. */
 function step() {
@@ -123,7 +129,7 @@ function step() {
     else if (key === "e") keyboard.message = "";
   }
   stepService(state.service, ruleOf(state.rule), humanRule());
-  if (isOver(state.service)) keepReplay();
+  if (isOver(state.service) || state.service.t % KEEP_EVERY === 0) keepReplay();
 }
 
 /** Plays `service` to its end, the robots under `rule`, breathing every turn; false if a newer run started meanwhile. */

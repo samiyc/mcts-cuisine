@@ -178,7 +178,8 @@ describe("the kitchen (src/kitchen.js, src/simulate.js)", () => {
     let gave = 0;
     for (let seed = 1; seed <= 10; seed += 1) {
       const { state } = runService(KITCHENS.petite, seed, RULES.quickest, HUMANS.urgent);
-      for (const event of state.log.filter((one) => one.type === "gaveWay")) {
+      // Not in the last turns: the service may end before the one given the place does anything.
+      for (const event of state.log.filter((one) => one.type === "gaveWay" && one.t < KITCHENS.petite.service - 5)) {
         gave += 1;
         // The one given the place set off at once for it.
         assert.ok(state.log.some((one) => one.t >= event.t && one.cook === event.to), `service ${seed}`);

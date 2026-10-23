@@ -563,7 +563,9 @@ function move(state) {
       else if (cook.phase === "moving") cook.waits += 1;
       Object.assign(cook, { x: next.x, y: next.y });
     }
-    if (cook.target && cook.x === cook.target.x && cook.y === cook.target.y) {
+    // At the leg's end only: a path may pass the target, step off for someone, and come back (a robot worked
+    // while still walking, away from its board).
+    if (cook.target && cook.x === cook.target.x && cook.y === cook.target.y && (cook.path?.at(-1)?.t ?? 0) <= state.t) {
       cook.target = null;
       if (cook.phase === "moving") {
         const turns = turnsOf(state, cook.steps[cook.step], cook.station);
