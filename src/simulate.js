@@ -545,7 +545,24 @@ export function choose(state, choice, id) {
 }
 
 /** The end of a turn, after the choices: cooks set off for their step's station, and everyone moves. */
+/**
+ * A robot held short of its station, its way gone (Sami, 23/10: the chef stepped onto the cell in front of a board and
+ * stayed; the robot waited for it for good, the board kept, and the chef's E there found it taken): it lets the station
+ * go and looks again (another one, or it waits). A relay's counter stays its own: it is the dish's.
+ */
+function letGo(state) {
+  for (const cook of state.cooks) {
+    if (cook.manual || cook.phase !== "moving" || !cook.target || (cook.path?.at(-1)?.t ?? 0) > state.t) continue;
+    if (cook.x === cook.target.x && cook.y === cook.target.y) continue;
+    const key = cook.station && keyOf(cook.station);
+    if (key && !cook.steps?.[cook.step]?.at && state.claims.get(key) === cook.id) state.claims.delete(key);
+    Object.assign(cook, { phase: "next", station: null, target: null });
+    state.log.push({ t: state.t, type: "letGo", cook: cook.id, station: key });
+  }
+}
+
 export function endTurn(state) {
+  letGo(state);
   for (const cook of state.cooks) if (cook.phase === "next" && !cook.manual) startStep(state, cook);
   move(state);
   state.cursor = null;

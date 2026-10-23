@@ -70,6 +70,29 @@ describe("replays of the chef at the keyboard (src/replay.js)", () => {
     assert.deepEqual(measuresOf(playReplay(old).state), measuresOf(state));
   });
 
+  it("has a robot held short of its board let it go when the chef stands on its way (Sami's replay, 23/10)", async () => {
+    const { readFile } = await import("node:fs/promises");
+    const replay = JSON.parse(await readFile(new URL("./fixtures/chef-on-the-robots-cell.json", import.meta.url), "utf8"));
+    const refused = [];
+    let still = 0;
+    let longest = 0;
+    let last = null;
+    const { state } = playReplay(replay, {
+      onTurn: (turn, said) => {
+        if (said && /est occupé/.test(said)) refused.push(turn.t - 1);
+        const robot = turn.cooks[0];
+        const here = `${robot.phase}@${robot.x},${robot.y}`;
+        still = robot.phase === "moving" && here === last ? still + 1 : 0;
+        longest = Math.max(longest, still);
+        last = here;
+      },
+    });
+    // The chef's E at the top board on turn 91 used to find it taken by robot 1, held at (3, 1) for 111 turns.
+    assert.deepEqual(refused, []);
+    assert.ok(longest < 5, `robot 1 immobile en route ${longest} tours`);
+    assert.ok(state.log.some((event) => event.type === "letGo" && event.cook === 1));
+  });
+
   it("tells a cook still working past its gesture, and a station held by nobody working there", () => {
     const setup = KITCHENS.petite;
     const state = createService(setup, [], { human: null, seed: 1, manual: true });
