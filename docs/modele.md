@@ -288,6 +288,32 @@ accès au gaz ». Les comptoirs jouent ce rôle : un plat posé dessus est une d
   libre. Ils ne paient que si la cuisine les rend nécessaires, par la forme du plan ou par un rôle.
 - Dans la cuisine coupée en deux, un robot au passe fait moins bien (10,2) : le passe touche déjà le fourneau.
 
+**Céder sa place, et le cuisinier qui relaie aussi** (Sami, le même soir, sur le grand détour). Le cuisinier
+réservait l'unique case devant le passe depuis l'autre bout de la cuisine. Le robot 2, juste à côté, ne pouvait
+pas y servir sa salade. Et le cuisinier simulé ne posait jamais rien pour un autre ; seuls les robots le faisaient.
+- **Céder sa place** : un cuisinier trouve tous les postes de son geste pris par des cuisiniers encore en route. Si
+  l'un d'eux n'arriverait qu'après qu'il a fini et libéré le poste, celui-là lui laisse la place, s'arrête et regarde
+  de nouveau au tour suivant, en attendant près du poste.
+- **Le cuisinier relaie** comme les robots, quand un robot libre (ou celui du passe) finira son plat plus tôt.
+- Le chef au clavier reste libre de ses gestes : il pose lui-même, et on ne lui reprend jamais sa place.
+
+Ce que ça donne (60 services, le plus rapide ; plats à temps avec le cuisinier « le plus urgent », « le plus proche »,
+puis sans humain) :
+
+| Cuisine | avant | après |
+|---|---|---|
+| Le grand détour | 7,6 / 9,0 / 6,4 | **10,2 / 11,6** / 6,4 |
+| Petite cuisine | 13,8 / 14,1 / 10,3 | 14,2 / 14,4 / 10,4 |
+| Postes | 12,2 / 12,6 / 5,4 | 12,3 / 13,0 / 5,5 |
+| Passe-plats | 9,8 / 9,9 / 4,5 | 9,9 / 10,2 / 4,5 |
+| Grande brigade | 17,7 / 19,2 / 16,2 | 17,7 / 19,3 / 16,2 |
+| en couloir, coupée en deux | — | inchangées |
+
+- **Sur le grand détour, c'est le relais du cuisinier** : 7,5 par service, et +2,6 plats à lui seul. Céder sa place
+  joue peu ici (0,1 fois par service).
+- **Ailleurs, c'est céder sa place** : 1,2 fois par service dans la petite cuisine (+0,3 plat), 0,7 dans « Postes ».
+  Rien ne baisse.
+
 ## La suite
 
 1. **Les robots en avance** : qu'un robot libre prépare un lot sans commande, du plat le plus demandé, et le

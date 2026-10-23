@@ -44,7 +44,7 @@ import { RECIPES } from "./kitchens.js";
  * may wait on a counter for another cook, with what it still needs (status "prepped": cooking, or only serving
  * when `cooked` or a salad). A cook puts it down when the next station is out of its reach (a kitchen cut in
  * two: someone on the other side takes it up), or, for a robot, when a free robot would finish it sooner (a long
- * way from the stoves to the pass; a `passe` robot, which only serves what is ready and waits near the pass while
+ * way from the stoves to the pass; the simulated human does it too; a `passe` robot, which only serves what is ready and waits near the pass while
  * a dish is on its way, is handed every dish to serve that it would bring there sooner). The counters are the kitchen's board of requests: "commande 12, à cuire"
  * there, "je prends" when a cook comes for it. Every cook is offered only what it can reach.
  *
@@ -269,7 +269,7 @@ function relayFor(state, cook) {
   const own = kindDistance(state, mine, step.kind);
   const forced = own === Infinity;
   // `setup.relay === false` keeps only the forced relays (a measure of what the others are worth).
-  if (!forced && (cook.kind !== "robot" || state.setup.relay === false)) return null;
+  if (!forced && (cook.manual || state.setup.relay === false)) return null;
   // Only a robot takes a dish up from a counter (the human is not commanded).
   // A free robot, or the pass's robot for a dish to serve, even busy: it comes once done.
   const others = state.cooks.filter((other) => other !== cook && other.kind === "robot" && (forced || (other.phase === "idle" && !other.order) || (other.role === "passe" && step.type === "serve")));
@@ -292,6 +292,32 @@ function relayFor(state, cook) {
   return best && keyOf(best.counter);
 }
 
+/**
+ * Giving way at a station (Sami, 23/10): `cook` finds every station of its step taken by cooks still walking there.
+ * One that would only get there after `cook` had done its work and left gives its place back: it stops where it
+ * is and looks again next turn (it waits near the station). True when a place was given.
+ */
+function claimFromAfar(state, cook, step) {
+  const distances = distancesFrom(state.kitchen, cook);
+  for (const other of state.cooks) {
+    if (other === cook || other.phase !== "moving" || !other.target || !other.station || other.manual) continue;
+    if (unfitKind(state, other.station, step)) continue;
+    const mine = distances.get(keyOf(other.target));
+    const theirs = (other.path?.at(-1)?.t ?? state.t) - state.t;
+    if (mine === undefined || mine + step.turns + 1 >= theirs) continue;
+    if (state.claims.get(keyOf(other.station)) === other.id) state.claims.delete(keyOf(other.station));
+    const here = [{ x: other.x, y: other.y, t: state.t }];
+    state.reservations.release(other.id);
+    state.reservations.reserve(other.id, here, { stay: true });
+    Object.assign(other, { phase: "next", station: null, target: null, path: here });
+    state.log.push({ t: state.t, type: "gaveWay", cook: other.id, to: cook.id });
+    return true;
+  }
+  return false;
+}
+/** Is `station` of another kind than `step` needs, or not the dish's own counter or stove? Taken or not. */
+const unfitKind = (state, station, step) => station.kind !== step.kind || (Boolean(step.at) && keyOf(station) !== step.at);
+
 /** Sends `cook` to its current step's station; waits a turn, near it, when none is free or no path is found. */
 function startStep(state, cook) {
   if (handsOver(state, cook)) cook.steps = [...cook.steps.slice(0, cook.step), PUT];
@@ -305,7 +331,8 @@ function startStep(state, cook) {
     state.log.push({ t: state.t, type: "relay", cook: cook.id, order: cook.order, counter: relay, need });
   }
   const step = cook.steps[cook.step];
-  const choice = stationFor(state, cook, step);
+  let choice = stationFor(state, cook, step);
+  if (!choice && claimFromAfar(state, cook, step)) choice = stationFor(state, cook, step);
   if (!choice || !planLeg(state, cook, choice.cell)) {
     cook.waits += 1;
     waitFor(state, cook, step);

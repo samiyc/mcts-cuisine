@@ -172,6 +172,22 @@ describe("the kitchen (src/kitchen.js, src/simulate.js)", () => {
     assert.equal(cleaner.phase, "idle");
   });
 
+  it("has a cook far from a station give its place to one that would be done before it got there, and the human relay too", () => {
+    let gave = 0;
+    for (let seed = 1; seed <= 10; seed += 1) {
+      const { state } = runService(KITCHENS.petite, seed, RULES.quickest, HUMANS.urgent);
+      for (const event of state.log.filter((one) => one.type === "gaveWay")) {
+        gave += 1;
+        // The one given the place set off at once for it.
+        assert.ok(state.log.some((one) => one.t >= event.t && one.cook === event.to), `service ${seed}`);
+      }
+    }
+    assert.ok(gave > 0, "des places rendues");
+    const { state } = runService(KITCHENS.detour, 1, RULES.quickest, HUMANS.nearest, "nearest");
+    const human = state.cooks.find((cook) => cook.kind === "human").id;
+    assert.ok(state.log.some((event) => event.type === "relay" && event.cook === human), "le cuisinier pose pour le robot du passe");
+  });
+
   it("lets a person play the chef: moves, takes an order at a crate, cuts it, and the robots plan around him", () => {
     const kitchen = KITCHENS.petite;
     const state = createService(kitchen, drawOrders(2, kitchen), { human: "clavier", manual: true, seed: 2 });
