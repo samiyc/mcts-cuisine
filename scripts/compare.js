@@ -12,7 +12,7 @@ const services = args.includes("--services") ? Number(args[args.indexOf("--servi
 const named = args.includes("--kitchen") ? [args[args.indexOf("--kitchen") + 1]] : Object.keys(KITCHENS);
 const searching = args.includes("--search");
 const budget = searching && /^\d+$/.test(args[args.indexOf("--search") + 1] ?? "") ? Number(args[args.indexOf("--search") + 1]) : undefined;
-const rules = searching ? { ...RULES, search: searchRule({ budget }) } : RULES;
+const rules = searching ? { ...RULES, search: searchRule(budget ? { budget } : {}) } : RULES;
 const fixed = (value, digits = 1) => value.toFixed(digits).replace(".", ",");
 for (const id of named) {
   const setup = KITCHENS[id];
