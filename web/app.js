@@ -125,8 +125,8 @@ function step() {
     keyboard.pending = null;
     replays.inputs.push({ t: state.service.t, key });
     const said = key === "e" ? interact(state.service) : steer(state.service, ...KEYS[key]);
-    if (said) keyboard.message = said;
-    else if (key === "e") keyboard.message = "";
+    // The answer to this key only: an old one (« le chef coupe… ») left on screen looked like a freeze.
+    keyboard.message = said ?? "";
   }
   stepService(state.service, ruleOf(state.rule), humanRule());
   if (isOver(state.service) || state.service.t % KEEP_EVERY === 0) keepReplay();

@@ -601,6 +601,19 @@ export function advance(state, human, until = state.setup.service) {
   }
 }
 
+/** What the chef is doing, in words. */
+const GESTURES = Object.freeze({ fetch: "prend l'ingrédient", cut: "coupe", cook: "pose la marmite", put: "pose le plat", pickup: "reprend le plat", collect: "retire la soupe du feu", serve: "sert", clean: "récure le fourneau" });
+
+/**
+ * The chef busy with a gesture: what it is and how long it still lasts (Sami, 23/10: « le chef travaille » stayed on
+ * screen and looked like a freeze). A gesture ends at the start of the turn `until`: a key that turn still finds it.
+ */
+function busyText(state, cook) {
+  const left = cook.until - state.t;
+  const what = GESTURES[cook.steps?.[cook.step]?.type] ?? "travaille";
+  return left > 0 ? `le chef ${what} : encore ${left} tour${left > 1 ? "s" : ""}` : `le chef ${what} : il a fini à ce tour`;
+}
+
 /** The cook played at the keyboard, or null. */
 const manualCook = (state) => state.cooks.find((cook) => cook.manual) ?? null;
 
@@ -611,7 +624,7 @@ const manualCook = (state) => state.cooks.find((cook) => cook.manual) ?? null;
 export function steer(state, dx, dy) {
   const cook = manualCook(state);
   if (!cook) return "pas de chef au clavier";
-  if (cook.phase === "working") return "le chef travaille : attendez la fin de son geste";
+  if (cook.phase === "working") return busyText(state, cook);
   const to = { x: cook.x + dx, y: cook.y + dy };
   const { reservations, t } = state;
   if (!state.kitchen.floor(state.kitchen.plan.at(to.x, to.y))) return "un mur ou un poste";
@@ -649,7 +662,7 @@ const NAMES = Object.freeze({ o: "la caisse d'oignons", t: "la caisse de tomates
 export function interact(state) {
   const cook = manualCook(state);
   if (!cook) return "pas de chef au clavier";
-  if (cook.phase === "working") return "le chef travaille déjà";
+  if (cook.phase === "working") return busyText(state, cook);
   const here = state.kitchen.stations.filter((station) => station.access.some((cell) => cell.x === cook.x && cell.y === cook.y));
   if (here.length === 0) return "aucun poste à portée : mettez-vous à côté";
   if (!cook.order) {
