@@ -4,7 +4,7 @@ import { createRng } from "mcts-commun/random.js";
 import { KITCHENS } from "../src/kitchens.js";
 import { HUMANS, RULES } from "../src/rules.js";
 import { drawWorld, searchRule, valueOf } from "../src/search.js";
-import { advance, choose, createService, drawOrders, runService } from "../src/simulate.js";
+import { advance, choose, createService, drawOrders, runService, stepService } from "../src/simulate.js";
 
 describe("the search (src/search.js)", () => {
   it("draws a world from what the robots know, leaving the service untouched", () => {
@@ -29,6 +29,16 @@ describe("the search (src/search.js)", () => {
       assert.ok(valueOf(world) >= 0);
     }
     assert.ok(new Set(worlds.map((world) => world.humanRule)).size > 1, "le modèle de l'humain est tiré au sort");
+  });
+
+  it("plays the robots beside a chef at the keyboard, who has no model: the worlds draw one (Sami, 23/10: it crashed)", () => {
+    const kitchen = KITCHENS.detour;
+    const state = createService(kitchen, drawOrders(1, kitchen), { human: null, manual: true, seed: 1 });
+    const world = drawWorld(state, createRng(1));
+    assert.equal(typeof world.humanRule, "function");
+    const rule = searchRule({ budget: 8 });
+    for (let i = 0; i < 40; i += 1) stepService(state, rule, null);
+    assert.ok(state.log.some((event) => event.type === "taken"));
   });
 
   it("plays a whole service as a rule, the same service twice", () => {

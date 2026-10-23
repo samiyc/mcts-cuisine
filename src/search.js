@@ -40,7 +40,9 @@ export function drawWorld(state, rng, horizon = SEARCH_SETTINGS.horizon, human =
   world.upcoming = [...come, ...drawComing(state.setup, state.t, Math.max(0, ...come.map((order) => order.id)), rng)];
   const names = Object.keys(HUMANS);
   const drawn = HUMANS[names[rng.int(names.length)]];
-  world.humanRule = state.human ? (human ?? drawn) : null;
+  // A human in the kitchen (simulated, or the chef at the keyboard, who has no model: state.human is null then)
+  // is played in the worlds by a model drawn at random (Sami, 23/10: the search crashed with the chef at the keyboard).
+  world.humanRule = state.human || state.cooks.some((cook) => cook.kind === "human") ? (human ?? drawn) : null;
   world.rng = createRng(rng.int(2 ** 32));
   world.until = state.t + horizon;
   world.choice = advance(world, world.humanRule, world.until);

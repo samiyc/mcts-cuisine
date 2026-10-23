@@ -508,7 +508,7 @@ export function beginTurn(state, human) {
   for (const order of state.upcoming) if (order.status === "upcoming" && order.arrival <= state.t) order.status = "open";
   adoptStock(state);
   const person = state.cooks.find((cook) => cook.kind === "human" && !cook.manual && cook.phase === "idle");
-  if (person) {
+  if (person && human) {
     const choice = choiceOf(state, person);
     take(state, choice, ask(state, choice, human));
   }
