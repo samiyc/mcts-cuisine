@@ -481,6 +481,14 @@ function take(state, choice, id) {
   state.log.push({ t: state.t, type: "taken", cook: cook.id, order: chosen.id });
 }
 
+/** The orders `cook` may take now, as they would be offered to it (the replays' analysis, src/replay.js). */
+export const offeredTo = (state, cook) => choiceOf(state, cook).open;
+
+/** `cook` takes order `id` now, as a rule's choice would have it (the replays' analysis). */
+export function assign(state, cook, id) {
+  take(state, choiceOf(state, cook), id);
+}
+
 /** What a rule or the human is given: the open orders and `{ t, reach, rng, state }` (only the search reads `state`). */
 const ask = (state, choice, rule) => (choice.open.length ? rule(choice.open, { t: state.t, reach: choice.reach, rng: state.rng, state })?.id : null);
 

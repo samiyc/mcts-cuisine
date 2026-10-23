@@ -3,7 +3,7 @@ import { HUMAN_LABELS, HUMANS, RULE_LABELS, RULES, compareRules, summaryOf } fro
 import { searchRule } from "../src/search.js";
 import { createService, drawOrders, interact, isOver, measuresOf, runService, steer, stepService } from "../src/simulate.js";
 import { boardOf, cellsOf, cooksOf, ordersOf, statusLine } from "./view.js";
-import { pressKey, replayOf, REPLAY_FORMAT } from "../src/replay.js";
+import { gapsOf, pressKey, replayOf, REPLAY_FORMAT } from "../src/replay.js";
 
 /**
  * The page: a service in the chosen kitchen, the robots under the chosen rule beside the chosen simulated
@@ -199,7 +199,8 @@ function replayPanel() {
   const kept = replays.load();
   return el(
     "details",
-    { class: "editor replays" },
+    // Kept open once a replay is played or analysed: the page is drawn again at every turn.
+    { class: "editor replays", open: Boolean(replays.gaps || replays.playing) },
     el("summary", {}, `Replays du chef au clavier (${kept.length} gardés dans ce navigateur)`),
     el("p", { class: "hint" }, "Chaque service joué au clavier est gardé ici (les 20 derniers). Téléchargez-en un pour le rejouer avec npm run replay -- fichier.json, qui dit ce qui a semblé anormal et à quel tour."),
     el(
@@ -209,8 +210,29 @@ function replayPanel() {
       el("label", {}, "Rejouer un fichier", el("input", { type: "file", accept: "application/json,.json", "data-file": "replay" })),
     ),
     kept.length > 0
-      ? el("ol", { class: "replay-list" }, ...kept.map((replay, i) => el("li", {}, `${replay.savedAt.slice(0, 16).replace("T", " ")} · ${KITCHENS[replay.kitchenId]?.label ?? replay.kitchenId} · service ${replay.seed} · ${RULE_LABELS[replay.rule] ?? replay.rule} · ${replay.inputs.length} touches `, el("button", { type: "button", class: "quiet", "data-replay": String(i), "data-do": "play" }, "Rejouer"), " ", el("button", { type: "button", class: "quiet", "data-replay": String(i), "data-do": "download" }, "Télécharger"))))
+      ? el("ol", { class: "replay-list" }, ...kept.map((replay, i) => el("li", {}, `${replay.savedAt.slice(0, 16).replace("T", " ")} · ${KITCHENS[replay.kitchenId]?.label ?? replay.kitchenId} · service ${replay.seed} · ${RULE_LABELS[replay.rule] ?? replay.rule} · ${replay.inputs.length} touches `, el("button", { type: "button", class: "quiet", "data-replay": String(i), "data-do": "play" }, "Rejouer"), " ", el("button", { type: "button", class: "quiet", "data-replay": String(i), "data-do": "download" }, "Télécharger"), " ", el("button", { type: "button", class: "quiet", "data-replay": String(i), "data-do": "gaps" }, "Analyser les écarts"))))
       : null,
+    gapsTable(),
+  );
+}
+
+/** The gaps of the replay last analysed: each order the chef took, the best one with hindsight, what it cost. */
+function gapsTable() {
+  const found = replays.gaps;
+  if (!found) return null;
+  const fixed = (value) => value.toFixed(1).replace(".", ",");
+  const name = (decision, id) => {
+    const option = decision.options.find((one) => one.id === id);
+    return `${id}. ${RECIPES[option.recipe].label}${option.status === "ready" ? " (prête sur le feu)" : ""}`;
+  };
+  const head = ["Tour", "le chef a pris", "le meilleur avec le recul", "plats perdus"].map((label, i) => el("th", { class: i === 3 ? "num" : null }, label));
+  const rows = found.decisions.map((decision) => el("tr", { class: decision.gap > 0 ? "late" : null }, el("td", {}, String(decision.t)), el("td", {}, name(decision, decision.chosen)), el("td", {}, decision.gap > 0 ? name(decision, decision.best) : "le même"), el("td", { class: "num" }, decision.gap > 0 ? fixed(decision.gap) : "—")));
+  return el(
+    "div",
+    { class: "gaps" },
+    el("h3", {}, `Les choix du chef : ${found.decisions.length}, dont ${found.agreed} aussi bons que le meilleur ; ${fixed(found.gap)} plat(s) à temps perdu(s)`),
+    el("p", { class: "hint" }, "Avec le recul : à chaque commande prise, chaque commande possible est rejouée 60 tours (puis le chef « le plus urgent », les robots « le plat le plus rapide », les vraies commandes à venir). Un écart dit où un choix a coûté, pas ce qu'on pouvait deviner sur le moment."),
+    el("div", { class: "scroll" }, el("table", {}, el("thead", {}, el("tr", {}, ...head)), el("tbody", {}, ...rows))),
   );
 }
 
@@ -374,7 +396,17 @@ app.addEventListener("click", (event) => {
   if (saved) {
     const replay = replays.load()[Number(saved.dataset.replay)];
     if (saved.dataset.do === "download") download(replay);
-    else startReplay(replay);
+    else if (saved.dataset.do === "gaps") {
+      // A few seconds of play: the page says so, then computes.
+      state.busy = "Analyse des écarts…";
+      render();
+      setTimeout(() => {
+        replays.gaps = gapsOf(replay);
+        state.busy = "";
+        render();
+      }, 30);
+      return;
+    } else startReplay(replay);
     render();
     return;
   }

@@ -121,3 +121,5 @@ label.check { flex-direction: row; align-items: center; gap: 6px; }
 .masthead .links a { color: var(--accent); }
 .replay-list { font-size: 0.88rem; padding-left: 20px; }
 .replay-list li { margin: 4px 0; }
+.gaps h3 { font-size: 0.98rem; margin: 12px 0 4px; }
+.gaps tr.late td { color: var(--late); }

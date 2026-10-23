@@ -329,15 +329,17 @@ Ce que coûte la cuisson sans surveillance partout (60 services, le plus rapide 
 
 **Les replays du chef au clavier** (Sami, 23/10, pour déboguer ce qu'il voit dans le grand détour). Un service se rejoue à l'identique depuis sa cuisine, son numéro, la règle des robots et les touches pressées avec leur tour (`src/replay.js`, format `cuisine-replay/1`). Dans la page, « Replays du chef au clavier » : les 20 derniers services joués au clavier sont gardés dans le navigateur, se téléchargent ou se rejouent (les touches viennent alors du replay). `npm run replay -- fichier.json [--trace]` rejoue un fichier sous Node et dit ce qui semble anormal, avec le tour : un cuisinier qui « travaille » encore après la fin de son geste, ou loin du poste où il travaille, un poste pris par quelqu'un qui n'y travaille pas. 60 services joués au hasard au clavier (et 6 avec la recherche) n'en montrent aucun : le blocage que Sami a vu attend son replay.
 
+
+**Les écarts du chef** (l'étape 2 de la feuille de route : les replays avec un humain, pour analyser les écarts). À chaque commande que le chef a prise, chaque commande qu'il aurait pu prendre est rejouée avec le recul : depuis l'état juste avant, le chef la prend, puis continue en humain simulé « le plus urgent », les robots sous « le plat le plus rapide » (pour la vitesse), les vraies commandes du service à venir, pendant 60 tours ; un choix vaut les plats servis à temps à la fin, ceux encore dans les temps comptés à moitié. Son propre choix est rejoué de la même façon, pour que l'écart ne soit que celui du choix (`gapsOf`, `src/replay.js`). Dans la page, « Analyser les écarts » sur un replay gardé ; `npm run replay -- fichier.json --gaps` sous Node. C'est une analyse avec le recul : elle dit où un choix a coûté, pas ce qu'on pouvait deviner sur le moment.
+
 ## La suite
 
 Les étapes communes aux trois dépôts sont dans la [feuille de route](https://github.com/samiyc/lopin/blob/main/docs/ismcts-ailleurs/feuille-de-route.md) § 6 (Sami, 23/10 au soir) : l'ordonnanceur en commun pour les mesures de nuit, les replays avec un humain pour analyser les écarts, la vitrine. Le journal des versions est dans la page (`web/changelog.html`).
 
 1. **Les mesures de nuit** — prêtes (23/10) : `night.json` à la racine du dépôt, à ajouter à la file de la machine par `mcts-backlog --add-file` (mcts-commun), puis à lancer par `mcts-backlog` ; : la recherche contre les règles sur des centaines de services, avec chaque humain
    simulé.
-2. **Les replays du chef au clavier** : enregistrer les services joués dans la page, les rejouer, et comparer
-   à chaque geste ce que le chef a fait et ce que la recherche aurait fait faire ; ajuster le modèle de
-   l'humain sur ces parties.
+2. **Les replays du chef au clavier** — faits le 23/10 (les replays, les anomalies, les écarts de ses choix) ; reste :
+   ajuster le modèle de l'humain sur ces parties, et la même analyse pour les gestes (couper, poser, relayer).
 3. **Les robots en avance** : qu'un robot libre prépare un lot sans commande, du plat le plus demandé.
 4. **Laisser la recherche décider de revenir au feu** : retirer la soupe ou finir ce qu'on fait.
 5. **Des recettes plus longues** (plusieurs ingrédients), où l'on se passe les ingrédients d'un comptoir à
