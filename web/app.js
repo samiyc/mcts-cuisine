@@ -446,6 +446,13 @@ document.addEventListener("keydown", (event) => {
   const key = event.key.toLowerCase();
   if (key !== "e" && !KEYS[key]) return;
   event.preventDefault();
+  // The service over, a key does nothing: say so, or it looks like a freeze (Sami, 23/10).
+  if (isOver(state.service)) {
+    keyboard.pending = null;
+    keyboard.message = `le service est fini (tour ${state.service.t}) : « Recommencer » ou « Service suivant » pour rejouer`;
+    render();
+    return;
+  }
   keyboard.pending = key;
   // Paused: the key plays its turn at once.
   if (!state.timer && !isOver(state.service)) {
