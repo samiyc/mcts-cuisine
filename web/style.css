@@ -67,7 +67,7 @@ button.quiet { background: var(--panel); color: var(--ink); border-color: var(--
 .cook.human { --c: var(--human); }
 .cook-id { font: 700 12px system-ui, sans-serif; text-anchor: middle; fill: var(--panel); pointer-events: none; }
 .cook.robot .cook-id { fill: #fff; }
-.held { font-size: 12px; pointer-events: none; }
+.held { font-size: 14px; pointer-events: none; }
 .trail { fill: none; stroke: var(--c); stroke-width: 2.5; stroke-opacity: 0.5; stroke-dasharray: 4 3; }
 .trail.human { --c: var(--human); }
 .c1 { --c: var(--c1); } .c2 { --c: var(--c2); } .c3 { --c: var(--c3); } .c4 { --c: var(--c4); } .c5 { --c: var(--c5); }
@@ -115,3 +115,5 @@ label.check { flex-direction: row; align-items: center; gap: 6px; }
 .requests { list-style: none; padding: 0; margin: 4px 0; font-size: 0.9rem; }
 .requests li { padding: 3px 6px; margin: 3px 0; border-left: 3px solid var(--shelf); }
 .requests li.taken { opacity: 0.75; }
+.held.cut-mark { font-size: 11px; }
+.symbol.dish.cut-mark { font-size: 13px; }

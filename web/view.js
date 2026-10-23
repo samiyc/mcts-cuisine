@@ -8,10 +8,15 @@ import { RECIPES } from "../src/kitchens.js";
  */
 const STEP_LABELS = Object.freeze({ fetch: "prend l'ingrédient", cut: "coupe", cook: "fait cuire", serve: "sert", put: "pose les oignons coupés sur un comptoir", pickup: "reprend des oignons coupés", collect: "retire la soupe du feu", clean: "récure le fourneau brûlé" });
 const READY_STEPS = new Set(["serve"]);
+/**
+ * What a dish looks like at its stage (Sami, 23/10): `whole` the ingredient as fetched, `cut` once cut but not
+ * yet a dish (onions to cook), `ready` the dish (a salad cut, a soup cooked).
+ */
+const stageOf = (order, step) => (step?.type === "cut" ? "whole" : order.cooked || RECIPES[order.recipe].cook === 0 || READY_STEPS.has(step?.type) ? "ready" : "cut");
 const ROLE_LABELS = Object.freeze({ coupe: "coupe", cuisson: "cuisson", salade: "salades", passe: "passe" });
 
 /**
- * Every cell to draw: `{ x, y, kind, progress, label, dish, pot, dirty }`, kind floor, wall, counter or a
+ * Every cell to draw: `{ x, y, kind, progress, label, dish, stage, pot, dirty }`, kind floor, wall, counter or a
  * station's letter; a busy board or stove with its progress, a counter with the dish waiting on it (a recipe's
  * name); with unattended cooking, a stove's pot (`{ ready, left }`: done or not, turns to ready or to burning)
  * and a burnt stove to clean.
@@ -30,7 +35,7 @@ export function cellsOf(state) {
   for (const [key, pot] of state.pots ?? []) {
     if (state.t < pot.ready && !busy.has(key)) busy.set(key, 1 - (pot.ready - state.t) / RECIPES[state.upcoming.find((order) => order.id === pot.order).recipe].cook);
   }
-  const dishes = new Map([...state.shelf].map(([key, id]) => [key, state.upcoming.find((order) => order.id === id).recipe]));
+  const dishes = new Map([...state.shelf].map(([key, id]) => [key, state.upcoming.find((order) => order.id === id)]));
   const cells = [];
   for (let y = 0; y < plan.height; y += 1) {
     for (let x = 0; x < plan.width; x += 1) {
@@ -38,7 +43,7 @@ export function cellsOf(state) {
       const key = `${x},${y}`;
       let kind = state.kitchen.floor(char) ? "floor" : "wall";
       if (STATIONS[char]) kind = char === "_" ? "counter" : char;
-      cells.push({ x, y, kind, progress: busy.get(key) ?? null, label: STATIONS[char] ?? null, dish: dishes.get(key) ?? null, pot: pots.get(key) ?? null, dirty: state.dirty?.has(key) ?? false });
+      cells.push({ x, y, kind, progress: busy.get(key) ?? null, label: STATIONS[char] ?? null, dish: dishes.get(key)?.recipe ?? null, stage: dishes.has(key) ? stageOf(dishes.get(key), null) : null, pot: pots.get(key) ?? null, dirty: state.dirty?.has(key) ?? false });
     }
   }
   return cells;
@@ -60,6 +65,7 @@ export function cooksOf(state) {
       y: cook.y,
       holding: order && cook.step > 0 ? order.recipe : null,
       ready: Boolean(step) && READY_STEPS.has(step.type),
+      stage: order && cook.step > 0 ? stageOf(order, step) : null,
       label: `${who} : ${doing}`,
       ahead: cook.target ? (cook.path ?? []).filter((one) => one.t >= state.t) : [],
     };

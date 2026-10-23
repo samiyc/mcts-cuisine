@@ -46,6 +46,16 @@ describe("what the page shows (web/view.js)", () => {
       }
     }
     assert.ok(seenOnCounter, "un plat posé sur un comptoir");
+    // Onions in hand: whole until cut, then cut (a knife on them), then the dish.
+    const kitchenRoles = KITCHENS.postes;
+    const roles = createService(kitchenRoles, drawOrders(1, kitchenRoles), { seed: 1 });
+    const stages = new Set();
+    while (!isOver(roles)) {
+      stepService(roles, RULES.quickest, HUMANS.urgent);
+      for (const cook of cooksOf(roles)) if (cook.holding === "soupe") stages.add(cook.stage);
+      for (const cell of cellsOf(roles)) if (cell.dish) assert.ok(["cut", "ready"].includes(cell.stage), "un plat sur un comptoir est coupé ou prêt");
+    }
+    assert.deepEqual([...stages].sort(), ["cut", "ready", "whole"]);
   });
 
   it("shows the pots cooking alone, the soups ready with the turns before they burn, and the stoves to clean", () => {

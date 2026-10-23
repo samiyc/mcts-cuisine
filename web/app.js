@@ -132,6 +132,17 @@ function controls() {
   );
 }
 
+/**
+ * What a dish looks like where it is, at its stage: the ingredient whole (🧅, 🍅), cut with a small knife on it
+ * (no emoji for cut onions: 🧅 and 🔪), or the dish (🍲, 🥗).
+ */
+function itemMarks(recipe, stage, x, y, kind) {
+  if (stage === "ready") return [svg("text", { x, y, class: kind }, RECIPES[recipe].emoji)];
+  const marks = [svg("text", { x, y, class: kind }, SYMBOLS[RECIPES[recipe].ingredient])];
+  if (stage === "cut") marks.push(svg("text", { x: x + (kind === "held" ? 11 : 12), y: y + (kind === "held" ? 1 : 2), class: `${kind} cut-mark` }, "🔪"));
+  return marks;
+}
+
 function board() {
   const { plan } = state.service.kitchen;
   const map = svg("svg", { viewBox: `0 0 ${plan.width * CELL} ${plan.height * CELL}`, class: "board", role: "img", "aria-label": "La cuisine, ses postes et les cuisiniers" });
@@ -143,7 +154,7 @@ function board() {
     if (cell.label) tile.append(svg("title", {}, cell.label));
     map.append(tile);
     if (cell.label && SYMBOLS[cell.kind]) map.append(svg("text", { x: x + CELL / 2, y: y + CELL / 2 + 6, class: "symbol" }, SYMBOLS[cell.kind]));
-    if (cell.dish) map.append(svg("text", { x: x + CELL / 2, y: y + CELL / 2 + 7, class: "symbol dish" }, SYMBOLS[RECIPES[cell.dish].ingredient]));
+    if (cell.dish) map.append(...itemMarks(cell.dish, cell.stage, x + CELL / 2, y + CELL / 2 + 7, "symbol dish"));
     // A pot cooking alone, a soup ready (and how long before it burns), a burnt stove to clean.
     if (cell.pot) {
       const urgent = cell.pot.ready && cell.pot.left <= 2;
@@ -160,7 +171,7 @@ function board() {
     const group = svg("g", { class: `cook ${cook.kind} c${cook.id}`, transform: `translate(${cook.x * CELL + CELL / 2} ${cook.y * CELL + CELL / 2})` });
     const shape = cook.kind === "human" ? svg("rect", { x: -CELL / 2 + 5, y: -CELL / 2 + 5, width: CELL - 10, height: CELL - 10, rx: 4 }) : svg("circle", { r: CELL / 2 - 5 });
     group.append(svg("title", {}, cook.label), shape, svg("text", { y: 4, class: "cook-id" }, cook.kind === "human" ? "H" : String(cook.id)));
-    if (cook.holding) group.append(svg("text", { x: 9, y: -7, class: "held" }, cook.ready ? RECIPES[cook.holding].emoji : SYMBOLS[RECIPES[cook.holding].ingredient]));
+    if (cook.holding) group.append(...itemMarks(cook.holding, cook.stage, 9, -7, "held"));
     map.append(group);
   }
   return el("div", { class: "board-wrap" }, map);
@@ -186,7 +197,7 @@ function counterBoard() {
 }
 
 function legend() {
-  return el("p", { class: "hint legend" }, ...Object.entries(RECIPES).map(([name, recipe]) => el("span", { class: `legend-item ${name}` }, `${recipe.emoji} ${recipe.label}`)), " · la barre : la patience du client, pleine à la commande, vide à l'échéance.");
+  return el("p", { class: "hint legend" }, ...Object.entries(RECIPES).map(([name, recipe]) => el("span", { class: `legend-item ${name}` }, `${recipe.emoji} ${recipe.label}`)), " · 🧅 entier, 🧅🔪 coupé · la barre : la patience du client, pleine à la commande, vide à l'échéance.");
 }
 
 function orders() {
