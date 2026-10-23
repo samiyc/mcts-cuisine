@@ -1,0 +1,12 @@
+{
+  "about": "Les mesures de nuit de la cuisine (Sami, 23/10/2026) : la recherche contre les règles, 50 services par cuisine et par humain simulé, aux réglages par défaut (cuisson sans surveillance). Une par cuisine, un fil chacune : mcts-backlog --add-file mcts-cuisine/night.json, puis mcts-backlog.",
+  "jobs": [
+    { "id": "cuis-petite", "command": "npm run compare -- --kitchen petite --services 50 --search", "estimate": "15 min" },
+    { "id": "cuis-couloir", "command": "npm run compare -- --kitchen couloir --services 50 --search", "estimate": "10 min" },
+    { "id": "cuis-brigade", "command": "npm run compare -- --kitchen brigade --services 50 --search", "estimate": "1 h 30", "limit": 150 },
+    { "id": "cuis-comptoirs", "command": "npm run compare -- --kitchen comptoirs --services 50 --search", "estimate": "15 min" },
+    { "id": "cuis-postes", "command": "npm run compare -- --kitchen postes --services 50 --search", "estimate": "15 min" },
+    { "id": "cuis-separee", "command": "npm run compare -- --kitchen separee --services 50 --search", "estimate": "20 min" },
+    { "id": "cuis-detour", "command": "npm run compare -- --kitchen detour --services 50 --search", "estimate": "20 min" }
+  ]
+}
