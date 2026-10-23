@@ -86,6 +86,42 @@ describe("the kitchen (src/kitchen.js, src/simulate.js)", () => {
     assert.equal(runService(none, 1, RULES.quickest, HUMANS.urgent).state.log.filter((event) => event.type === "put").length, 0);
   });
 
+  it("lets the soup cook alone: the pot is put on, taken off ready, or burns, the stove then cleaned", () => {
+    const unattended = { burn: 6, clean: 5 };
+    let burnt = 0;
+    let served = 0;
+    for (let seed = 1; seed <= 6; seed += 1) {
+      const kitchen = { ...KITCHENS.petite, unattended };
+      const state = createService(kitchen, drawOrders(seed, kitchen), { human: "urgent", seed });
+      while (!isOver(state)) {
+        stepService(state, RULES.quickest, HUMANS.urgent);
+        // A pot holds its stove; a soup ready longer than `burn` turns has burnt, unless a cook is taking it off.
+        for (const [stove, pot] of state.pots) {
+          const order = state.upcoming.find((one) => one.id === pot.order);
+          assert.equal(order.stove, stove);
+          if (state.t < pot.ready) assert.equal(order.status, "cooking");
+          else assert.ok(state.t <= pot.ready + unattended.burn || state.cooks.some((cook) => cook.order === order.id && cook.phase === "working"));
+        }
+        // Putting the pot on is one turn at the stove, 1 + clean on a burnt one.
+        for (const cook of state.cooks) if (cook.phase === "working" && cook.steps[cook.step].type === "cook") assert.ok([1, 1 + unattended.clean].includes(cook.span));
+      }
+      assert.ok(state.log.some((one) => one.type === "pot"));
+      burnt += measuresOf(state).burnt;
+      served += measuresOf(state).onTime;
+      // A burnt soup was made again from the start: its order went back to open.
+      for (const event of state.log.filter((one) => one.type === "burnt")) assert.ok(state.log.some((one) => one.type === "taken" && one.order === event.order && one.t >= event.t) || state.upcoming.find((one) => one.id === event.order).status === "open");
+    }
+    assert.ok(served > 0);
+    assert.ok(burnt < 6 * 3, "les cuisiniers surveillent leur marmite");
+    // A soup that burns the turn it is ready: some do, and their stoves are cleaned before cooking again.
+    const hasty = { ...KITCHENS.petite, unattended: { burn: 0, clean: 5 } };
+    const { state, measures } = runService(hasty, 1, RULES.oldest, HUMANS.urgent);
+    assert.ok(measures.burnt > 0, "une soupe laissée brûle");
+    assert.ok(state.log.filter((one) => one.type === "burnt").every((event) => state.upcoming.find((one) => one.id === event.order).burnt > 0));
+    // Without the option, no pot and no burnt measure: the kitchen plays as before.
+    assert.equal("burnt" in runService(KITCHENS.petite, 1, RULES.quickest, HUMANS.urgent).measures, false);
+  });
+
   it("lets a person play the chef: moves, takes an order at a crate, cuts it, and the robots plan around him", () => {
     const kitchen = KITCHENS.petite;
     const state = createService(kitchen, drawOrders(2, kitchen), { human: "clavier", manual: true, seed: 2 });

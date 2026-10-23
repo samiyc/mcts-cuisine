@@ -144,14 +144,18 @@ libre, il donne un coup de main. Ce qui est modélisé :
 | Rôles des deux robots | Postes | Passe-plats |
 |---|---|---|
 | aucun (chacun fait des plats entiers) | **14,7** | **11,9** |
-| coupe, cuisson | 10,8 | 9,0 |
-| cuisson, coupe | 11,4 | — |
-| coupe, sans rôle | 11,0 | — |
+| coupe, cuisson | 12,2 | 9,8 |
+| cuisson, coupe | 12,1 | — |
+| coupe, sans rôle | 12,8 | — |
 | sans rôle, cuisson / salade, cuisson | 14,7 | — |
 
-Sans humain, l'écart est le même : 11,0 sans rôles, 4,5 avec coupe et cuisson.
+Sans humain : 11,0 sans rôles, 5,4 avec coupe et cuisson.
 
-- **Ici, les rôles coûtent 3 à 4 plats**, et tout vient du robot qui coupe. La cuisson est l'étape la plus
+Ces chiffres ont été corrigés le soir du 23/10. Le robot qui coupe, venu aider à cuire, reprenait un lot sur un
+comptoir puis le reposait aussitôt, une quarantaine de fois par service. La première mesure (10,8 et 9,0)
+comptait cette boucle.
+
+- **Ici, les rôles coûtent 2 à 3 plats**, et tout vient du robot qui coupe. La cuisson est l'étape la plus
   longue (8 tours, contre 3 pour couper), mais un seul robot la fait, alors qu'il y a deux fourneaux. Entre
   les deux, chaque lot coûte deux gestes de plus (poser, reprendre) et un trajet.
 - **Un rôle de cuisson, seul, ne coûte rien** : sans soupe coupée à cuire, ce robot aide à tout le reste.
@@ -177,8 +181,63 @@ dans la cuisine en couloir, −0,7 (6,3 contre 7,0) : y attendre près d'un post
   autour de lui. Ils ne connaissent pas ses habitudes : la recherche, elle, imagine le chef sous un modèle
   d'humain tiré au hasard. On peut maintenant voir si les robots le gênent.
 
+## La cuisson sans surveillance, la soupe qui brûle (23/10, Sami, le soir)
+
+Sami : la soupe cuit seule, mais si personne ne vient la chercher à temps, elle brûle. Le plat est perdu, et il
+faut nettoyer le fourneau avant d'y recuire (une pénalité de temps). C'est plus simple, pour commencer, que
+toute la vaisselle sale avec l'évier. Une option par cuisine (`unattended: { burn, clean }`) ; dans la page,
+« La soupe cuit seule », avec ses deux délais (6 et 5 tours par défaut). Les cuisines livrées ne l'ont pas : leurs
+chiffres ne bougent pas.
+
+**Ce qui est modélisé.**
+- **Poser la marmite** prend un tour au fourneau, et le cuisinier repart. La soupe cuit seule ses 8 tours et
+  garde le fourneau. Prête, elle attend qu'un cuisinier vienne la **retirer** (un tour), puis la serve.
+- **Une soupe prête** est proposée à tous, quel que soit le rôle. Pour la règle « le plat le plus rapide », elle
+  passe avant tout, puisqu'il ne reste rien à faire.
+- **Laissée `burn` tours après être prête, elle brûle.** Le plat est perdu et la commande redevient ouverte :
+  il faut tout refaire, contre la même échéance. Le fourneau est à nettoyer : le prochain qui y cuit passe
+  `clean` tours de plus. Un fourneau propre un peu plus loin est préféré.
+- **Les habitudes d'un cuisinier qui surveille.**
+  - Tant que sa marmite cuit, il ne prend qu'une soupe à retirer ou une commande qu'il aura coupée avant.
+    Sinon il attend devant son fourneau, et non chez lui : il fallait 5 tours pour revenir retirer la soupe,
+    contre 2,5 maintenant.
+  - Le robot « cuisson » surveille tous les fourneaux : tant qu'une marmite est sur le feu, il n'aide nulle part
+    ailleurs.
+  - Des oignons coupés ne sont pas repris quand chaque fourneau porte une marmite. Un cuisinier qui attend un
+    fourneau, des oignons en main, quand une soupe est prête, les pose sur un comptoir libre pour aller la
+    retirer.
+  - Sans ces habitudes, 4 à 7 soupes brûlaient par service, tous les cuisiniers étant partis sur une autre
+    commande.
+
+**Ce que ça donne** (60 services, le cuisinier « le plus urgent », le plat le plus rapide ; plats servis à temps) :
+
+| Cuisine, rôles | soupe surveillée | cuit seule (brûle à 6, nettoyage 5) | soupes brûlées |
+|---|---|---|---|
+| Postes, sans rôles | **14,7** | 13,1 | 0,6 |
+| Postes, coupe et cuisson | 12,2 | 9,0 | 1,1 |
+| Postes, sans rôle et cuisson | 14,7 | 12,3 | 1,0 |
+| Passe-plats, sans rôles | **11,9** | 9,4 | 2,7 |
+
+La recherche fait mieux que la règle, mais l'écart reste (Postes, 12 services) : sans rôles, 15,8 surveillée
+et 14,6 seule ; avec coupe et cuisson, 13,6 et 11,0.
+
+- **La cuisson seule ne gagne pas ici**, même sans brûlure : avec une soupe qui ne brûle jamais, on sert 13,5
+  plats à temps contre 14,7 en la surveillant.
+  - Chaque soupe coûte deux gestes de plus (poser, retirer).
+  - Le cuisinier libéré part sur une autre commande, et la soupe prête l'attend.
+  - La cuisine n'est pas saturée : une commande tous les 9 tours, et presque toutes sont servies. Ce qui compte
+    est la vitesse de chaque plat, pas le débit des fourneaux.
+- **Plus de demande ne change pas le verdict** : une commande tous les 6 tours, 14,8 surveillée contre 13,9
+  seule ; tous les 4 tours, 12,2 contre 11,4.
+- **Les rôles perdent encore plus.** Le robot « cuisson » attend devant ses fourneaux pendant que les salades
+  s'empilent : personne n'a le rôle « salade ».
+- **Ce que ça dit des robots.** Ils choisissent une commande, mais pas quand revenir au feu : c'est une
+  habitude écrite, et elle est grossière. Décider « je finis ma coupe ou je retire la soupe » est une décision
+  de plus, que la recherche pourrait prendre.
+
 ## La suite
 
-1. **La cuisson sans surveillance**, pour que les rôles aient une chance (plus haut).
+1. **Laisser la recherche décider de revenir au feu** : retirer la soupe ou finir ce qu'on fait. Puis un
+   troisième robot pour les salades, avec la cuisson seule, comme Sami le décrivait.
 2. **Des recettes plus longues** (plusieurs ingrédients), où l'on se passe les ingrédients d'un
    comptoir à l'autre.

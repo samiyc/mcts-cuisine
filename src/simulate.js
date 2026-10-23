@@ -29,6 +29,16 @@ import { RECIPES } from "./kitchens.js";
  * him); `interact` works the station beside him: an ingredient at its crate (it takes the oldest open order
  * of that dish, so the robots leave it), the board, the stove, a counter (cut onions put down, or taken up),
  * the pass. He makes no choice of his own between turns.
+ *
+ * **Unattended cooking** (Sami, 23/10, `setup.unattended`: `{ burn, clean }`): the cook puts the pot on the
+ * stove (one turn) and leaves; the soup cooks alone (status "cooking", the stove kept), then waits ready on it
+ * ("ready", offered to every cook, whatever its role) for someone to take it up and serve it. Left `burn`
+ * turns past ready, it burns: the dish is lost, the order goes back to "open" to be made again, and the stove
+ * must be cleaned, `clean` turns more for the next cook who cooks on it. A `cuisson` robot watches the stoves:
+ * while a pot is on, it helps nowhere else; any cook whose own pot is on takes only a soup to take off or an
+ * order it can cut before its pot is ready. Cut onions are not taken up while every stove holds a pot, and a cook
+ * who waits for a stove with them in hand, a soup ready on one, puts them on a free counter to take it off. Without it, a cook stays at the
+ * stove while the soup cooks, as before.
  */
 const LEG_HORIZON = 80;
 
@@ -61,7 +71,7 @@ export function createService(setup, orders, { human = "urgent", seed = 1, manua
   const reservations = createReservations();
   // Every cook holds its place from the start: nobody plans through a cook standing still.
   for (const one of cooks) reservations.reserve(one.id, [{ x: one.x, y: one.y, t: 0 }], { stay: true });
-  return { kitchen, setup, human, rng: createRng(seed + 7_919), t: 0, cooks, upcoming: orders.map((order) => ({ ...order, status: "upcoming", cook: null, servedAt: null })), claims: new Map(), shelf: new Map(), reservations, log: [], cursor: null };
+  return { kitchen, setup, human, rng: createRng(seed + 7_919), t: 0, cooks, upcoming: orders.map((order) => ({ ...order, status: "upcoming", cook: null, servedAt: null })), claims: new Map(), shelf: new Map(), pots: new Map(), dirty: new Set(), burnt: 0, reservations, log: [], cursor: null };
 }
 
 const isWorkStation = (kind) => kind === "C" || kind === "P" || kind === "_";
@@ -70,11 +80,16 @@ const keyOf = (cell) => `${cell.x},${cell.y}`;
 const PILE = 2;
 /** Putting cut onions down on a counter. */
 const PUT = Object.freeze({ type: "put", kind: "_", turns: 1 });
-/** Cut onions waiting on counter `counter` ("x,y"): pick them up there, cook them, serve the dish. */
-const pickupSteps = (counter, recipe) => [{ type: "pickup", kind: "_", counter, turns: 1 }, ...stepsOf(recipe).filter((step) => step.type === "cook" || step.type === "serve")];
-/** Does order `order` (open, or prepped on a counter) belong to role `role`? Any order for no role. */
+/** Cut onions waiting on counter `at` ("x,y"): pick them up there, cook them, serve the dish. */
+const pickupSteps = (at, recipe) => [{ type: "pickup", kind: "_", at, turns: 1 }, ...stepsOf(recipe).filter((step) => step.type === "cook" || step.type === "serve")];
+/** A soup ready on stove `at` ("x,y"): take it up there, serve it. */
+const collectSteps = (at) => [{ type: "collect", kind: "P", at, turns: 1 }, { type: "serve", kind: "S", turns: 1 }];
+/** The steps from where `order` stands: on a counter, ready on a stove, or from the start. */
+const stepsFrom = (order) => (order.status === "prepped" ? pickupSteps(order.counter, order.recipe) : order.status === "ready" ? collectSteps(order.stove) : stepsOf(order.recipe));
+/** Does order `order` (open, prepped on a counter, ready on a stove) belong to role `role`? Any order for no role; a ready soup for everyone, before it burns. */
 export function fitsRole(role, order) {
   const cooked = RECIPES[order.recipe].cook > 0;
+  if (order.status === "ready") return true;
   if (role === "coupe") return order.status === "open" && cooked;
   if (role === "cuisson") return order.status === "prepped";
   if (role === "salade") return order.status === "open" && !cooked;
@@ -97,11 +112,19 @@ function takenCells(state, cook) {
   return new Set(state.cooks.filter((other) => other !== cook).flatMap((other) => [keyOf(other), ...(other.target ? [keyOf(other.target)] : [])]));
 }
 
-/** Is `station` of no use to `step`: another kind, taken, or (a counter) holding a dish, or not the dish's counter? */
+/** Is `station` of no use to `step`: another kind, taken, or holding a dish (a counter) or a pot (a stove), or not the dish's own? */
 function unfit(state, station, step) {
   if (station.kind !== step.kind) return true;
-  if (step.counter) return keyOf(station) !== step.counter;
-  return isWorkStation(step.kind) && (state.claims.has(keyOf(station)) || state.shelf.has(keyOf(station)));
+  if (step.at) return keyOf(station) !== step.at;
+  const key = keyOf(station);
+  return isWorkStation(step.kind) && (state.claims.has(key) || state.shelf.has(key) || state.pots.has(key));
+}
+
+/** How long `step` takes at `station`: putting a pot on is one turn when it cooks alone, the cleaning first on a burnt stove. */
+function turnsOf(state, step, station) {
+  const { unattended } = state.setup;
+  if (step.type !== "cook" || !unattended) return step.turns;
+  return 1 + (state.dirty.has(keyOf(station)) ? unattended.clean : 0);
 }
 
 /** The station for `cook`'s `step`, and the cell to work it from: the nearest free one, or null. */
@@ -113,7 +136,9 @@ function stationFor(state, cook, step) {
     if (unfit(state, station, step)) continue;
     for (const cell of station.access) {
       const steps = distances.get(keyOf(cell));
-      if (steps !== undefined && !taken.has(keyOf(cell)) && (!best || steps < best.steps)) best = { station, cell, steps };
+      // A burnt stove costs its cleaning: a clean one a little further is better.
+      const cost = steps + (state.dirty.has(keyOf(station)) ? state.setup.unattended.clean : 0);
+      if (steps !== undefined && !taken.has(keyOf(cell)) && (!best || cost < best.cost)) best = { station, cell, steps, cost };
     }
   }
   return best;
@@ -149,7 +174,13 @@ function stepAside(state, cook) {
 }
 
 /** A cutting robot, its onions cut, hands them over when a counter is free: it puts them down instead of cooking. */
-const handsOver = (state, cook) => cook.role === "coupe" && cook.steps[cook.step].type === "cook" && Boolean(stationFor(state, cook, PUT));
+const handsOver = (state, cook) => cook.steps[cook.step].type === "cook" && ((cook.role === "coupe" && !fromCounter(cook)) || potsInTheWay(state, cook)) && Boolean(stationFor(state, cook, PUT));
+/** Did `cook` take its onions up from a counter (helping with the cooking)? Then it cooks them: putting them back down would loop. */
+const fromCounter = (cook) => cook.steps[0].type === "pickup";
+/** Every stove taken and a soup ready on one: a cook with cut onions in hand puts them down to take the soup off. */
+const potsInTheWay = (state, cook) => state.setup.unattended && !stationFor(state, cook, cook.steps[cook.step]) && state.upcoming.some((order) => order.status === "ready");
+/** Is a stove free (no pot, nobody cooking there)? */
+const stoveFree = (state) => state.kitchen.stations.some((station) => station.kind === "P" && !state.claims.has(keyOf(station)) && !state.pots.has(keyOf(station)));
 
 /**
  * Where `cook` waits for a station of `step`'s kind: the free floor cell nearest one, off every station's
@@ -160,7 +191,7 @@ function waitSpot(state, cook, step) {
   const reachable = distancesFrom(state.kitchen, cook);
   let best = null;
   for (const station of state.kitchen.stations) {
-    if (station.kind !== step.kind || (step.counter && keyOf(station) !== step.counter)) continue;
+    if (station.kind !== step.kind || (step.at && keyOf(station) !== step.at)) continue;
     for (const cell of station.access) {
       for (const [key, steps] of distancesFrom(state.kitchen, cell)) {
         if ((taken.has(key) && key !== keyOf(cook)) || workCells(state).has(key) || !reachable.has(key)) continue;
@@ -185,6 +216,21 @@ function waitFor(state, cook, step) {
   if (!there || cook.stalled >= 4) stepAside(state, cook);
 }
 
+/**
+ * A free cook watching a pot (its own, or any for a `cuisson` robot) waits in front of the stove whose soup is
+ * ready first, to take it off at once; false when it watches none or cannot get there.
+ */
+function watch(state, cook) {
+  const pots = [...state.pots].filter(([, pot]) => pot.owner === cook.id || cook.role === "cuisson").sort((a, b) => a[1].ready - b[1].ready);
+  if (pots.length === 0) return false;
+  const stove = state.kitchen.stations.find((station) => keyOf(station) === pots[0][0]);
+  if (stove.access.some((cell) => cell.x === cook.x && cell.y === cook.y)) return true;
+  if (cook.target && stove.access.some((cell) => cell.x === cook.target.x && cell.y === cook.target.y)) return true;
+  const taken = takenCells(state, cook);
+  const cell = stove.access.find((one) => !taken.has(keyOf(one)));
+  return Boolean(cell) && planLeg(state, cook, cell);
+}
+
 /** Sends `cook` to its current step's station; waits a turn, near it, when none is free or no path is found. */
 function startStep(state, cook) {
   if (handsOver(state, cook)) cook.steps = [...cook.steps.slice(0, cook.step), PUT];
@@ -195,7 +241,7 @@ function startStep(state, cook) {
     waitFor(state, cook, step);
     return;
   }
-  if (isWorkStation(step.kind) && step.type !== "pickup") state.claims.set(keyOf(choice.station), cook.id);
+  if (isWorkStation(step.kind) && !step.at) state.claims.set(keyOf(choice.station), cook.id);
   Object.assign(cook, { phase: "moving", station: choice.station, stalled: 0 });
 }
 
@@ -207,7 +253,41 @@ function putDown(state, cook, order, counter) {
   Object.assign(cook, { order: null, steps: null, step: 0, phase: "idle" });
 }
 
-/** Work that ends now: the next step, a dish put down or picked up, or the dish served. */
+/** The pot on: the soup cooks alone on `cook`'s stove, the stove clean again, the cook free. */
+function putOn(state, cook, order, stove) {
+  state.dirty.delete(stove);
+  state.pots.set(stove, { order: order.id, ready: state.t + RECIPES[order.recipe].cook, owner: cook.id });
+  Object.assign(order, { status: "cooking", cook: null, stove });
+  state.log.push({ t: state.t, type: "pot", cook: cook.id, order: order.id });
+  Object.assign(cook, { order: null, steps: null, step: 0, phase: "idle" });
+}
+
+/** A cook whose dish is gone: free, standing where it is. */
+function drop(state, cook) {
+  state.reservations.release(cook.id);
+  const here = [{ x: cook.x, y: cook.y, t: state.t }];
+  state.reservations.reserve(cook.id, here, { stay: true });
+  Object.assign(cook, { order: null, steps: null, step: 0, phase: "idle", station: null, target: null, path: here, until: null });
+}
+
+/** The pots: a soup done is ready; one left `burn` turns past ready burns (unless a cook is taking it up), the order to make again. */
+function watchPots(state) {
+  for (const [stove, pot] of state.pots) {
+    const order = state.upcoming.find((one) => one.id === pot.order);
+    if (order.status === "cooking" && state.t >= pot.ready) order.status = "ready";
+    if (state.t < pot.ready + state.setup.unattended.burn) continue;
+    const cook = state.cooks.find((one) => one.order === order.id);
+    if (cook?.phase === "working") continue;
+    if (cook) drop(state, cook);
+    state.pots.delete(stove);
+    state.dirty.add(stove);
+    state.burnt += 1;
+    Object.assign(order, { status: "open", cook: null, stove: null, burnt: (order.burnt ?? 0) + 1 });
+    state.log.push({ t: state.t, type: "burnt", order: order.id });
+  }
+}
+
+/** Work that ends now: the next step, a dish put down or picked up, a pot put on or taken up, or the dish served. */
 function finishWork(state) {
   for (const cook of state.cooks) {
     if (cook.until !== state.t) continue;
@@ -219,6 +299,14 @@ function finishWork(state) {
     if (step.type === "put") {
       putDown(state, cook, order, counter);
       continue;
+    }
+    if (step.type === "cook" && state.setup.unattended) {
+      putOn(state, cook, order, counter);
+      continue;
+    }
+    if (step.type === "collect") {
+      state.pots.delete(counter);
+      order.stove = null;
     }
     if (step.type === "pickup") {
       state.shelf.delete(counter);
@@ -232,19 +320,27 @@ function finishWork(state) {
 }
 
 /**
- * What a free cook is asked: the open orders (and, for a robot, the cut onions waiting on a counter), and
- * `reach(order)`, the floor distance to its ingredient's crate, or to the counter. A robot with a role is
- * offered the work of its role, everything when there is none.
+ * What a free cook is asked: the open orders, the soups ready on a stove (and, for a robot, the cut onions
+ * waiting on a counter), and `reach(order)`, the floor distance to its ingredient's crate, to the counter or
+ * to the stove. A robot with a role is offered the work of its role, everything when there is none.
  */
 function choiceOf(state, cook) {
-  const all = state.upcoming.filter((order) => order.status === "open" || (cook.kind === "robot" && order.status === "prepped"));
+  // Cut onions are offered only while a stove is free: taken up with every stove holding a pot, they would wait in hand.
+  const cookable = !state.setup.unattended || stoveFree(state);
+  const all = state.upcoming.filter((order) => order.status === "open" || order.status === "ready" || (cook.kind === "robot" && order.status === "prepped" && cookable));
   // Cut onions piling up on the counters (two or more): the stove is behind, any robot gives a hand.
   const pile = all.filter((order) => order.status === "prepped");
   const mine = all.filter((order) => fitsRole(cook.role, order) || (pile.length >= PILE && order.status === "prepped"));
-  const open = mine.length > 0 ? mine : all;
+  // A cooking robot watches the stoves while a pot is on: it helps elsewhere only when none is.
+  const watching = cook.role === "cuisson" && state.pots.size > 0;
+  const open = mine.length > 0 || watching ? mine : all;
   const distances = distancesFrom(state.kitchen, cook);
   const distanceTo = (station) => Math.min(...station.access.map((cell) => distances.get(keyOf(cell)) ?? Infinity));
-  const reach = (order) => Math.min(...state.kitchen.stations.filter((station) => (order.status === "prepped" ? keyOf(station) === order.counter : station.kind === RECIPES[order.recipe].ingredient)).map(distanceTo));
+  const at = (order) => (order.status === "prepped" ? order.counter : order.status === "ready" ? order.stove : null);
+  const reach = (order) => Math.min(...state.kitchen.stations.filter((station) => (at(order) ? keyOf(station) === at(order) : station.kind === RECIPES[order.recipe].ingredient)).map(distanceTo));
+  // A cook whose pot is on keeps an eye on it: a soup to take off, or an order it cuts before its own is ready.
+  const own = [...state.pots.values()].find((pot) => pot.owner === cook.id && state.t < pot.ready);
+  if (own) return { cook, open: open.filter((order) => order.status === "ready" || (order.status === "open" && reach(order) + 1 + RECIPES[order.recipe].cut + 2 <= own.ready - state.t)), reach };
   return { cook, open, reach };
 }
 
@@ -253,10 +349,10 @@ function take(state, choice, id) {
   const chosen = choice.open.find((order) => order.id === id);
   const { cook } = choice;
   if (!chosen) {
-    stepAside(state, cook);
+    if (!state.setup.unattended || !watch(state, cook)) stepAside(state, cook);
     return;
   }
-  const steps = chosen.status === "prepped" ? pickupSteps(chosen.counter, chosen.recipe) : stepsOf(chosen.recipe);
+  const steps = stepsFrom(chosen);
   Object.assign(chosen, { status: "taken", cook: cook.id });
   Object.assign(cook, { order: chosen.id, steps, step: 0, phase: "next" });
   state.log.push({ t: state.t, type: "taken", cook: cook.id, order: chosen.id });
@@ -268,6 +364,7 @@ const ask = (state, choice, rule) => (choice.open.length ? rule(choice.open, { t
 /** The start of a turn, up to the robots' choices: work ended, orders come in, the human takes his (he does not wait for the robots). */
 export function beginTurn(state, human) {
   finishWork(state);
+  if (state.setup.unattended) watchPots(state);
   for (const order of state.upcoming) if (order.status === "upcoming" && order.arrival <= state.t) order.status = "open";
   const person = state.cooks.find((cook) => cook.kind === "human" && !cook.manual && cook.phase === "idle");
   if (person) {
@@ -287,7 +384,7 @@ export function nextChoice(state) {
     if (cook.kind !== "robot" || cook.phase !== "idle") continue;
     const choice = choiceOf(state, cook);
     if (choice.open.length > 0) return choice;
-    stepAside(state, cook);
+    if (!state.setup.unattended || !watch(state, cook)) stepAside(state, cook);
   }
   return null;
 }
@@ -319,7 +416,10 @@ function move(state) {
     }
     if (cook.target && cook.x === cook.target.x && cook.y === cook.target.y) {
       cook.target = null;
-      if (cook.phase === "moving") Object.assign(cook, { phase: "working", until: state.t + cook.steps[cook.step].turns });
+      if (cook.phase === "moving") {
+        const turns = turnsOf(state, cook.steps[cook.step], cook.station);
+        Object.assign(cook, { phase: "working", until: state.t + turns, span: turns });
+      }
     }
   }
 }
@@ -387,8 +487,9 @@ export function steer(state, dx, dy) {
 
 function startWork(state, cook, station) {
   const step = cook.steps[cook.step];
-  if (isWorkStation(step.kind) && step.type !== "pickup") state.claims.set(keyOf(station), cook.id);
-  Object.assign(cook, { phase: "working", station, until: state.t + step.turns, target: null });
+  if (isWorkStation(step.kind) && !step.at) state.claims.set(keyOf(station), cook.id);
+  const turns = turnsOf(state, step, station);
+  Object.assign(cook, { phase: "working", station, until: state.t + turns, span: turns, target: null });
 }
 
 const NAMES = Object.freeze({ o: "la caisse d'oignons", t: "la caisse de tomates", C: "une planche", P: "un fourneau", S: "le passe", _: "un comptoir" });
@@ -419,8 +520,17 @@ export function interact(state) {
         startWork(state, cook, station);
         return `le chef reprend les oignons coupés de la commande ${order.id}`;
       }
+      if (station.kind === "P" && state.pots.has(keyOf(station))) {
+        const order = state.upcoming.find((one) => one.id === state.pots.get(keyOf(station)).order);
+        if (order.status === "cooking") return `la soupe cuit encore (prête au tour ${state.pots.get(keyOf(station)).ready})`;
+        if (order.status !== "ready") return "un robot vient déjà la chercher";
+        Object.assign(order, { status: "taken", cook: cook.id });
+        Object.assign(cook, { order: order.id, steps: collectSteps(order.stove), step: 0 });
+        startWork(state, cook, station);
+        return `le chef prend la soupe de la commande ${order.id} sur le feu`;
+      }
     }
-    return "les mains vides : prenez un ingrédient à sa caisse, ou des oignons coupés sur un comptoir";
+    return "les mains vides : prenez un ingrédient à sa caisse, des oignons coupés sur un comptoir ou une soupe prête sur le feu";
   }
   const step = cook.steps[cook.step];
   if (step.type === "cook") {
@@ -433,8 +543,9 @@ export function interact(state) {
   }
   const station = here.find((one) => !unfit(state, one, step));
   if (!station) return here.some((one) => one.kind === step.kind) ? `${NAMES[step.kind]} est occupé` : `il faut ${NAMES[step.kind]}`;
+  const cleaning = step.type === "cook" && state.setup.unattended && state.dirty.has(keyOf(station));
   startWork(state, cook, station);
-  return null;
+  return cleaning ? `le chef nettoie le fourneau brûlé (${state.setup.unattended.clean} tours), puis pose la marmite` : null;
 }
 
 /** A copy of `state` the search may play forward: cooks, orders, claims, reservations and the draws copied. */
@@ -445,6 +556,8 @@ export function cloneService(state) {
     upcoming: state.upcoming.map((order) => ({ ...order })),
     claims: new Map(state.claims),
     shelf: new Map(state.shelf),
+    pots: new Map([...state.pots].map(([key, pot]) => [key, { ...pot }])),
+    dirty: new Set(state.dirty),
     reservations: state.reservations.clone(),
     rng: state.rng.clone(),
     log: [],
@@ -453,7 +566,8 @@ export function cloneService(state) {
 
 /**
  * The service's measures: orders come, served in time (the score a team should raise), served late, not
- * served by the end, the mean time from order to table, and the cooks' moves and waits.
+ * served by the end, the mean time from order to table, and the cooks' moves and waits; with unattended
+ * cooking, the soups burnt.
  */
 export function measuresOf(state) {
   const come = state.upcoming.filter((order) => order.arrival <= state.t);
@@ -466,6 +580,7 @@ export function measuresOf(state) {
     meanServe: served.length ? served.reduce((sum, order) => sum + order.servedAt - order.arrival, 0) / served.length : 0,
     moves: state.cooks.reduce((sum, cook) => sum + cook.moves, 0),
     waits: state.cooks.reduce((sum, cook) => sum + cook.waits, 0),
+    ...(state.setup.unattended ? { burnt: state.burnt } : {}),
   };
 }
 

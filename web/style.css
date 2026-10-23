@@ -106,3 +106,9 @@ th { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.05em; colo
 th.num, td.num { text-align: right; font-variant-numeric: tabular-nums; }
 tr.current td { background: color-mix(in srgb, var(--accent) 10%, transparent); }
 .summary.chef { border-color: var(--accent, #2f6f8f); }
+.pot-left { font-size: 10px; font-weight: 700; text-anchor: end; fill: var(--ink, #222); pointer-events: none; }
+.pot-left.urgent, .symbol.urgent { fill: var(--late); }
+.symbol.urgent { animation: blink 0.8s steps(2) infinite; }
+@keyframes blink { 50% { opacity: 0.35; } }
+@media (prefers-reduced-motion: reduce) { .symbol.urgent { animation: none; } }
+label.check { flex-direction: row; align-items: center; gap: 6px; }

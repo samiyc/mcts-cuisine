@@ -47,4 +47,22 @@ describe("what the page shows (web/view.js)", () => {
     }
     assert.ok(seenOnCounter, "un plat posé sur un comptoir");
   });
+
+  it("shows the pots cooking alone, the soups ready with the turns before they burn, and the stoves to clean", () => {
+    const kitchen = { ...KITCHENS.petite, unattended: { burn: 2, clean: 5 } };
+    const service = createService(kitchen, drawOrders(1, kitchen), { seed: 1 });
+    const seen = { cooking: false, ready: false, dirty: false };
+    while (!isOver(service)) {
+      stepService(service, RULES.oldest, HUMANS.urgent);
+      for (const cell of cellsOf(service)) {
+        assert.ok(cell.progress === null || (cell.progress >= 0 && cell.progress <= 1));
+        if (cell.pot?.ready === false) seen.cooking = true;
+        if (cell.pot?.ready) seen.ready ||= cell.pot.left >= 0 && cell.pot.left <= 2;
+        if (cell.dirty) seen.dirty = true;
+      }
+      for (const order of ordersOf(service)) if (service.upcoming.find((one) => one.id === order.id).status === "ready") assert.match(order.status, /^prête sur le feu, brûle dans \d+ tours/);
+    }
+    assert.deepEqual(seen, { cooking: true, ready: true, dirty: true });
+    assert.match(statusLine(service), /\d+ soupes? brûlées?/);
+  });
 });
