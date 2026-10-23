@@ -34,13 +34,23 @@
         <h2>Les versions</h2>
 
       <article class="version">
+        <h3><span class="tag">0.12</span> Le robot qui attendait le chef, l'allure orange <span class="date">23/10, tard</span></h3>
+        <ul>
+          <li>Corrigé (replay de Sami) : un robot arrêté avant sa planche, le chef posé devant elle, l'attendait pour toujours en gardant la planche ; il la libère et cherche de nouveau.</li>
+          <li>L'allure commune des projets (mcts-commun, web/theme.css) : un bandeau orange aux teintes chaudes, 🍳 devant le titre, les réglages en carte, des sections pliables bien visibles (une barre, un chevron, « Ouvrir / Fermer »).</li>
+        </ul>
+        <p class="commits"><code>a1bb6df</code> <code>bf78969</code></p>
+      </article>
+
+      <article class="version">
         <h3><span class="tag">0.11</span> Le chef au clavier sans tours perdus <span class="date">23/10, soir</span></h3>
         <ul>
           <li>Le tour commence avant la touche du chef : une soupe prête se prend le tour même, et le chef est libre dès la fin de son geste (deux tours perdus avant, Sami).</li>
           <li>Le chef occupé dit ce qu'il fait et combien de tours il reste ; le replay du service en cours est gardé tous les 20 tours.</li>
           <li>Corrigé : un robot se mettait à travailler en passant sur sa case, puis repartait.</li>
+          <li>Une touche après la fin du service le dit ; le chiffre sur la marmite est expliqué (🥘 tours avant qu'elle soit prête, 🍲 avant qu'elle brûle).</li>
         </ul>
-        <p class="commits"><code>25afdab</code> <code>a91a76d</code> <code>57e2c81</code></p>
+        <p class="commits"><code>25afdab</code> <code>a91a76d</code> <code>57e2c81</code> <code>5dac2d9</code> <code>cffa877</code> <code>2a54089</code></p>
       </article>
 
       <article class="version">
@@ -49,8 +59,10 @@
           <li>Les services joués au clavier sont gardés dans le navigateur, se téléchargent et se rejouent ; npm run replay dit ce qui semble anormal, et à quel tour.</li>
           <li>« Analyser les écarts » : chaque commande que le chef aurait pu prendre, rejouée avec le recul, et ce que son choix a coûté.</li>
           <li>Les mesures de nuit (night.json), jouées par l'ordonnanceur commun de mcts-commun.</li>
+          <li>Les parties gardées par la page s'écrivent aussi dans replays/, hors de git, par le serveur de la page.</li>
+          <li>Le journal des versions dans la page.</li>
         </ul>
-        <p class="commits"><code>ea24e07</code> <code>0539d7e</code></p>
+        <p class="commits"><code>ea24e07</code> <code>0539d7e</code> <code>94f95e0</code> <code>f761ca9</code> <code>3ae867c</code> <code>841042f</code> <code>2146883</code></p>
       </article>
 
       <article class="version">
