@@ -274,7 +274,10 @@ function board() {
     if (cell.pot) {
       const urgent = cell.pot.ready && cell.pot.left <= 2;
       map.append(svg("text", { x: x + CELL / 2, y: y + CELL / 2 + 7, class: `symbol dish${cell.pot.ready ? " ready" : ""}${urgent ? " urgent" : ""}` }, cell.pot.ready ? "🍲" : "🥘"));
-      map.append(svg("text", { x: x + CELL - 4, y: y + 11, class: `pot-left${urgent ? " urgent" : ""}` }, String(cell.pot.left)));
+      // The number: turns before it is ready (🥘), then before it burns (🍲) (Sami, 23/10: what are these numbers?).
+      const left = svg("text", { x: x + CELL - 4, y: y + 11, class: `pot-left${urgent ? " urgent" : ""}` }, String(cell.pot.left));
+      left.append(svg("title", {}, cell.pot.ready ? `prête : brûle dans ${cell.pot.left} tour${cell.pot.left > 1 ? "s" : ""}` : `cuit : prête dans ${cell.pot.left} tour${cell.pot.left > 1 ? "s" : ""}`));
+      map.append(left);
     } else if (cell.dirty) {
       map.append(svg("text", { x: x + CELL / 2, y: y + CELL / 2 + 7, class: "symbol dish" }, "🧽"));
     }
@@ -312,7 +315,7 @@ function counterBoard() {
 }
 
 function legend() {
-  return el("p", { class: "hint legend" }, ...Object.entries(RECIPES).map(([name, recipe]) => el("span", { class: `legend-item ${name}` }, `${recipe.emoji} ${recipe.label}`)), " · 🧅 entier, 🧅🔪 coupé · la barre : la patience du client, pleine à la commande, vide à l'échéance.");
+  return el("p", { class: "hint legend" }, ...Object.entries(RECIPES).map(([name, recipe]) => el("span", { class: `legend-item ${name}` }, `${recipe.emoji} ${recipe.label}`)), " · 🧅 entier, 🧅🔪 coupé · la barre : la patience du client, pleine à la commande, vide à l'échéance · sur un fourneau, 🥘 cuit (le chiffre : tours avant qu'elle soit prête), 🍲 prête (tours avant qu'elle brûle) ; la barre verte sous un poste : le geste en cours.");
 }
 
 function orders() {
