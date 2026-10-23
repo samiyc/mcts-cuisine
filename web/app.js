@@ -15,7 +15,7 @@ const CELL = 36;
 const COMPARED = 100;
 const COMPARED_WITH_SEARCH = 12;
 const app = document.getElementById("app");
-const state = { kitchenId: "petite", setup: { ...KITCHENS.petite }, rule: "quickest", human: "urgent", seed: 1, speed: 4, service: null, timer: null, compared: null, error: "", busy: "", run: 0 };
+const state = { kitchenId: "petite", setup: { ...KITCHENS.petite }, rule: "search", human: "random", seed: 1, speed: 4, service: null, timer: null, compared: null, error: "", busy: "", run: 0 };
 const SYMBOLS = { o: "🧅", t: "🍅", C: "🔪", P: "🔥", S: "🛎" };
 /** Unattended cooking's defaults in the editor (Sami, 23/10): a ready soup burns after 6 turns, a burnt stove takes 5 to clean. */
 const UNATTENDED = Object.freeze({ burn: 6, clean: 5 });

@@ -434,6 +434,15 @@ function finishWork(state) {
 function choiceOf(state, cook) {
   // Cut onions are offered only while a stove is free: taken up with every stove holding a pot, they would wait in hand.
   const cookable = !state.setup.unattended || stoveFree(state);
+  // A soup ready on a stove: only if the cook gets there before it burns; the keyboard chef's own, left to him
+  // until it is about to burn (Sami, 23/10: a robot set off for it and arrived too late).
+  const inTime = (order) => {
+    if (order.status !== "ready" || !state.setup.unattended) return true;
+    const pot = state.pots.get(order.stove);
+    const left = pot.ready + state.setup.unattended.burn - state.t;
+    const owner = state.cooks.find((one) => one.id === pot.owner);
+    return reach(order) + 1 <= left && (!owner?.manual || owner === cook || left <= reach(order) + 3);
+  };
   const offered = (order) => !order.stock && (order.status === "open" || order.status === "ready" || (cook.kind === "robot" && order.status === "prepped" && (cookable || servable(order))));
   const distances = distancesFrom(state.kitchen, cook);
   const distanceTo = (station) => sideDistance(distances, station);
@@ -442,7 +451,7 @@ function choiceOf(state, cook) {
   // Only what this cook can reach (a kitchen cut in two); a dish on a counter, only if it can also reach what it
   // needs next (taking up the dish it has just left for someone else would loop).
   const nextKind = (order) => (servable(order) ? "S" : "P");
-  const all = state.upcoming.filter((order) => offered(order) && reach(order) < Infinity && (order.status !== "prepped" || (order.relayedBy !== cook.id && kindDistance(state, distances, nextKind(order)) < Infinity)));
+  const all = state.upcoming.filter((order) => offered(order) && reach(order) < Infinity && (order.status !== "prepped" || (order.relayedBy !== cook.id && kindDistance(state, distances, nextKind(order)) < Infinity)) && inTime(order));
   // Cut onions piling up on the counters (two or more): the stove is behind, any robot gives a hand.
   const pile = all.filter((order) => order.status === "prepped");
   const mine = all.filter((order) => fitsRole(cook.role, order) || (pile.length >= PILE && order.status === "prepped"));
@@ -670,11 +679,14 @@ export function interact(state) {
       if (station.kind === "P" && state.pots.has(keyOf(station))) {
         const order = state.upcoming.find((one) => one.id === state.pots.get(keyOf(station)).order);
         if (order.status === "cooking") return `la soupe cuit encore (prête au tour ${state.pots.get(keyOf(station)).ready})`;
-        if (order.status !== "ready") return "un robot vient déjà la chercher";
+        // A robot on its way for it gives it back to the chef, who is there (Sami, 23/10: it got there too late).
+        const coming = order.status === "taken" ? state.cooks.find((one) => one.id === order.cook && one.phase !== "working") : null;
+        if (order.status !== "ready" && !coming) return "un robot la retire déjà du feu";
+        if (coming) drop(state, coming);
         Object.assign(order, { status: "taken", cook: cook.id });
         Object.assign(cook, { order: order.id, steps: collectSteps(order.stove), step: 0 });
         startWork(state, cook, station);
-        return `le chef prend la soupe de la commande ${order.id} sur le feu`;
+        return `le chef prend la soupe de la commande ${order.id} sur le feu${coming ? ` (le robot ${coming.id} y allait)` : ""}`;
       }
     }
     return "les mains vides : prenez un ingrédient à sa caisse, des oignons coupés sur un comptoir ou une soupe prête sur le feu";

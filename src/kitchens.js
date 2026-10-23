@@ -16,6 +16,9 @@ export const RECIPES = Object.freeze({
   salade: Object.freeze({ label: "salade de tomates", emoji: "🥗", ingredient: "t", cut: 4, cook: 0 }),
 });
 
+/** Unattended cooking, on in every kitchen (Sami, 23/10/2026): a ready soup burns after 6 turns, a burnt stove takes 5 to clean. */
+export const UNATTENDED = Object.freeze({ burn: 6, clean: 5 });
+
 export const KITCHENS = Object.freeze({
   petite: Object.freeze({
     label: "Petite cuisine (2 robots et vous)",
@@ -24,6 +27,7 @@ export const KITCHENS = Object.freeze({
     patience: 60,
     service: 200,
     lastOrder: 160,
+    unattended: UNATTENDED,
   }),
   couloir: Object.freeze({
     label: "Cuisine en couloir (1 robot et vous)",
@@ -32,6 +36,7 @@ export const KITCHENS = Object.freeze({
     patience: 70,
     service: 200,
     lastOrder: 160,
+    unattended: UNATTENDED,
   }),
   brigade: Object.freeze({
     label: "Grande brigade (4 robots et vous)",
@@ -40,6 +45,7 @@ export const KITCHENS = Object.freeze({
     patience: 55,
     service: 200,
     lastOrder: 160,
+    unattended: UNATTENDED,
   }),
   comptoirs: Object.freeze({
     label: "Passe-plats (2 robots et vous, deux comptoirs : un coupe, l'autre cuit)",
@@ -48,6 +54,7 @@ export const KITCHENS = Object.freeze({
     patience: 60,
     service: 200,
     lastOrder: 160,
+    unattended: UNATTENDED,
     roles: Object.freeze(["coupe", "cuisson"]),
   }),
   postes: Object.freeze({
@@ -57,6 +64,7 @@ export const KITCHENS = Object.freeze({
     patience: 60,
     service: 200,
     lastOrder: 160,
+    unattended: UNATTENDED,
     roles: Object.freeze(["coupe", "cuisson"]),
   }),
   separee: Object.freeze({
@@ -66,6 +74,7 @@ export const KITCHENS = Object.freeze({
     patience: 60,
     service: 200,
     lastOrder: 160,
+    unattended: UNATTENDED,
   }),
   detour: Object.freeze({
     label: "Le grand détour (Sami : loin du feu au passe ; le robot 2 au passe, les comptoirs en relais)",
@@ -74,6 +83,7 @@ export const KITCHENS = Object.freeze({
     patience: 60,
     service: 200,
     lastOrder: 160,
+    unattended: UNATTENDED,
     roles: Object.freeze([null, "passe"]),
   }),
 });

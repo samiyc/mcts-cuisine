@@ -314,6 +314,18 @@ puis sans humain) :
 - **Ailleurs, c'est céder sa place** : 1,2 fois par service dans la petite cuisine (+0,3 plat), 0,7 dans « Postes ».
   Rien ne baisse.
 
+
+## Les réglages de Sami par défaut, et la soupe du chef (23/10, tard le soir)
+
+Sami joue avec la recherche, le cuisinier « au hasard » (les robots comblent ses manques) et la cuisson sans surveillance, qui donne plus de variété : c'est maintenant ce que la page propose au départ, et **la cuisson sans surveillance est active dans toutes les cuisines** (`UNATTENDED` de `kitchens.js` : brûle 6 tours après être prête, 5 tours de nettoyage ; `unattended: null` pour la soupe surveillée).
+
+**La soupe du chef au clavier** (bug de Sami) : sa soupe prête, un robot partait la chercher, et le temps qu'il arrive elle avait brûlé ; le chef, lui, ne pouvait plus la prendre (« un robot vient déjà la chercher »).
+- Un robot ne prend une soupe prête que s'il arrive avant qu'elle brûle.
+- La soupe du chef au clavier lui est laissée, sauf au dernier moment (le robot y arriverait de justesse).
+- Le chef devant son fourneau la reprend toujours, même si un robot y allait : le robot retourne à autre chose.
+
+Ce que coûte la cuisson sans surveillance partout (60 services, le plus rapide ; le cuisinier « le plus urgent » / « le plus proche » / sans humain) : petite 14,2 → 13,0, en couloir 6,3 → 5,7, brigade 17,7 → 16,8, passe-plats 9,9 → 7,5, postes 12,3 → 9,3, coupée en deux 12,1 → 11,3, le grand détour 10,2 → 8,6 (cuisinier le plus urgent). Comme mesuré plus haut, la soupe seule ne gagne pas de plats ici ; elle donne des soupes brûlées, des fourneaux à nettoyer, et des décisions de plus.
+
 ## La suite
 
 1. **Les robots en avance** : qu'un robot libre prépare un lot sans commande, du plat le plus demandé, et le

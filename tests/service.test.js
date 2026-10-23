@@ -59,7 +59,7 @@ describe("the kitchen (src/kitchen.js, src/simulate.js)", () => {
     assert.equal(measures.onTime + measures.late + measures.missed, measures.orders);
     assert.ok(state.log.some((event) => event.type === "served"));
     assert.deepEqual(runService(KITCHENS.couloir, 3, RULES.quickest, HUMANS.random, "random").measures, runService(KITCHENS.couloir, 3, RULES.quickest, HUMANS.random, "random").measures);
-    assert.deepEqual(measuresOf(createService(KITCHENS.petite, [])), { orders: 0, onTime: 0, late: 0, missed: 0, meanServe: 0, moves: 0, waits: 0 });
+    assert.deepEqual(measuresOf(createService(KITCHENS.petite, [])), { orders: 0, onTime: 0, late: 0, missed: 0, meanServe: 0, moves: 0, waits: 0, burnt: 0 });
   });
 
   it("gives robots roles: the cutter puts cut onions on a counter, one batch a counter, and they are cooked and served", () => {
@@ -121,7 +121,7 @@ describe("the kitchen (src/kitchen.js, src/simulate.js)", () => {
     assert.ok(measures.burnt > 0, "une soupe laissée brûle");
     assert.ok(state.log.filter((one) => one.type === "burnt").every((event) => state.upcoming.find((one) => one.id === event.order).burnt > 0));
     // Without the option, no pot and no burnt measure: the kitchen plays as before.
-    assert.equal("burnt" in runService(KITCHENS.petite, 1, RULES.quickest, HUMANS.urgent).measures, false);
+    assert.equal("burnt" in runService({ ...KITCHENS.petite, unattended: null }, 1, RULES.quickest, HUMANS.urgent).measures, false);
   });
 
   it("relays dishes through the counters in a kitchen cut in two, and never takes back a dish it left", () => {
@@ -133,7 +133,9 @@ describe("the kitchen (src/kitchen.js, src/simulate.js)", () => {
       const relays = state.log.filter((event) => event.type === "relay");
       assert.ok(relays.length > 0, "des relais");
       for (const relay of relays) {
-        const after = state.log.filter((event) => event.type === "taken" && event.order === relay.order && event.t >= relay.t);
+        // Up to a burn: a soup burnt is an order to make again, which anyone may take.
+        const burnt = state.log.find((event) => event.type === "burnt" && event.order === relay.order && event.t >= relay.t)?.t ?? Infinity;
+        const after = state.log.filter((event) => event.type === "taken" && event.order === relay.order && event.t >= relay.t && event.t < burnt);
         assert.ok(after.every((event) => event.cook !== relay.cook), `service ${seed} : le robot ${relay.cook} reprend la commande ${relay.order}`);
       }
       served += measuresOf(state).onTime;
@@ -186,6 +188,30 @@ describe("the kitchen (src/kitchen.js, src/simulate.js)", () => {
     const { state } = runService(KITCHENS.detour, 1, RULES.quickest, HUMANS.nearest, "nearest");
     const human = state.cooks.find((cook) => cook.kind === "human").id;
     assert.ok(state.log.some((event) => event.type === "relay" && event.cook === human), "le cuisinier pose pour le robot du passe");
+  });
+
+  it("leaves the keyboard chef his soup ready on the stove, unless it is about to burn, and gives it back to him", () => {
+    const kitchen = { ...KITCHENS.petite, unattended: { burn: 12, clean: 5 } };
+    const state = createService(kitchen, [{ id: 1, recipe: "soupe", arrival: 500, deadline: 590 }], { human: "clavier", manual: true, seed: 1 });
+    const chef = state.cooks.find((cook) => cook.manual);
+    stepService(state, RULES.quickest, null);
+    // His soup ready on the right stove (10, 3), the chef beside it.
+    const order = state.upcoming[0];
+    assert.ok(state.cooks.every((cook) => cook.order === null));
+    Object.assign(order, { status: "ready", cook: null, stove: "10,3", arrival: 0 });
+    state.pots.set("10,3", { order: 1, ready: state.t, owner: chef.id });
+    stepService(state, RULES.quickest, null);
+    assert.equal(order.status, "ready", "les robots la laissent au chef");
+    // A robot sets off for it all the same: the chef there takes it back.
+    const robot = state.cooks.find((cook) => cook.kind === "robot");
+    Object.assign(order, { status: "taken", cook: robot.id });
+    Object.assign(robot, { order: 1, steps: [{ type: "collect", kind: "P", at: "10,3", turns: 1 }, { type: "serve", kind: "S", turns: 1 }], step: 0, phase: "moving" });
+    state.reservations.release(chef.id);
+    state.reservations.reserve(chef.id, [{ x: 9, y: 3, t: state.t }], { stay: true });
+    Object.assign(chef, { x: 9, y: 3 });
+    assert.match(interact(state), /le chef prend la soupe de la commande 1 sur le feu \(le robot \d y allait\)/);
+    assert.equal(chef.order, 1);
+    assert.equal(robot.order, null);
   });
 
   it("lets a person play the chef: moves, takes an order at a crate, cuts it, and the robots plan around him", () => {
