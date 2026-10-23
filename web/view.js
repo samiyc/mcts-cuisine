@@ -6,8 +6,9 @@ import { RECIPES } from "../src/kitchens.js";
  * draw, the cooks with what they do, the orders with their age and patience left, the service in one line.
  * The DOM layer (app.js) only draws it.
  */
-const STEP_LABELS = Object.freeze({ fetch: "prend l'ingrédient", cut: "coupe", cook: "fait cuire", serve: "sert", put: "pose le plat sur un comptoir", pickup: "reprend un plat posé" });
-const READY_STEPS = new Set(["serve", "put"]);
+const STEP_LABELS = Object.freeze({ fetch: "prend l'ingrédient", cut: "coupe", cook: "fait cuire", serve: "sert", put: "pose les oignons coupés sur un comptoir", pickup: "reprend des oignons coupés" });
+const READY_STEPS = new Set(["serve"]);
+const ROLE_LABELS = Object.freeze({ coupe: "coupe", cuisson: "cuisson", salade: "salades" });
 
 /**
  * Every cell to draw: `{ x, y, kind, progress, label, dish }`, kind floor, wall, counter or a station's letter;
@@ -40,7 +41,7 @@ export function cooksOf(state) {
   return state.cooks.map((cook) => {
     const order = state.upcoming.find((one) => one.id === cook.order);
     const step = order ? cook.steps[cook.step] : null;
-    const who = cook.kind === "human" ? "Le cuisinier" : `Robot ${cook.id}`;
+    const who = cook.kind === "human" ? "Le cuisinier" : `Robot ${cook.id}${cook.role ? ` (${ROLE_LABELS[cook.role]})` : ""}`;
     const doing = order ? `${STEP_LABELS[step.type]} (commande ${order.id}, ${RECIPES[order.recipe].label})` : "libre";
     return {
       id: cook.id,
@@ -63,7 +64,7 @@ function statusOf(state, order) {
   const time = left >= 0 ? `encore ${left} tours` : `${-left} tours de retard`;
   if (order.status === "served") return order.servedAt <= order.deadline ? `servie à temps (tour ${order.servedAt})` : `servie en retard (tour ${order.servedAt})`;
   if (order.status === "taken") return `${who}, ${time}`;
-  if (order.status === "ready") return `prête sur un comptoir, ${time}`;
+  if (order.status === "prepped") return `oignons coupés sur un comptoir, ${time}`;
   return `personne, ${time}`;
 }
 
@@ -98,7 +99,7 @@ export function statusLine(state, measures) {
   const onTime = served.filter((order) => order.servedAt <= order.deadline).length;
   const come = state.upcoming.filter((order) => order.arrival <= state.t).length;
   const parts = [`Tour ${state.t} / ${state.setup.service}`, `${come} commandes`, `${onTime} servies à temps`, `${served.length - onTime} en retard`];
-  if (state.shelf.size > 0) parts.push(`${state.shelf.size} sur un comptoir`);
+  if (state.shelf.size > 0) parts.push(`${state.shelf.size} comptoir${state.shelf.size > 1 ? "s" : ""} garni${state.shelf.size > 1 ? "s" : ""}`);
   if (measures) parts.push(`${measures.missed} pas servies`, `${Math.round(measures.meanServe)} tours en moyenne de la commande à la table`);
   return parts.join(" · ");
 }

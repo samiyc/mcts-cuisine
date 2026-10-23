@@ -105,3 +105,4 @@ th, td { text-align: left; padding: 6px 8px; border-bottom: 1px solid var(--line
 th { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--ink-2); }
 th.num, td.num { text-align: right; font-variant-numeric: tabular-nums; }
 tr.current td { background: color-mix(in srgb, var(--accent) 10%, transparent); }
+.summary.chef { border-color: var(--accent, #2f6f8f); }

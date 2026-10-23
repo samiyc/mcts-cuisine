@@ -34,6 +34,8 @@ function drawComing(setup, t, lastId, rng) {
 /** A world consistent with what the robots know at this choice, played to `horizon` turns from now. */
 export function drawWorld(state, rng, horizon = SEARCH_SETTINGS.horizon, human = null) {
   const world = cloneService(state);
+  // The chef at the keyboard is played, in the worlds, by a model of a human like any other.
+  for (const cook of world.cooks) cook.manual = false;
   const come = world.upcoming.filter((order) => order.arrival <= state.t);
   world.upcoming = [...come, ...drawComing(state.setup, state.t, Math.max(0, ...come.map((order) => order.id)), rng)];
   const names = Object.keys(HUMANS);

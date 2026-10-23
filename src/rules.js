@@ -7,8 +7,8 @@ import { runService } from "./simulate.js";
  * order`: `open` the orders nobody has taken, `reach(order)` the floor distance to its ingredient's crate.
  */
 const first = (open, before) => open.reduce((best, order) => (before(order, best) ? order : best));
-/** The work left on an order: a dish ready on a counter has none. */
-const workOf = (order) => (order.status === "ready" ? 0 : RECIPES[order.recipe].cut + RECIPES[order.recipe].cook);
+/** The work left on an order: cut onions waiting on a counter have only their cooking left. */
+const workOf = (order) => (order.status === "prepped" ? 0 : RECIPES[order.recipe].cut) + RECIPES[order.recipe].cook;
 
 export const RULES = Object.freeze({
   /** The order that came first. */
@@ -24,7 +24,7 @@ export const HUMANS = Object.freeze({
   urgent: (open) => first(open, (a, b) => a.deadline < b.deadline),
   random: (open, { rng }) => open[rng.int(open.length)],
 });
-export const HUMAN_LABELS = Object.freeze({ nearest: "prend le plus proche", urgent: "prend le plus urgent", random: "prend au hasard", none: "pas d'humain" });
+export const HUMAN_LABELS = Object.freeze({ nearest: "prend le plus proche", urgent: "prend le plus urgent", random: "prend au hasard", clavier: "c'est vous, au clavier (Z Q S D, E)", none: "pas d'humain" });
 
 const mean = (values) => values.reduce((sum, value) => sum + value, 0) / values.length;
 const MEASURES = ["orders", "onTime", "late", "missed", "meanServe", "waits"];

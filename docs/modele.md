@@ -88,9 +88,9 @@ le deviner compte, il faut qu'il gêne davantage les robots : des postes partag�
 plus longues où l'on se passe des ingrédients, ou un vrai joueur dans la page, bien moins prévisible que
 trois règles.
 
-## Les comptoirs (23/10, Sami)
+## Les comptoirs (23/10, Sami, le matin ; remplacé l'après-midi, voir « Les postes »)
 
-**Ce qui est modélisé.** Un comptoir (`_`) tient un seul plat prêt. Le cuisinier, son plat fini, le pose sur
+**Ce qui était modélisé.** Un comptoir (`_`) tient un seul plat prêt. Le cuisinier, son plat fini, le pose sur
 le comptoir libre le plus proche quand il est plus près que le passe (`handOff` : de combien de pas au
 moins), puis retourne cuisiner. Le plat attend, et un robot libre le voit parmi ses choix, à côté des
 commandes à cuisiner : il va le reprendre (un tour) et le sert. Les robots servent eux-mêmes leurs plats.
@@ -119,12 +119,66 @@ l'emoji et la couleur de son plat (🍲 soupe, 🥗 salade), son âge et une **b
 commande, vide à l'échéance, verte puis orange puis rouge) ; les plats posés sur les comptoirs ; le
 fourneau devient 🔥.
 
+## Les postes : des rôles, et les comptoirs pour les oignons coupés (23/10, Sami, l'après-midi)
+
+Sami, en regardant la page : un cuisinier qui pose une soupe finie sur un comptoir n'a pas de sens ; un
+comptoir sert plutôt à garder **des oignons coupés en attente de cuisson**. Et les robots ont **un rôle** :
+l'un coupe, l'autre cuit, un troisième fait les salades. Quand la demande est forte et que quelqu'un est
+libre, il donne un coup de main. Ce qui est modélisé :
+- **Le comptoir** tient un lot d'oignons coupés. Le cuisinier ne pose plus de plat fini : la section
+  précédente ne vaut plus (`handOff` est retiré), et ses chiffres non plus.
+- **Les rôles** (`roles` d'une cuisine, un par robot, dans l'ordre du plan ; dans la page, « Rôles des
+  robots ») :
+  - `coupe` : prend l'oignon, le coupe, puis le pose sur un comptoir libre. Sans comptoir libre, il le cuit
+    lui-même.
+  - `cuisson` : reprend des oignons coupés sur un comptoir, les cuit et sert la soupe.
+  - `salade` : fait les salades.
+  - Un robot sans rôle, et le cuisinier, font des plats entiers, comme avant.
+- **Le coup de main** : un robot se voit proposer d'abord le travail de son rôle. Il aide à autre chose
+  quand il n'en a pas, ou à la cuisson dès que deux lots ou plus attendent sur les comptoirs.
+- **La cuisine « Postes »**, celle de Sami (11 × 5) : trois comptoirs entre les planches et les fourneaux,
+  un robot qui coupe, un qui cuit.
+
+**Ce que ça donne** (60 services, le cuisinier « le plus urgent », plats servis à temps) :
+
+| Rôles des deux robots | Postes | Passe-plats |
+|---|---|---|
+| aucun (chacun fait des plats entiers) | **14,7** | **11,9** |
+| coupe, cuisson | 10,8 | 9,0 |
+| cuisson, coupe | 11,4 | — |
+| coupe, sans rôle | 11,0 | — |
+| sans rôle, cuisson / salade, cuisson | 14,7 | — |
+
+Sans humain, l'écart est le même : 11,0 sans rôles, 4,5 avec coupe et cuisson.
+
+- **Ici, les rôles coûtent 3 à 4 plats**, et tout vient du robot qui coupe. La cuisson est l'étape la plus
+  longue (8 tours, contre 3 pour couper), mais un seul robot la fait, alors qu'il y a deux fourneaux. Entre
+  les deux, chaque lot coûte deux gestes de plus (poser, reprendre) et un trajet.
+- **Un rôle de cuisson, seul, ne coûte rien** : sans soupe coupée à cuire, ce robot aide à tout le reste.
+- **Pourquoi ce n'est pas le cas en vrai.** Dans le modèle, tous les robots savent tout faire aussi vite, et
+  un cuisinier reste planté devant son fourneau pendant la cuisson. En cuisine, la soupe cuit seule : un
+  robot de cuisson surveillerait les deux fourneaux à la fois, et la spécialisation paierait. C'est le
+  prochain réglage à essayer (**la cuisson sans surveillance** : poser la marmite, repartir, revenir la
+  chercher). Ensuite, des robots plus rapides à leur poste.
+
+**L'attente près du poste** (Sami : un robot ou le chef, une soupe prête dans les mains, retournait à sa place
+avant d'aller au passe). Un cuisinier qui a quelque chose en main et dont le poste est pris attend maintenant
+sur la case libre la plus proche de ce poste, hors des cases de travail. S'il y bloque quelqu'un plus de trois
+tours (un couloir étroit), il s'écarte comme avant. Effet : +0,5 plat sur la petite cuisine et sur la brigade ;
+dans la cuisine en couloir, −0,7 (6,3 contre 7,0) : y attendre près d'un poste gêne le passage.
+
+**Jouer le chef au clavier** (Sami, 23/10). Dans la page, « Le cuisinier : c'est vous, au clavier » :
+- **Z Q S D** (ou les flèches) le déplacent d'une case par tour ;
+- **E** travaille au poste à côté : prendre un ingrédient à sa caisse (le chef prend alors la commande la
+  plus urgente de ce plat, et les robots la lui laissent), couper, cuire, poser des oignons coupés sur un
+  comptoir ou les reprendre, servir au passe.
+- La touche joue au tour suivant pendant que le service tourne ; en pause, elle joue son tour tout de suite.
+- **Les robots s'adaptent** : un robot dont le chemin réservé passe par la case où le chef va est replanifié
+  autour de lui. Ils ne connaissent pas ses habitudes : la recherche, elle, imagine le chef sous un modèle
+  d'humain tiré au hasard. On peut maintenant voir si les robots le gênent.
+
 ## La suite
 
-1. **Jouer le chef** (Sami, 23/10) : le cuisinier humain piloté au clavier dans la page, pour voir si les
-   robots s'adaptent à ses mouvements. Z Q S D pour se déplacer, E pour interagir (prendre un
-   ingrédient, travailler à un poste, prendre ou poser un plat). Les robots ne connaissent pas ses
-   habitudes : c'est là que deviner l'humain devrait enfin compter (plus haut, avec trois humains
-   simulés, le connaître ne rapportait presque rien).
+1. **La cuisson sans surveillance**, pour que les rôles aient une chance (plus haut).
 2. **Des recettes plus longues** (plusieurs ingrédients), où l'on se passe les ingrédients d'un
    comptoir à l'autre.

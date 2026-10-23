@@ -1,7 +1,7 @@
 import { KITCHENS, RECIPES } from "../src/kitchens.js";
 import { HUMAN_LABELS, HUMANS, RULE_LABELS, RULES, compareRules, summaryOf } from "../src/rules.js";
 import { searchRule } from "../src/search.js";
-import { createService, drawOrders, isOver, measuresOf, runService, stepService } from "../src/simulate.js";
+import { createService, drawOrders, interact, isOver, measuresOf, runService, steer, stepService } from "../src/simulate.js";
 import { cellsOf, cooksOf, ordersOf, statusLine } from "./view.js";
 
 /**
@@ -32,18 +32,33 @@ function svg(tag, attrs = {}, text = null) {
 }
 
 const humanRule = () => HUMANS[state.human] ?? null;
+/** The chef at the keyboard (Sami, 23/10): his next move, kept until the next turn, and what his last one did. */
+const manual = () => state.human === "clavier";
+const keyboard = { pending: null, message: "" };
+const KEYS = Object.freeze({ z: [0, -1], arrowup: [0, -1], s: [0, 1], arrowdown: [0, 1], q: [-1, 0], arrowleft: [-1, 0], d: [1, 0], arrowright: [1, 0] });
 const ruleOf = (name) => (name === "search" ? searchRule() : RULES[name]);
 const breathe = () => new Promise((resolve) => setTimeout(resolve, 0));
 function restart() {
   stop();
   Object.assign(state, { run: state.run + 1, busy: "" });
-  state.service = createService(state.setup, drawOrders(state.seed, state.setup), { human: humanRule() ? state.human : null, seed: state.seed });
+  state.service = createService(state.setup, drawOrders(state.seed, state.setup), { human: humanRule() ? state.human : null, seed: state.seed, manual: manual() });
+  Object.assign(keyboard, { pending: null, message: manual() ? "Jouer, puis Z Q S D pour bouger le chef, E pour prendre, travailler, poser, servir." : "" });
 }
 function stop() {
   clearInterval(state.timer);
   state.timer = null;
 }
-const step = () => stepService(state.service, ruleOf(state.rule), humanRule());
+/** One turn: the chef's pending key first, then everyone. */
+function step() {
+  if (manual() && keyboard.pending) {
+    const key = keyboard.pending;
+    keyboard.pending = null;
+    const said = key === "e" ? interact(state.service) : steer(state.service, ...KEYS[key]);
+    if (said) keyboard.message = said;
+    else if (key === "e") keyboard.message = "";
+  }
+  stepService(state.service, ruleOf(state.rule), humanRule());
+}
 
 /** Plays `service` to its end, the robots under `rule`, breathing every turn; false if a newer run started meanwhile. */
 async function playOut(service, rule, run, label) {
@@ -126,7 +141,7 @@ function board() {
     if (cell.label) tile.append(svg("title", {}, cell.label));
     map.append(tile);
     if (cell.label && SYMBOLS[cell.kind]) map.append(svg("text", { x: x + CELL / 2, y: y + CELL / 2 + 6, class: "symbol" }, SYMBOLS[cell.kind]));
-    if (cell.dish) map.append(svg("text", { x: x + CELL / 2, y: y + CELL / 2 + 7, class: "symbol dish" }, RECIPES[cell.dish].emoji));
+    if (cell.dish) map.append(svg("text", { x: x + CELL / 2, y: y + CELL / 2 + 7, class: "symbol dish" }, SYMBOLS[RECIPES[cell.dish].ingredient]));
     if (cell.progress !== null) map.append(svg("rect", { x: x + 4, y: y + CELL - 8, width: (CELL - 8) * cell.progress, height: 4, rx: 2, class: "progress" }));
   }
   const cooks = cooksOf(state.service);
@@ -170,8 +185,8 @@ function editor() {
     "details",
     { class: "editor" },
     el("summary", {}, "Changer de cuisine"),
-    el("p", { class: "hint" }, "Le plan en texte : « . » le sol, « R » un robot, « H » le cuisinier, « # » un mur, « _ » un comptoir où un plat prêt peut attendre (un seul par comptoir), « o » et « t » les caisses d'oignons et de tomates, « C » une planche, « P » un fourneau, « S » le passe."),
-    el("form", { "data-form": "kitchen" }, el("textarea", { name: "text", rows: String(setup.text.split("\n").length + 1), spellcheck: "false" }, setup.text), el("div", { class: "fields" }, field("Une commande tous les (tours)", "every", setup.every), field("Patience d'un client (tours)", "patience", setup.patience), field("Dernière commande (tour)", "lastOrder", setup.lastOrder), field("Fin du service (tour)", "service", setup.service)), el("button", { type: "submit" }, "Appliquer")),
+    el("p", { class: "hint" }, "Le plan en texte : « . » le sol, « R » un robot, « H » le cuisinier, « # » un mur, « _ » un comptoir où des oignons coupés attendent la cuisson (un lot par comptoir), quand les robots ont des rôles, « o » et « t » les caisses d'oignons et de tomates, « C » une planche, « P » un fourneau, « S » le passe."),
+    el("form", { "data-form": "kitchen" }, el("textarea", { name: "text", rows: String(setup.text.split("\n").length + 1), spellcheck: "false" }, setup.text), el("div", { class: "fields" }, field("Une commande tous les (tours)", "every", setup.every), field("Patience d'un client (tours)", "patience", setup.patience), field("Dernière commande (tour)", "lastOrder", setup.lastOrder), field("Fin du service (tour)", "service", setup.service), el("label", {}, "Rôles des robots", el("input", { name: "roles", value: (setup.roles ?? []).map((role) => role || "-").join(" "), placeholder: "coupe cuisson", title: "Un mot par robot, dans l'ordre du plan : coupe, cuisson, salade, ou - pour un robot qui fait tout" }))), el("button", { type: "submit" }, "Appliquer")),
     state.error ? el("p", { class: "error", role: "alert" }, state.error) : null,
   );
 }
@@ -193,13 +208,14 @@ function comparison() {
 
 function render() {
   const over = isOver(state.service);
-  app.replaceChildren(controls(), el("p", { class: "summary", "aria-live": "polite" }, state.busy || statusLine(state.service, over ? measuresOf(state.service) : null)), el("div", { class: "layout" }, board(), el("aside", {}, el("h2", {}, "Les commandes"), legend(), orders())), ...comparison(), editor());
+  const chef = manual() ? el("p", { class: "summary chef", "aria-live": "polite" }, `Le chef (H) : ${keyboard.message || "à vous"}`) : null;
+  app.replaceChildren(controls(), el("p", { class: "summary", "aria-live": "polite" }, state.busy || statusLine(state.service, over ? measuresOf(state.service) : null)), chef, el("div", { class: "layout" }, board(), el("aside", {}, el("h2", {}, "Les commandes"), legend(), orders())), ...comparison(), editor());
 }
 
 function applyKitchen(form) {
   const data = new FormData(form);
   const number = (name) => Math.max(1, Number(data.get(name)) || 1);
-  const setup = { ...state.setup, label: "Cuisine modifiée", text: String(data.get("text")).replace(/\s+$/, ""), every: number("every"), patience: number("patience"), lastOrder: number("lastOrder"), service: number("service") };
+  const setup = { ...state.setup, label: "Cuisine modifiée", text: String(data.get("text")).replace(/\s+$/, ""), every: number("every"), patience: number("patience"), lastOrder: number("lastOrder"), service: number("service"), roles: String(data.get("roles")).split(/\s+/).filter(Boolean).map((role) => (["coupe", "cuisson", "salade"].includes(role) ? role : null)) };
   try {
     createService(setup, []);
     Object.assign(state, { setup, error: "", compared: null });
@@ -251,6 +267,19 @@ app.addEventListener("submit", (event) => {
   event.preventDefault();
   applyKitchen(event.target);
   render();
+});
+// The chef's keys, kept for the next turn while the service plays; a key in a form field is the field's.
+document.addEventListener("keydown", (event) => {
+  if (!manual() || event.target.closest?.("input, textarea, select") || event.ctrlKey || event.altKey || event.metaKey) return;
+  const key = event.key.toLowerCase();
+  if (key !== "e" && !KEYS[key]) return;
+  event.preventDefault();
+  keyboard.pending = key;
+  // Paused: the key plays its turn at once.
+  if (!state.timer && !isOver(state.service)) {
+    step();
+    render();
+  }
 });
 restart();
 render();
