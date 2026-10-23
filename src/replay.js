@@ -1,14 +1,21 @@
 import { HUMANS, RULES } from "./rules.js";
 import { searchRule, valueOf } from "./search.js";
-import { assign, cloneService, createService, drawOrders, interact, isOver, offeredTo, steer, stepService } from "./simulate.js";
+import { assign, beginTurn, cloneService, createService, drawOrders, interact, isOver, offeredTo, steer, stepService } from "./simulate.js";
 
 /**
  * Replays of a service played at the keyboard (Sami, 23/10/2026: to debug what he saw, and later to compare what
  * the chef did with what the search would have done). A service is deterministic once its kitchen, its seed and
  * the robots' rule are known: a replay keeps those and the keys pressed, each with the turn it was played at.
  * `{ format, kitchenId, setup, seed, rule, inputs: [{ t, key }], savedAt }`.
+ *
+ * Version 2 (Sami, 23/10: two turns lost before taking a soup up): a turn starts (gestures ended, soups ready, orders
+ * come) before the chef's key, so a key finds the soup ready on its turn and the chef free once his gesture is done.
+ * Version 1, the key first, still plays back as it was played.
  */
-export const REPLAY_FORMAT = "cuisine-replay/1";
+export const REPLAY_FORMAT = "cuisine-replay/2";
+export const REPLAY_FORMATS = Object.freeze(["cuisine-replay/1", REPLAY_FORMAT]);
+/** Does a replay of `format` start each turn before the chef's key (version 2 on)? */
+export const startsFirst = (format) => format !== "cuisine-replay/1";
 export const MOVES = Object.freeze({ z: [0, -1], arrowup: [0, -1], s: [0, 1], arrowdown: [0, 1], q: [-1, 0], arrowleft: [-1, 0], d: [1, 0], arrowright: [1, 0] });
 
 /** A replay of the service \`state\` played under \`rule\` (its name), with \`inputs\`. */
@@ -51,7 +58,8 @@ export function anomaliesOf(state) {
  * anomalies, each with the first turn it was seen.
  */
 export function playReplay(replay, { onTurn = () => {}, onDecision = null, until = Infinity, rule: ruleOverride = null } = {}) {
-  if (replay.format !== REPLAY_FORMAT) throw new Error(`format de replay inconnu : ${replay.format}`);
+  if (!REPLAY_FORMATS.includes(replay.format)) throw new Error(`format de replay inconnu : ${replay.format}`);
+  const first = startsFirst(replay.format);
   const state = createService(replay.setup, drawOrders(replay.seed, replay.setup), { human: null, seed: replay.seed, manual: true });
   const rule = ruleOverride ?? ruleNamed(replay.rule);
   const inputs = [...replay.inputs];
@@ -59,6 +67,7 @@ export function playReplay(replay, { onTurn = () => {}, onDecision = null, until
   const chef = state.cooks.find((cook) => cook.manual);
   while (!isOver(state) && state.t < until) {
     let said = null;
+    if (first) beginTurn(state, HUMANS[replay.human] ?? null);
     // The chef's hands empty before his keys: if they take an order, that was a decision (\`onDecision\`).
     const before = onDecision && inputs[0]?.t === state.t && chef.order === null ? cloneService(state) : null;
     while (inputs.length && inputs[0].t === state.t) said = pressKey(state, inputs.shift().key) ?? said;

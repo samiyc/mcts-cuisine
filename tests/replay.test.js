@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import { KITCHENS } from "../src/kitchens.js";
 import { RULES } from "../src/rules.js";
 import { REPLAY_FORMAT, anomaliesOf, playReplay, pressKey, replayOf } from "../src/replay.js";
-import { createService, drawOrders, isOver, measuresOf, stepService } from "../src/simulate.js";
+import { beginTurn, createService, drawOrders, interact, isOver, measuresOf, stepService } from "../src/simulate.js";
 
 describe("replays of the chef at the keyboard (src/replay.js)", () => {
   it("plays a service again from its keys: the same service, nothing wrong", () => {
@@ -12,6 +12,8 @@ describe("replays of the chef at the keyboard (src/replay.js)", () => {
     const keys = ["q", "q", "z", "e", "s", "e", "d", "d", "e"];
     const inputs = [];
     for (let i = 0; !isOver(state); i += 1) {
+      // As the page plays it: the turn starts, then the chef's key.
+      beginTurn(state, null);
       if (i % 3 === 0) {
         const key = keys[(i / 3) % keys.length];
         inputs.push({ t: state.t, key });
@@ -26,6 +28,46 @@ describe("replays of the chef at the keyboard (src/replay.js)", () => {
     const again = playReplay(JSON.parse(JSON.stringify(replay)));
     assert.deepEqual(measuresOf(again.state), measuresOf(state));
     assert.deepEqual(again.anomalies, []);
+  });
+
+  it("lets the chef take a soup up on the turn it is ready, and carry it on as soon as he has (Sami, 23/10: two turns lost)", () => {
+    const kitchen = { ...KITCHENS.petite, unattended: { burn: 12, clean: 5 } };
+    const state = createService(kitchen, [{ id: 1, recipe: "soupe", arrival: 0, deadline: 300 }], { human: null, manual: true, seed: 1 });
+    const chef = state.cooks.find((cook) => cook.manual);
+    stepService(state, RULES.quickest, null);
+    const order = state.upcoming[0];
+    const ready = state.t + 2;
+    Object.assign(order, { status: "cooking", cook: null, stove: "10,3" });
+    state.pots.set("10,3", { order: 1, ready, owner: chef.id });
+    for (const cook of state.cooks) if (!cook.manual) cook.phase = "idle";
+    Object.assign(chef, state.kitchen.stations.find((one) => one.x === 10 && one.y === 3).access[0]);
+    const said = [];
+    while (state.t <= ready + 1) {
+      beginTurn(state, null);
+      said.push([state.t, interact(state)]);
+      stepService(state, RULES.quickest, null);
+    }
+    assert.match(said.find(([t]) => t === ready - 1)[1], /cuit encore/);
+    assert.match(said.find(([t]) => t === ready)[1], /prend la soupe/);
+    // Taking it up is one turn: the next turn he is on his way to the pass.
+    assert.equal(chef.steps[chef.step].type, "serve");
+    assert.equal(chef.phase, "next");
+  });
+
+  it("plays a replay of version 1 (the key before the turn) as it was played", () => {
+    const setup = KITCHENS.detour;
+    const state = createService(setup, drawOrders(3, setup), { human: null, seed: 3, manual: true });
+    const inputs = [];
+    for (let i = 0; !isOver(state); i += 1) {
+      if (i % 2 === 0) {
+        const key = ["q", "z", "e", "s", "d", "e"][(i / 2) % 6];
+        inputs.push({ t: state.t, key });
+        pressKey(state, key);
+      }
+      stepService(state, RULES.quickest, null);
+    }
+    const old = { ...replayOf({ kitchenId: "detour", setup, seed: 3, rule: "quickest", inputs }), format: "cuisine-replay/1" };
+    assert.deepEqual(measuresOf(playReplay(old).state), measuresOf(state));
   });
 
   it("tells a cook still working past its gesture, and a station held by nobody working there", () => {

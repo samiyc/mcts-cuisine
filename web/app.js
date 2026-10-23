@@ -1,9 +1,9 @@
 import { KITCHENS, RECIPES } from "../src/kitchens.js";
 import { HUMAN_LABELS, HUMANS, RULE_LABELS, RULES, compareRules, summaryOf } from "../src/rules.js";
 import { searchRule } from "../src/search.js";
-import { createService, drawOrders, interact, isOver, measuresOf, runService, steer, stepService } from "../src/simulate.js";
+import { beginTurn, createService, drawOrders, interact, isOver, measuresOf, runService, steer, stepService } from "../src/simulate.js";
 import { boardOf, cellsOf, cooksOf, ordersOf, statusLine } from "./view.js";
-import { gapsOf, pressKey, replayOf, REPLAY_FORMAT } from "../src/replay.js";
+import { gapsOf, pressKey, replayOf, REPLAY_FORMATS, startsFirst } from "../src/replay.js";
 
 /**
  * The page: a service in the chosen kitchen, the robots under the chosen rule beside the chosen simulated
@@ -86,13 +86,13 @@ function download(replay) {
 }
 /** Loads `replay` and plays it from the start, its keys at their turns. */
 function startReplay(replay) {
-  if (replay?.format !== REPLAY_FORMAT) {
+  if (!REPLAY_FORMATS.includes(replay?.format)) {
     state.error = "Ce fichier n'est pas un replay de la cuisine.";
     return;
   }
   Object.assign(state, { kitchenId: KITCHENS[replay.kitchenId] ? replay.kitchenId : state.kitchenId, setup: replay.setup, seed: replay.seed, rule: replay.rule, human: "clavier", error: "", compared: null });
   restart();
-  replays.playing = { inputs: [...replay.inputs] };
+  replays.playing = { inputs: [...replay.inputs], format: replay.format };
   keyboard.message = `Replay du ${replay.savedAt.slice(0, 16).replace("T", " à ")} : ${replay.inputs.length} touches.`;
 }
 
@@ -111,8 +111,11 @@ function stop() {
   state.timer = null;
   keepReplay();
 }
-/** One turn: the chef's pending key first, then everyone. */
+/** One turn: the turn starts (gestures ended, soups ready), the chef's pending key, then everyone. */
 function step() {
+  // Before the key (Sami, 23/10: a soup ready this turn, or a gesture just done, refused the chef's key); an old
+  // replay keeps its order, the key first.
+  if (state.service.cursor === null && startsFirst(replays.playing?.format)) beginTurn(state.service, humanRule());
   // A replay plays its keys; otherwise the key pressed, recorded with its turn.
   if (replays.playing) {
     const { inputs } = replays.playing;
