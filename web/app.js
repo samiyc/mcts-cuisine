@@ -59,6 +59,8 @@ const replays = {
     }
   },
   keep(replay) {
+    // Also to the project's replays/ folder, through the page server (out of git; nothing if no server takes it).
+    fetch("/api/replays", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(replay) }).catch(() => {});
     try {
       const kept = [replay, ...this.load()].slice(0, KEPT_REPLAYS);
       localStorage.setItem(REPLAYS_KEY, JSON.stringify(kept));
