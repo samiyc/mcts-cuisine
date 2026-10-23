@@ -9,7 +9,7 @@
  *   time.
  * Each kitchen comes with its service: how often orders come, how long a guest waits, how long the service;
  * and, maybe, the robots' roles (`roles`, in the order the robots appear: `coupe`, `cuisson`, `salade`, or
- * empty for a robot that makes whole dishes).
+ * `passe`, which only serves what is ready, or empty for a robot that makes whole dishes).
  */
 export const RECIPES = Object.freeze({
   soupe: Object.freeze({ label: "soupe à l'oignon", emoji: "🍲", ingredient: "o", cut: 3, cook: 8 }),
@@ -52,11 +52,28 @@ export const KITCHENS = Object.freeze({
   }),
   postes: Object.freeze({
     label: "Des postes (Sami : un robot coupe, l'autre cuit, trois comptoirs entre eux)",
-    text: ["##o##t##S##", "#.........#", "C.R..H..R.P", "C.........P", "####___####"].join("\n"),
+    text: ["##o##t##S##", "#.........#", "C.R..H..R.P", "C.........P", "###_____###"].join("\n"),
     every: 9,
     patience: 60,
     service: 200,
     lastOrder: 160,
     roles: Object.freeze(["coupe", "cuisson"]),
+  }),
+  separee: Object.freeze({
+    label: "Coupée en deux (Sami : les oignons et les planches d'un côté, le feu et le passe de l'autre)",
+    text: ["##o##t##S##", "#..._.....#", "C.R._.H.R.P", "C..._.....P", "######CC###"].join("\n"),
+    every: 9,
+    patience: 60,
+    service: 200,
+    lastOrder: 160,
+  }),
+  detour: Object.freeze({
+    label: "Le grand détour (Sami : loin du feu au passe ; le robot 2 au passe, les comptoirs en relais)",
+    text: ["##o#t#######", "#..........#", "C.H...#___.#", "C..R.._....#", "#....._..R.#", "#__PP###S###"].join("\n"),
+    every: 9,
+    patience: 60,
+    service: 200,
+    lastOrder: 160,
+    roles: Object.freeze([null, "passe"]),
   }),
 });

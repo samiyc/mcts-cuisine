@@ -112,3 +112,6 @@ tr.current td { background: color-mix(in srgb, var(--accent) 10%, transparent); 
 @keyframes blink { 50% { opacity: 0.35; } }
 @media (prefers-reduced-motion: reduce) { .symbol.urgent { animation: none; } }
 label.check { flex-direction: row; align-items: center; gap: 6px; }
+.requests { list-style: none; padding: 0; margin: 4px 0; font-size: 0.9rem; }
+.requests li { padding: 3px 6px; margin: 3px 0; border-left: 3px solid var(--shelf); }
+.requests li.taken { opacity: 0.75; }

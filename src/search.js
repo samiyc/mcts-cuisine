@@ -36,7 +36,7 @@ export function drawWorld(state, rng, horizon = SEARCH_SETTINGS.horizon, human =
   const world = cloneService(state);
   // The chef at the keyboard is played, in the worlds, by a model of a human like any other.
   for (const cook of world.cooks) cook.manual = false;
-  const come = world.upcoming.filter((order) => order.arrival <= state.t);
+  const come = world.upcoming.filter((order) => order.arrival <= state.t || order.stock);
   world.upcoming = [...come, ...drawComing(state.setup, state.t, Math.max(0, ...come.map((order) => order.id)), rng)];
   const names = Object.keys(HUMANS);
   const drawn = HUMANS[names[rng.int(names.length)]];

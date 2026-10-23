@@ -2,7 +2,7 @@ import { KITCHENS, RECIPES } from "../src/kitchens.js";
 import { HUMAN_LABELS, HUMANS, RULE_LABELS, RULES, compareRules, summaryOf } from "../src/rules.js";
 import { searchRule } from "../src/search.js";
 import { createService, drawOrders, interact, isOver, measuresOf, runService, steer, stepService } from "../src/simulate.js";
-import { cellsOf, cooksOf, ordersOf, statusLine } from "./view.js";
+import { boardOf, cellsOf, cooksOf, ordersOf, statusLine } from "./view.js";
 
 /**
  * The page: a service in the chosen kitchen, the robots under the chosen rule beside the chosen simulated
@@ -15,7 +15,7 @@ const CELL = 36;
 const COMPARED = 100;
 const COMPARED_WITH_SEARCH = 12;
 const app = document.getElementById("app");
-const state = { kitchenId: "petite", setup: { ...KITCHENS.petite }, rule: "quickest", human: "urgent", seed: 1, speed: 2, service: null, timer: null, compared: null, error: "", busy: "", run: 0 };
+const state = { kitchenId: "petite", setup: { ...KITCHENS.petite }, rule: "quickest", human: "urgent", seed: 1, speed: 4, service: null, timer: null, compared: null, error: "", busy: "", run: 0 };
 const SYMBOLS = { o: "🧅", t: "🍅", C: "🔪", P: "🔥", S: "🛎" };
 /** Unattended cooking's defaults in the editor (Sami, 23/10): a ready soup burns after 6 turns, a burnt stove takes 5 to clean. */
 const UNATTENDED = Object.freeze({ burn: 6, clean: 5 });
@@ -178,6 +178,13 @@ function orderItem(order) {
   );
 }
 
+/** The counters as a board of requests: what waits there, what it needs, who comes for it. */
+function counterBoard() {
+  const items = boardOf(state.service);
+  if (items.length === 0) return null;
+  return el("div", { class: "board-requests" }, el("h2", {}, "Le tableau des comptoirs"), el("ul", { class: "requests" }, ...items.map((item) => el("li", { class: item.who ? "taken" : null }, item.text))));
+}
+
 function legend() {
   return el("p", { class: "hint legend" }, ...Object.entries(RECIPES).map(([name, recipe]) => el("span", { class: `legend-item ${name}` }, `${recipe.emoji} ${recipe.label}`)), " · la barre : la patience du client, pleine à la commande, vide à l'échéance.");
 }
@@ -197,7 +204,7 @@ function editor() {
     el("summary", {}, "Changer de cuisine"),
     el("p", { class: "hint" }, "La soupe peut cuire seule : on pose la marmite 🥘 et on repart ; prête 🍲, elle attend qu'on vienne la retirer, le chiffre dit dans combien de tours elle brûle. Brûlée, le plat est perdu, la commande est à refaire, et le fourneau doit être nettoyé 🧽 avant de resservir."),
     el("p", { class: "hint" }, "Le plan en texte : « . » le sol, « R » un robot, « H » le cuisinier, « # » un mur, « _ » un comptoir où des oignons coupés attendent la cuisson (un lot par comptoir), quand les robots ont des rôles, « o » et « t » les caisses d'oignons et de tomates, « C » une planche, « P » un fourneau, « S » le passe."),
-    el("form", { "data-form": "kitchen" }, el("textarea", { name: "text", rows: String(setup.text.split("\n").length + 1), spellcheck: "false" }, setup.text), el("div", { class: "fields" }, field("Une commande tous les (tours)", "every", setup.every), field("Patience d'un client (tours)", "patience", setup.patience), field("Dernière commande (tour)", "lastOrder", setup.lastOrder), field("Fin du service (tour)", "service", setup.service), el("label", {}, "Rôles des robots", el("input", { name: "roles", value: (setup.roles ?? []).map((role) => role || "-").join(" "), placeholder: "coupe cuisson", title: "Un mot par robot, dans l'ordre du plan : coupe, cuisson, salade, ou - pour un robot qui fait tout" })), el("label", { class: "check" }, el("input", { name: "unattended", type: "checkbox", checked: Boolean(setup.unattended) }), "La soupe cuit seule"), field("Elle brûle, prête, après (tours)", "burn", setup.unattended?.burn ?? UNATTENDED.burn), field("Nettoyer un fourneau brûlé (tours)", "clean", setup.unattended?.clean ?? UNATTENDED.clean)), el("button", { type: "submit" }, "Appliquer")),
+    el("form", { "data-form": "kitchen" }, el("textarea", { name: "text", rows: String(setup.text.split("\n").length + 1), spellcheck: "false" }, setup.text), el("div", { class: "fields" }, field("Une commande tous les (tours)", "every", setup.every), field("Patience d'un client (tours)", "patience", setup.patience), field("Dernière commande (tour)", "lastOrder", setup.lastOrder), field("Fin du service (tour)", "service", setup.service), el("label", {}, "Rôles des robots", el("input", { name: "roles", value: (setup.roles ?? []).map((role) => role || "-").join(" "), placeholder: "coupe cuisson", title: "Un mot par robot, dans l'ordre du plan : coupe, cuisson, salade, passe (sert ce qui est prêt), ou - pour un robot qui fait tout" })), el("label", { class: "check" }, el("input", { name: "unattended", type: "checkbox", checked: Boolean(setup.unattended) }), "La soupe cuit seule"), field("Elle brûle, prête, après (tours)", "burn", setup.unattended?.burn ?? UNATTENDED.burn), field("Nettoyer un fourneau brûlé (tours)", "clean", setup.unattended?.clean ?? UNATTENDED.clean)), el("button", { type: "submit" }, "Appliquer")),
     state.error ? el("p", { class: "error", role: "alert" }, state.error) : null,
   );
 }
@@ -220,13 +227,13 @@ function comparison() {
 function render() {
   const over = isOver(state.service);
   const chef = manual() ? el("p", { class: "summary chef", "aria-live": "polite" }, `Le chef (H) : ${keyboard.message || "à vous"}`) : "";
-  app.replaceChildren(controls(), el("p", { class: "summary", "aria-live": "polite" }, state.busy || statusLine(state.service, over ? measuresOf(state.service) : null)), chef, el("div", { class: "layout" }, board(), el("aside", {}, el("h2", {}, "Les commandes"), legend(), orders())), ...comparison(), editor());
+  app.replaceChildren(controls(), el("p", { class: "summary", "aria-live": "polite" }, state.busy || statusLine(state.service, over ? measuresOf(state.service) : null)), chef, el("div", { class: "layout" }, board(), el("aside", {}, el("h2", {}, "Les commandes"), legend(), orders(), counterBoard())), ...comparison(), editor());
 }
 
 function applyKitchen(form) {
   const data = new FormData(form);
   const number = (name) => Math.max(1, Number(data.get(name)) || 1);
-  const setup = { ...state.setup, label: "Cuisine modifiée", text: String(data.get("text")).replace(/\s+$/, ""), every: number("every"), patience: number("patience"), lastOrder: number("lastOrder"), service: number("service"), roles: String(data.get("roles")).split(/\s+/).filter(Boolean).map((role) => (["coupe", "cuisson", "salade"].includes(role) ? role : null)), unattended: data.get("unattended") ? { burn: number("burn"), clean: number("clean") } : null };
+  const setup = { ...state.setup, label: "Cuisine modifiée", text: String(data.get("text")).replace(/\s+$/, ""), every: number("every"), patience: number("patience"), lastOrder: number("lastOrder"), service: number("service"), roles: String(data.get("roles")).split(/\s+/).filter(Boolean).map((role) => (["coupe", "cuisson", "salade", "passe"].includes(role) ? role : null)), unattended: data.get("unattended") ? { burn: number("burn"), clean: number("clean") } : null };
   try {
     createService(setup, []);
     Object.assign(state, { setup, error: "", compared: null });

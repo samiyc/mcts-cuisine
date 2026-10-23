@@ -74,10 +74,12 @@ describe("the kitchen (src/kitchen.js, src/simulate.js)", () => {
       }
       const cutter = state.cooks.find((cook) => cook.role === "coupe").id;
       const put = state.log.filter((event) => event.type === "put");
+      const relays = state.log.filter((event) => event.type === "relay");
       assert.ok(put.length > 0);
-      assert.ok(put.every((event) => event.cook === cutter), "seul le robot qui coupe pose");
-      // Every batch put down and then served went through a stove: a soup.
-      for (const { order } of put) assert.equal(state.upcoming.find((one) => one.id === order).recipe, "soupe");
+      assert.ok(put.every((event) => event.cook === cutter || relays.some((relay) => relay.cook === event.cook && relay.order === event.order)), "seul le robot qui coupe pose, hors relais");
+      // Every batch the cutter put down (not a relay) is a soup to cook.
+      const relayed = (event) => relays.some((relay) => relay.cook === event.cook && relay.order === event.order);
+      for (const event of put.filter((one) => !relayed(one))) assert.equal(state.upcoming.find((one) => one.id === event.order).recipe, "soupe");
     }
     assert.ok(fitsRole("coupe", { status: "open", recipe: "soupe" }) && !fitsRole("coupe", { status: "open", recipe: "salade" }));
     assert.ok(fitsRole("cuisson", { status: "prepped", recipe: "soupe" }) && fitsRole(null, { status: "open", recipe: "salade" }));
@@ -120,6 +122,54 @@ describe("the kitchen (src/kitchen.js, src/simulate.js)", () => {
     assert.ok(state.log.filter((one) => one.type === "burnt").every((event) => state.upcoming.find((one) => one.id === event.order).burnt > 0));
     // Without the option, no pot and no burnt measure: the kitchen plays as before.
     assert.equal("burnt" in runService(KITCHENS.petite, 1, RULES.quickest, HUMANS.urgent).measures, false);
+  });
+
+  it("relays dishes through the counters in a kitchen cut in two, and never takes back a dish it left", () => {
+    let served = 0;
+    for (let seed = 1; seed <= 4; seed += 1) {
+      const kitchen = KITCHENS.separee;
+      const state = createService(kitchen, drawOrders(seed, kitchen), { human: "urgent", seed });
+      while (!isOver(state)) stepService(state, RULES.quickest, HUMANS.urgent);
+      const relays = state.log.filter((event) => event.type === "relay");
+      assert.ok(relays.length > 0, "des relais");
+      for (const relay of relays) {
+        const after = state.log.filter((event) => event.type === "taken" && event.order === relay.order && event.t >= relay.t);
+        assert.ok(after.every((event) => event.cook !== relay.cook), `service ${seed} : le robot ${relay.cook} reprend la commande ${relay.order}`);
+      }
+      served += measuresOf(state).onTime;
+    }
+    assert.ok(served / 4 > 6, "la cuisine coupée en deux sert");
+  });
+
+  it("lets the chef make a batch ahead, taken over by the next order of that dish, and clean a burnt stove", () => {
+    const kitchen = { ...KITCHENS.petite, unattended: { burn: 0, clean: 3 } };
+    const state = createService(kitchen, [{ id: 1, recipe: "salade", arrival: 30, deadline: 90 }], { human: "clavier", manual: true, seed: 1 });
+    const chef = state.cooks.find((cook) => cook.manual);
+    const go = (dx, dy) => {
+      steer(state, dx, dy);
+      stepService(state, RULES.quickest, null);
+    };
+    // To the tomato crate (top row, x = 5): right once, up once.
+    go(1, 0);
+    go(0, -1);
+    assert.deepEqual([chef.x, chef.y], [5, 1]);
+    assert.match(interact(state), /en avance/);
+    assert.ok(state.upcoming.some((order) => order.stock && order.cook === chef.id));
+    while (state.t < 31) stepService(state, RULES.quickest, null);
+    // The order has come: it took the batch over, in the chef's hands.
+    assert.equal(chef.order, 1);
+    assert.ok(!state.upcoming.some((order) => order.stock));
+    // A burnt stove: E beside it, hands empty, cleans it.
+    const burnt = createService(kitchen, [], { human: "clavier", manual: true, seed: 1 });
+    const cleaner = burnt.cooks.find((cook) => cook.manual);
+    burnt.dirty.add("10,3");
+    burnt.reservations.release(cleaner.id);
+    burnt.reservations.reserve(cleaner.id, [{ x: 9, y: 3, t: 0 }], { stay: true });
+    Object.assign(cleaner, { x: 9, y: 3 });
+    assert.match(interact(burnt), /récure le fourneau brûlé \(3 tours\)/);
+    for (let i = 0; i < 4; i += 1) stepService(burnt, RULES.quickest, null);
+    assert.ok(!burnt.dirty.has("10,3"));
+    assert.equal(cleaner.phase, "idle");
   });
 
   it("lets a person play the chef: moves, takes an order at a crate, cuts it, and the robots plan around him", () => {

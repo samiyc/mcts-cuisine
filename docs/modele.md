@@ -235,9 +235,64 @@ et 14,6 seule ; avec coupe et cuisson, 13,6 et 11,0.
   habitude écrite, et elle est grossière. Décider « je finis ma coupe ou je retire la soupe » est une décision
   de plus, que la recherche pourrait prendre.
 
+## Les comptoirs en relais, l'avance, le fourneau à récurer (23/10, Sami, tard le soir)
+
+Sami, en jouant :
+- on ne peut pas récurer le fourneau brûlé ;
+- on ne peut pas prendre d'oignons ou de tomates sans commande, pour prendre de l'avance ;
+- dans une cuisine coupée en deux, les robots sont perdus et n'utilisent pas les comptoirs pour se passer les
+  plats.
+
+Il proposait un échange de messages entre cuisiniers : « il me faut un fourneau », « ok, je suis libre, j'ai
+accès au gaz ». Les comptoirs jouent ce rôle : un plat posé dessus est une demande, que tout le monde voit.
+
+**Ce qui est modélisé.**
+- **Le tableau des comptoirs.** Tout ce qu'on tient une fois coupé peut attendre sur un comptoir, avec ce qu'il
+  lui faut encore :
+  - des oignons coupés : « il faut un fourneau » ;
+  - une salade coupée ou une soupe cuite : « il faut le passe ».
+  - Le cuisinier qui vient le chercher répond « je prends ». La page le montre sous les commandes.
+- **Chacun ne se voit proposer que ce qu'il peut atteindre** : la caisse de la commande, ou le comptoir du plat,
+  et alors aussi le fourneau ou le passe qu'il lui faut. Un robot ne reprend jamais un plat qu'il vient de poser
+  pour un autre : la première version le reposait et le reprenait aussitôt.
+- **Un relais forcé** : quand le poste suivant est hors de portée, le cuisinier pose son plat sur un comptoir libre
+  qu'un robot de l'autre côté atteint.
+- **Un relais choisi**, pour un robot : poser pour un robot libre, quand celui-ci finira plus tôt que lui (la pose,
+  l'attente, la reprise comptées), et que le premier s'épargne de la marche. `relay: false` ne garde que les relais
+  forcés, pour mesurer.
+- **Le rôle « passe »** : il ne sert que ce qui est prêt (sur un comptoir ou sur le feu). Il attend près du passe tant
+  qu'un plat est en route. Les autres lui confient tout plat à servir qu'il apportera plus tôt, même s'il est
+  occupé.
+- **L'avance**, pour le chef au clavier : prendre un ingrédient sans commande ouverte, le couper, le cuire, le poser.
+  La prochaine commande de ce plat reprend ce lot là où il est : dans ses mains, sur un comptoir, sur le feu. On ne
+  sert pas un lot sans commande.
+- **E devant un fourneau brûlé**, les mains vides : le chef le récure (5 tours par défaut).
+- Dans la page, la vitesse est réglée par défaut à 4 tours par seconde.
+
+**Ce que ça donne** (60 services, le plus rapide ; le cuisinier « le plus urgent », puis sans humain) :
+
+| Cuisine | sans relais choisis | avec | relais par service |
+|---|---|---|---|
+| Coupée en deux (Sami), sans rôles | 12,1 / 8,4 | 12,1 / 8,4 | 8,7 / 5,7, tous forcés |
+| Le grand détour (Sami), sans rôles | 5,7 / 4,1 | 5,7 / 4,0 | 0,3 |
+| Le grand détour, robot 2 au passe | 4,0 / 3,4 | **7,6 / 6,4** | 8,8 / 9,5 |
+| Postes (5 comptoirs), sans rôles | 14,8 / 10,9 | 14,6 / 10,9 | 0,3 |
+| Passe-plats, sans rôles | 11,9 / 8,6 | 11,8 / 8,5 | 1,5 |
+
+- **Coupée en deux**, la cuisine servait **0** plat : chacun prenait une commande dont la caisse ou le fourneau
+  était de l'autre côté. Avec les relais forcés, elle en sert 12.
+- **Le grand détour** : un robot au passe, que les autres fournissent par les comptoirs, fait **+1,9 plat**
+  (+2,4 sans humain). Sans les relais, ce rôle coûte au contraire 1,8 plat : un robot de moins aux fourneaux,
+  qui fait le chemin lui-même.
+- **Ailleurs, les relais choisis ne changent rien** (±0,1 plat) : ils se déclenchent rarement, faute de robot
+  libre. Ils ne paient que si la cuisine les rend nécessaires, par la forme du plan ou par un rôle.
+- Dans la cuisine coupée en deux, un robot au passe fait moins bien (10,2) : le passe touche déjà le fourneau.
+
 ## La suite
 
-1. **Laisser la recherche décider de revenir au feu** : retirer la soupe ou finir ce qu'on fait. Puis un
+1. **Les robots en avance** : qu'un robot libre prépare un lot sans commande, du plat le plus demandé, et le
+   pose. C'est un pari sur les commandes à venir, que la recherche sait déjà tirer au sort.
+2. **Laisser la recherche décider de revenir au feu** : retirer la soupe ou finir ce qu'on fait. Puis un
    troisième robot pour les salades, avec la cuisson seule, comme Sami le décrivait.
 2. **Des recettes plus longues** (plusieurs ingrédients), où l'on se passe les ingrédients d'un
    comptoir à l'autre.

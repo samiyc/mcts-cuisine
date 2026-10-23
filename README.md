@@ -14,7 +14,9 @@ Le 23/10, les comptoirs (`_`, les murs restent `#`), où des oignons coupés att
 pour les robots (l'un coupe, l'autre cuit, avec un coup de main quand le travail s'empile) ; dans la page, des
 vitesses lentes, la couleur et l'âge des commandes, une barre de patience, et **le chef au clavier** (Z Q S D
 pour bouger, E pour travailler au poste d'à côté). Le soir, en option, la soupe qui cuit seule : laissée trop longtemps
-prête, elle brûle, la commande est à refaire et le fourneau à nettoyer.
+prête, elle brûle, la commande est à refaire et le fourneau à nettoyer. Tard le soir, les comptoirs en relais
+(un tableau des demandes : « il faut un fourneau », « je prends »), le rôle « passe », l'avance au clavier, et
+deux cuisines de Sami : coupée en deux, et le grand détour.
 Étape 3 de la
 [feuille de route](https://github.com/samiyc/lopin/blob/main/docs/ismcts-ailleurs/feuille-de-route.md),
 après l'entrepôt, dont elle reprend le moteur de grille (`grid` de `mcts-commun`) et ajoute les

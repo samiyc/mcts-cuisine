@@ -6,9 +6,9 @@ import { RECIPES } from "../src/kitchens.js";
  * draw, the cooks with what they do, the orders with their age and patience left, the service in one line.
  * The DOM layer (app.js) only draws it.
  */
-const STEP_LABELS = Object.freeze({ fetch: "prend l'ingrédient", cut: "coupe", cook: "fait cuire", serve: "sert", put: "pose les oignons coupés sur un comptoir", pickup: "reprend des oignons coupés", collect: "retire la soupe du feu" });
+const STEP_LABELS = Object.freeze({ fetch: "prend l'ingrédient", cut: "coupe", cook: "fait cuire", serve: "sert", put: "pose les oignons coupés sur un comptoir", pickup: "reprend des oignons coupés", collect: "retire la soupe du feu", clean: "récure le fourneau brûlé" });
 const READY_STEPS = new Set(["serve"]);
-const ROLE_LABELS = Object.freeze({ coupe: "coupe", cuisson: "cuisson", salade: "salades" });
+const ROLE_LABELS = Object.freeze({ coupe: "coupe", cuisson: "cuisson", salade: "salades", passe: "passe" });
 
 /**
  * Every cell to draw: `{ x, y, kind, progress, label, dish, pot, dirty }`, kind floor, wall, counter or a
@@ -50,7 +50,9 @@ export function cooksOf(state) {
     const order = state.upcoming.find((one) => one.id === cook.order);
     const step = order ? cook.steps[cook.step] : null;
     const who = cook.kind === "human" ? "Le cuisinier" : `Robot ${cook.id}${cook.role ? ` (${ROLE_LABELS[cook.role]})` : ""}`;
-    const doing = order ? `${STEP_LABELS[step.type]} (commande ${order.id}, ${RECIPES[order.recipe].label})` : "libre";
+    const what = order ? (order.stock ? `en avance, ${RECIPES[order.recipe].label}` : `commande ${order.id}, ${RECIPES[order.recipe].label}`) : "";
+    const cleaning = !order && cook.steps?.[cook.step]?.type === "clean";
+    const doing = order ? `${STEP_LABELS[step.type]} (${what})` : cleaning ? STEP_LABELS.clean : "libre";
     return {
       id: cook.id,
       kind: cook.kind,
@@ -62,6 +64,28 @@ export function cooksOf(state) {
       ahead: cook.target ? (cook.path ?? []).filter((one) => one.t >= state.t) : [],
     };
   });
+}
+
+/**
+ * The counters read as a board of requests (Sami, 23/10): each dish waiting on one, with what it needs ("il faut
+ * un fourneau", "il faut le passe") and who comes for it ("robot 2 : je prends"); a batch made ahead says it
+ * waits for its order. `{ counter, order, text, who }`, in the counters' order.
+ */
+export function boardOf(state) {
+  const items = [];
+  for (const [counter, id] of state.shelf) {
+    const order = state.upcoming.find((one) => one.id === id);
+    if (!order) continue;
+    const dish = RECIPES[order.recipe];
+    const ready = order.cooked || dish.cook === 0;
+    const what = ready ? `${dish.label} prête` : "oignons coupés";
+    const need = order.stock ? "en avance, pour la prochaine commande" : ready ? "il faut le passe" : "il faut un fourneau";
+    const taker = order.status === "taken" ? state.cooks.find((cook) => cook.id === order.cook) : null;
+    const who = taker ? (taker.kind === "human" ? "le cuisinier" : `robot ${taker.id}`) : null;
+    const name = order.stock ? "" : `commande ${order.id}, `;
+    items.push({ counter, order: order.id, who, text: `Comptoir ${counter} : ${name}${what}, ${need}${who ? ` — ${who} : je prends` : ""}` });
+  }
+  return items;
 }
 
 /** Where an order stands, in words. */
