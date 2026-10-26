@@ -1,5 +1,6 @@
 import { KITCHENS } from "../../src/kitchens.js";
 import { BANQUET } from "../../src/service-banquet.js";
+import { DELIVERY } from "../../src/service-delivery.js";
 import { SUPPLY } from "../../src/service-supply.js";
 import { TABLES } from "../../src/service-tables.js";
 import { board } from "../board.js";
@@ -47,6 +48,7 @@ function fieldsOf(setup) {
     el("label", { class: "check" }, el("input", { name: "supply", type: "checkbox", checked: Boolean(setup.supply) }), "Un stock par caisse (rupture : les commandes sont refusées)"),
     field("Oignons pour le service", "onions", supply.o),
     field("Tomates pour le service", "tomatoes", supply.t),
+    el("label", { class: "check" }, el("input", { name: "delivery", type: "checkbox", checked: Boolean(setup.delivery) }), `La livraison : un coursier par commande, annoncé ${DELIVERY.prep} tours après elle, à ${DELIVERY.spread} tours près ; il attend ${DELIVERY.wait} tours`),
     el("label", { class: "check" }, el("input", { name: "banquet", type: "checkbox", checked: Boolean(setup.banquet) }), `Un banquet : ${BANQUET.covers} couverts environ, l'entrée vers le tour ${BANQUET.courses[0].at}, le plat vers le tour ${BANQUET.courses[1].at}, ${BANQUET.pass} tours au chaud au plus`),
   );
 }
@@ -66,5 +68,6 @@ export function kitchenFrom(form, setup) {
   const tables = data.get("tables") ? { ...TABLES, pass: number("pass") } : null;
   const supply = data.get("supply") ? { o: number("onions"), t: number("tomatoes") } : null;
   const banquet = data.get("banquet") ? BANQUET : null;
-  return { ...setup, label: "Cuisine modifiée", text: String(data.get("text")).trimEnd(), every: number("every"), patience: number("patience"), lastOrder: number("lastOrder"), service: number("service"), pace: number("pace"), roles, unattended, tables, supply, banquet };
+  const delivery = data.get("delivery") ? DELIVERY : null;
+  return { ...setup, label: "Cuisine modifiée", text: String(data.get("text")).trimEnd(), every: number("every"), patience: number("patience"), lastOrder: number("lastOrder"), service: number("service"), pace: number("pace"), roles, unattended, tables, supply, banquet, delivery };
 }

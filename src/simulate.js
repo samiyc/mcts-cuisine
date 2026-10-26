@@ -7,6 +7,7 @@ import { letGo, move, stepAside, watch } from "./service-legs.js";
 import { countTurn, createTally, measuresOf } from "./service-measures.js";
 import { startStep } from "./service-relays.js";
 import { drawBanquet } from "./service-banquet.js";
+import { deliveryOrders } from "./service-delivery.js";
 import { refuseIfOut } from "./service-supply.js";
 import { drawTables, watchPass } from "./service-tables.js";
 import { adoptStock, finishWork, watchPots } from "./service-work.js";
@@ -81,6 +82,12 @@ export function drawOrders(seed, setup) {
   const rng = createRng(seed);
   if (setup.banquet) return drawBanquet(setup, rng);
   if (setup.tables) return drawTables(setup, rng, { start: 1 + rng.int(3) });
+  if (setup.delivery) return deliveryOrders(drawPlain(setup, rng), setup, seed);
+  return drawPlain(setup, rng);
+}
+
+/** The orders of a service à la carte, drawn by `rng`. */
+function drawPlain(setup, rng) {
   const orders = [];
   const names = Object.keys(RECIPES);
   for (let at = 1 + rng.int(3); at <= setup.lastOrder; at += Math.max(1, Math.round(-setup.every * Math.log(1 - rng.next())))) {

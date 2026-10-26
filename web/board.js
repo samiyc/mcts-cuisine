@@ -86,6 +86,7 @@ function levelOf(patience) {
 
 /** A table's number, or the turn a banquet's course goes out. */
 function tableLabel(order) {
+  if (order.courier) return ` · coursier annoncé au tour ${order.sendAt}`;
   if (order.sendAt !== null) return ` · envoi au tour ${order.sendAt}`;
   return order.table === null ? "" : ` · table ${order.table}`;
 }

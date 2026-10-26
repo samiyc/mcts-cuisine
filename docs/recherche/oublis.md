@@ -34,6 +34,13 @@ point dit où il se rangera.
   il fait mourir presque tous les envois de trois cuisines. Un humain « qui suit le plan de production », à mesurer
   comme celui « qui suit sa table ». Rangé : étape 2.
 
+- **La livraison sans emballage ni enseignes** : le poste d'emballage (une lettre de plus dans les plans, une étape de
+  plus à chaque plat) et les deux enseignes sous un toit ([livraison.md](livraison.md)) ne sont pas faits ; une règle
+  qui tiendrait compte de l'incertitude des coursiers non plus (le rétroplanning ne lit que l'heure annoncée). Rangé :
+  étape 3.
+- **Les deux tirages du banquet et de la livraison sont des hypothèses** (6 couverts, 60 tours au chaud ; un coursier
+  annoncé à 30 tours, à ±8, qui attend 10) : à revoir avec Sami, comme la patience et le rythme des commandes.
+
 ## Annoncés, pas encore faits
 
 - **L'aboyeur qui réclame** ([brigade-service.md](brigade-service.md)) : le rôle `passe` en est l'ébauche ; il pourrait
@@ -49,7 +56,7 @@ point dit où il se rangera.
   table qui compte, et un plat mort au passe n'y pèse pas. Rangé : après les mesures de nuit.
 - **La plonge, les allergènes, la fatigue, les menus en plusieurs temps** : prévus « plus tard » dans la
   [feuille de route](feuille-de-route.md), étape 4.
-- **Les étapes 2 (le banquet) et 3 (la livraison)** : pas commencées.
+- **Les étapes 2 et 3** sont faites le 26/10 (le banquet, la livraison), sans la recherche mesurée : voir plus haut.
 
 ## Fait depuis
 

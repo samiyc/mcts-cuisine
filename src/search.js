@@ -2,7 +2,11 @@ import { search } from "mcts-commun/mcts.js";
 import { createRng } from "mcts-commun/random.js";
 import { RECIPES } from "./kitchens.js";
 import { HUMANS, RULES } from "./rules.js";
+import { redrawCouriers, withCourier } from "./service-delivery.js";
 import { drawTables, firstAfter } from "./service-tables.js";
+
+/** An order nothing more can be won on: refused (the 86), or gone with its courier. */
+const LOST = new Set(["refused", "gone"]);
 import { advance, choose, cloneService } from "./simulate.js";
 
 /**
@@ -36,7 +40,8 @@ function drawComing(setup, t, come, rng) {
   for (let at = t + gap(); at <= setup.lastOrder; at += gap()) {
     coming.push({ id: lastId + coming.length + 1, recipe: names[rng.int(names.length)], arrival: at, deadline: at + setup.patience, status: "upcoming", cook: null, servedAt: null });
   }
-  return coming;
+  // Each with its courier, when the service delivers (service-delivery.js).
+  return setup.delivery ? coming.map((order) => withCourier(order, setup.delivery, rng)) : coming;
 }
 
 /** A world consistent with what the robots know at this choice, played to `horizon` turns from now. */
@@ -46,6 +51,8 @@ export function drawWorld(state, rng, horizon = SEARCH_SETTINGS.horizon, human =
   for (const cook of world.cooks) cook.manual = false;
   const come = world.upcoming.filter((order) => order.arrival <= state.t || order.stock);
   world.upcoming = [...come, ...drawComing(state.setup, state.t, come, rng)];
+  // The couriers not yet come: when they will come, nobody knows (service-delivery.js).
+  redrawCouriers(world, rng);
   const names = Object.keys(HUMANS);
   const drawn = HUMANS[names[rng.int(names.length)]];
   // A human in the kitchen (simulated, or the chef at the keyboard, who has no model: state.human is null then)
@@ -63,7 +70,7 @@ export function valueOf(world) {
   for (const order of world.upcoming) {
     if (order.arrival > world.t) continue;
     if (order.status === "served") value += order.servedAt <= order.deadline ? 1 : 0;
-    else if (order.deadline > world.t && order.status !== "refused") value += 0.5;
+    else if (order.deadline > world.t && !LOST.has(order.status)) value += 0.5;
   }
   return value;
 }
@@ -71,7 +78,7 @@ export function valueOf(world) {
 /** The rule the worlds are played with: the quickest dish; with tables the table's (the quickest would leave the long dishes behind); at a banquet the backward planning. */
 function rolloutRule(world) {
   const { open } = world.choice;
-  if (world.setup.banquet) return RULES.retro(open, { state: world });
+  if (world.setup.banquet || world.setup.delivery) return RULES.retro(open, { state: world });
   return world.setup.tables ? RULES.table(open, { state: world }) : RULES.quickest(open);
 }
 

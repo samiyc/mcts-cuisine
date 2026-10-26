@@ -546,3 +546,41 @@ D'où 6 couverts et 60 tours.
   la dernière au chaud (à mesurer : l'attente au chaud par envoi).
 
 Dans l'onglet Cuisine (« Un banquet »), et `npm run compare -- --banquet`.
+
+## La livraison (26/10, étape 3 de la feuille de route des métiers)
+
+La dark kitchen (`setup.delivery`, `src/service-delivery.js`, [`recherche/livraison.md`](recherche/livraison.md)) :
+- **chaque commande a son coursier** : la plateforme l'annonce 30 tours après la commande (`sendAt`, connu de tous) ;
+  il vient en vrai à ±8 tours de l'annonce (`courierAt`), **ce que personne ne sait avant qu'il soit là** ;
+- un plat fini attend son coursier au passe, 15 tours au plus (il refroidit, il est refait) ; **le coursier attend son
+  plat 10 tours au plus**, puis repart sans lui : la commande est « partie » ; c'est la mécanique des tables, une
+  commande est une table d'un plat, envoyée quand son coursier est là ;
+- **la recherche retire, dans chacun de ses mondes, l'heure des coursiers pas encore venus** autour de leur annonce :
+  c'est le caché propre à la livraison ; elle joue ses mondes avec le rétroplanning ;
+- les commandes elles-mêmes sont celles du service à la carte (le même tirage), les coursiers d'un tirage à part ;
+- le poste d'emballage est reporté (`recherche/oublis.md`). Les chiffres sont des hypothèses.
+
+**Un bug trouvé en mesurant** : le coursier repartait pendant qu'un cuisinier finissait son plat ; le cuisinier le
+posait au passe, et il partait vers un coursier absent (des attentes de coursier de 16 à 25 tours pour 10 permis).
+Quand le coursier repart, tout ce qui tient sa commande est abandonné : le cuisinier (libre, son poste lâché), sa
+marmite, son plat sur un comptoir ; et le coursier part avant les envois du tour. Un test le vérifie tour par tour.
+
+**Ce qu'elle donne** (20 services, le cuisinier « le plus urgent ») : plats à temps sans livraison (plat le plus
+rapide), puis avec, pour la plus ancienne / le plat le plus rapide / le rétroplanning, et les commandes parties sans
+leur plat :
+
+| Cuisine | sans livraison | la plus ancienne | le plus rapide | le rétroplanning | gain du rétroplanning sur la plus ancienne |
+|---|---|---|---|---|---|
+| petite | 17,5 / 20,7 | 13,4 (7,0 parties) | **13,9** (6,5) | 13,2 (7,3) | −0,30 (−1,14 à 0,54) |
+| en couloir | 8,9 / 14,1 | 5,0 (8,8) | **5,4** (8,3) | 4,8 (8,9) | −0,20 |
+| grande brigade | 25,6 / 34,4 | 18,8 (15,3) | **21,3** (12,8) | 18,4 (15,7) | −0,40 |
+| passe-plats | 12,2 / 15,8 | 9,3 (6,5) | **9,5** (6,3) | 9,2 (6,6) | −0,15 |
+| postes | 14,6 / 20,7 | **12,8** (7,7) | 12,1 (8,4) | 12,0 (8,5) | −0,75 |
+| coupée en deux | 12,6 / 20,7 | 11,1 (9,3) | **11,3** (9,0) | 10,8 (9,7) | −0,30 |
+| le grand détour | 15,6 / 20,7 | 10,8 (9,7) | **11,4** (9,0) | 10,1 (10,3) | −0,70 (−1,32 à −0,08) |
+
+- **Un tiers des commandes part sans son plat** : le coursier n'attend que 10 tours, et la cuisine ne sait pas quand il
+  vient ; les coursiers attendent en moyenne 2 à 3 tours un plat servi.
+- **Suivre l'heure annoncée n'aide pas** : le rétroplanning fait un peu moins bien que la plus ancienne commande
+  (significatif dans le grand détour). L'annonce n'apprend rien de plus que l'heure de la commande (elle en est
+  toujours à 30 tours) et se trompe de ±8 tours ; c'est ce caché que la recherche imagine, à mesurer la nuit.

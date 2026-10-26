@@ -31,7 +31,7 @@ Ses choix :
 | Hors étape : marcher plus vite, deux passes | **fait** (Sami, 26/10) : 2 cases par tour par défaut, aucune superposition | `src/service-legs.js`, `src/kitchens.js` |
 | Les mesures de nuit, refaites | **en cours** (26/10) : la recherche contre les règles, avec et sans tables, avec la rupture, sur 18 fils | `night.json` |
 | 2 : le banquet | **fait** (26/10) : commandes connues, envois à l'heure, étuve, règle du rétroplanning ; reste : la coupe en série, la recherche mesurée au banquet | `src/service-banquet.js` |
-| 3 : la livraison | à faire, **la suivante** | — |
+| 3 : la livraison | **fait** (26/10) : un coursier par commande, son heure cachée, il repart sans le plat ; reste : le poste d'emballage, deux enseignes, la recherche mesurée | `src/service-delivery.js` |
 | 4 : plus tard | la plonge, les allergènes, la fatigue, les menus en plusieurs temps | — |
 
 Ce qui manque à chaque étape est dans [oublis.md](oublis.md).

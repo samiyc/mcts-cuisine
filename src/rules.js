@@ -29,7 +29,7 @@ function leftOf(state, order) {
 
 /** How much longer than its own work a dish may wait for its table-mates before it is fired (a hypothesis). */
 const HOLD = 4;
-const DONE = new Set(["passed", "served", "refused"]);
+const DONE = new Set(["passed", "served", "refused", "gone"]);
 
 /**
  * « Faire marcher » (step 1 of the trades' roadmap): a dish is fired when its table-mates still to finish need no more
@@ -93,7 +93,7 @@ export const HUMAN_LABELS = Object.freeze({ nearest: "prend le plus proche", urg
 
 const mean = (values) => values.reduce((sum, value) => sum + value, 0) / values.length;
 // The indicators of step 0 (26/10, docs/recherche/indicateurs.md) after the first ones: means over the services, maxima included.
-const MEASURES = ["orders", "onTime", "late", "missed", "meanServe", "waits", "burnt", "p90Serve", "maxServe", "maxLate", "peakOpen", "servedByHuman", "useBoard", "useStove", "usePass", "useCounter", "waitBoard", "waitStove", "waitPass", "waitCounter", "tables", "tablesOnTime", "died", "maxPass", "refused", "maxSendLate"];
+const MEASURES = ["orders", "onTime", "late", "missed", "meanServe", "waits", "burnt", "p90Serve", "maxServe", "maxLate", "peakOpen", "servedByHuman", "useBoard", "useStove", "usePass", "useCounter", "waitBoard", "waitStove", "waitPass", "waitCounter", "tables", "tablesOnTime", "died", "maxPass", "refused", "maxSendLate", "gone", "meanCourierWait", "maxCourierWait", "maxDishWait"];
 
 /**
  * The robots' rules on the same `services` services of `setup`, with the human `humanName` (or none): each

@@ -1,5 +1,6 @@
 import { RECIPES } from "./kitchens.js";
 import { FREE } from "./service-basics.js";
+import { couriersLeave } from "./service-delivery.js";
 import { refuseIfOut } from "./service-supply.js";
 
 /**
@@ -50,11 +51,11 @@ export function toPass(state, cook, order) {
   Object.assign(cook, FREE);
 }
 
-/** The pass's settings: the tables' or the banquet's (`pass`, the turns a dish may wait there), or none. */
-export const passOf = (setup) => setup.tables ?? setup.banquet ?? null;
+/** The pass's settings: the tables', the banquet's or delivery's (`pass`, the turns a dish may wait there), or none. */
+export const passOf = (setup) => setup.tables ?? setup.banquet ?? setup.delivery ?? null;
 
 /** The orders of `table` still to serve: every one of them, but a dish refused (off the menu, service-supply.js), which the table goes without. */
-const tableOrders = (state, table) => state.upcoming.filter((order) => order.table === table && order.status !== "refused");
+const tableOrders = (state, table) => state.upcoming.filter((order) => order.table === table && order.status !== "refused" && order.status !== "gone");
 
 /** A table whose every dish is at the pass is sent: its dishes served this turn. */
 function sendTables(state) {
@@ -62,7 +63,8 @@ function sendTables(state) {
   for (const table of tables) {
     const orders = tableOrders(state, table);
     // A banquet's course waits for its turn (service-banquet.js).
-    if (!orders.every((order) => order.status === "passed") || state.t < (orders[0].sendAt ?? 0)) continue;
+    // A delivery waits for its courier (service-delivery.js).
+    if (!orders.every((order) => order.status === "passed") || state.t < (orders[0].courierAt ?? orders[0].sendAt ?? 0)) continue;
     for (const order of orders) Object.assign(order, { status: "served", servedAt: state.t });
     state.log.push({ t: state.t, type: "sent", table, orders: orders.map((order) => order.id) });
   }
@@ -79,9 +81,13 @@ function dieAtPass(state) {
   }
 }
 
-/** The pass, at the start of a turn: the tables complete are sent, then the dishes that waited too long die. */
+/**
+ * The pass, at the start of a turn: the couriers who waited long enough leave (a dish come that very turn is too late),
+ * the tables complete are sent, then the dishes that waited too long die.
+ */
 export function watchPass(state) {
   if (!passOf(state.setup)) return;
+  couriersLeave(state);
   sendTables(state);
   dieAtPass(state);
 }

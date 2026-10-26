@@ -1,4 +1,5 @@
 import { keyOf } from "./service-basics.js";
+import { deliveryMeasures } from "./service-delivery.js";
 import { supplyMeasures } from "./service-supply.js";
 import { tableMeasures } from "./service-tables.js";
 
@@ -58,7 +59,7 @@ export function countWait(state, kind) {
 /** A dish handed over by its cook: served, or put at the pass to wait for its table. */
 const HANDED = new Set(["served", "passed"]);
 /** An order no longer open: served, or refused (the dish off the menu). */
-const CLOSED = new Set(["served", "refused"]);
+const CLOSED = new Set(["served", "refused", "gone"]);
 
 /** The value at rank `share` of the sorted `values` (nearest rank), 0 when there are none. */
 const rank = (values, share) => (values.length ? values[Math.ceil(share * values.length) - 1] : 0);
@@ -106,5 +107,6 @@ export function measuresOf(state) {
     ...tallyMeasures(state),
     ...tableMeasures(state),
     ...supplyMeasures(state),
+    ...deliveryMeasures(state),
   };
 }

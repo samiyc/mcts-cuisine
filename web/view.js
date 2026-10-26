@@ -170,6 +170,7 @@ function statusOf(state, order) {
   if (order.status === "taken") return `${takerOf(state, order)}, ${time}`;
   if (order.status === "prepped") return `oignons coupés sur un comptoir, ${time}`;
   if (order.status === "refused") return `refusée : plus de ${RECIPES[order.recipe].label} ce soir (86)`;
+  if (order.status === "gone") return `le coursier est reparti sans le plat (tour ${order.deadline + 1})`;
   if (order.status === "passed") return `au passe depuis ${state.t - order.passedAt} tours, attend ${waitsFor(order)}, ${time}`;
   return stoveText(state, order, time);
 }
@@ -188,6 +189,8 @@ export function ordersOf(state) {
         id: order.id,
         table: order.table ?? null,
         sendAt: order.sendAt ?? null,
+        // Delivered: only its announced turn is shown, the courier's own is nobody's to know before he comes.
+        courier: order.courierAt !== undefined,
         dish: RECIPES[order.recipe].label,
         emoji: RECIPES[order.recipe].emoji,
         recipe: order.recipe,

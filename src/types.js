@@ -29,7 +29,7 @@
  *   id: number, recipe: string, arrival: number, deadline: number, status: string, cook: number | null,
  *   servedAt: number | null, counter?: string | null, stove?: string | null, cooked?: boolean, relayed?: boolean,
  *   relayedBy?: number, stock?: boolean, burnt?: number, table?: number, passedAt?: number | null, died?: number,
- *   sendAt?: number,
+ *   sendAt?: number, courierAt?: number,
  * }} Order
  */
 
@@ -62,7 +62,8 @@
  *   orders: number, onTime: number, late: number, missed: number, meanServe: number, p90Serve: number, maxServe: number,
  *   maxLate: number, moves: number, waits: number, servedByHuman: number, burnt?: number, peakOpen?: number, peakAt?: number,
  *   useBoard?: number, useStove?: number, usePass?: number, useCounter?: number, waitBoard?: number, waitStove?: number,
- *   waitPass?: number, waitCounter?: number, tables?: number, tablesOnTime?: number, died?: number, maxPass?: number, refused?: number, maxSendLate?: number,
+ *   waitPass?: number, waitCounter?: number, tables?: number, tablesOnTime?: number, died?: number, maxPass?: number, refused?: number, maxSendLate?: number, gone?: number, meanCourierWait?: number,
+ *   maxCourierWait?: number, maxDishWait?: number,
  *   outAt?: Record<string, number>,
  * }} Measures
  */
