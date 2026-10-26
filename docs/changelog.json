@@ -1,0 +1,233 @@
+{
+  "name": "Cuisine en équipe",
+  "back": "la cuisine",
+  "intro": "Des robots et un cuisinier se partagent les commandes ; les robots choisissent par une recherche (ISMCTS) qui imagine les commandes à venir et ce que fera le cuisinier.",
+  "repo": "mcts-cuisine",
+  "gainsTitle": "Ce que gagne la recherche (ISMCTS)",
+  "gainsNote": "Plats servis à temps par service, 50 services par cuisine, mêmes services pour tous ; le cuisinier « au hasard », la cuisson sans surveillance (les réglages par défaut). Les mesures du 23/10 au soir, jouées par l'ordonnanceur commun (mcts-backlog, night.json) ; avec les autres cuisiniers simulés, la recherche gagne aussi partout (docs/modele.md).",
+  "gainsHead": [
+    "Cuisine",
+    "la plus ancienne",
+    "le plat le plus rapide",
+    "recherche",
+    "écart sur la meilleure règle"
+  ],
+  "gainsRows": [
+    [
+      "Petite cuisine",
+      "9,5",
+      "11,7",
+      "<strong>12,8</strong>",
+      "+1,1"
+    ],
+    [
+      "En couloir",
+      "4,3",
+      "5,3",
+      "<strong>5,7</strong>",
+      "+0,4"
+    ],
+    [
+      "Grande brigade",
+      "8,9",
+      "16,9",
+      "<strong>17,0</strong>",
+      "+0,1"
+    ],
+    [
+      "Passe-plats",
+      "6,7",
+      "7,0",
+      "<strong>7,9</strong>",
+      "+0,9"
+    ],
+    [
+      "Postes",
+      "8,4",
+      "8,9",
+      "<strong>10,6</strong>",
+      "+1,7"
+    ],
+    [
+      "Coupée en deux",
+      "11,1",
+      "11,0",
+      "<strong>12,7</strong>",
+      "+1,6"
+    ],
+    [
+      "Le grand détour",
+      "5,8",
+      "8,9",
+      "<strong>10,1</strong>",
+      "+1,2"
+    ]
+  ],
+  "versions": [
+    {
+      "version": "0.12",
+      "title": "Le robot qui attendait le chef, l'allure orange",
+      "date": "23/10, tard",
+      "items": [
+        "Corrigé (replay de Sami) : un robot arrêté avant sa planche, le chef posé devant elle, l'attendait pour toujours en gardant la planche ; il la libère et cherche de nouveau.",
+        "L'allure commune des projets (mcts-commun, web/theme.css) : un bandeau orange aux teintes chaudes, 🍳 devant le titre, les réglages en carte, des sections pliables bien visibles (une barre, un chevron, « Ouvrir / Fermer »)."
+      ],
+      "commits": [
+        "a1bb6df",
+        "bf78969"
+      ]
+    },
+    {
+      "version": "0.11",
+      "title": "Le chef au clavier sans tours perdus",
+      "date": "23/10, soir",
+      "items": [
+        "Le tour commence avant la touche du chef : une soupe prête se prend le tour même, et le chef est libre dès la fin de son geste (deux tours perdus avant, Sami).",
+        "Le chef occupé dit ce qu'il fait et combien de tours il reste ; le replay du service en cours est gardé tous les 20 tours.",
+        "Corrigé : un robot se mettait à travailler en passant sur sa case, puis repartait.",
+        "Une touche après la fin du service le dit ; le chiffre sur la marmite est expliqué (🥘 tours avant qu'elle soit prête, 🍲 avant qu'elle brûle)."
+      ],
+      "commits": [
+        "25afdab",
+        "a91a76d",
+        "57e2c81",
+        "5dac2d9",
+        "cffa877",
+        "2a54089"
+      ]
+    },
+    {
+      "version": "0.10",
+      "title": "Les replays du chef et les écarts de ses choix",
+      "date": "23/10, soir",
+      "items": [
+        "Les services joués au clavier sont gardés dans le navigateur, se téléchargent et se rejouent ; npm run replay dit ce qui semble anormal, et à quel tour.",
+        "« Analyser les écarts » : chaque commande que le chef aurait pu prendre, rejouée avec le recul, et ce que son choix a coûté.",
+        "Les mesures de nuit (night.json), jouées par l'ordonnanceur commun de mcts-commun.",
+        "Les parties gardées par la page s'écrivent aussi dans replays/, hors de git, par le serveur de la page.",
+        "Le journal des versions dans la page."
+      ],
+      "commits": [
+        "ea24e07",
+        "0539d7e",
+        "94f95e0",
+        "f761ca9",
+        "3ae867c",
+        "841042f",
+        "2146883"
+      ]
+    },
+    {
+      "version": "0.9",
+      "title": "Les réglages de Sami, la soupe du chef",
+      "date": "23/10, soir",
+      "items": [
+        "La page démarre avec la recherche, le cuisinier « au hasard », et la cuisson sans surveillance active dans toutes les cuisines.",
+        "La soupe du chef au clavier lui est laissée ; il la reprend toujours devant son fourneau, même si un robot y allait ; un robot ne part plus chercher une soupe qu'il n'atteindrait pas avant qu'elle brûle.",
+        "Corrigé : la recherche plantait avec le chef au clavier (« rule is not a function », la page se figeait)."
+      ],
+      "commits": [
+        "d33e777",
+        "4875f9a"
+      ]
+    },
+    {
+      "version": "0.8",
+      "title": "Céder sa place, le cuisinier qui relaie",
+      "date": "23/10",
+      "items": [
+        "Un cuisinier loin d'un poste laisse la place à celui qui aura fini avant son arrivée (l'unique case devant le passe, réservée de l'autre bout de la cuisine).",
+        "Le cuisinier simulé pose ses plats sur un comptoir pour un robot, comme les robots : +2,6 plats sur le grand détour."
+      ],
+      "commits": [
+        "353d3a5"
+      ]
+    },
+    {
+      "version": "0.7",
+      "title": "Les comptoirs en relais, l'avance, le fourneau à récurer",
+      "date": "23/10",
+      "items": [
+        "Le tableau des comptoirs : un plat posé dit ce qu'il lui faut (« il faut un fourneau », « il faut le passe ») et qui vient le prendre.",
+        "Relais forcés (cuisine coupée en deux : de 0 à 12 plats à temps) et relais choisis ; le rôle « passe ».",
+        "Le chef au clavier prépare en avance, sans commande ; E devant un fourneau brûlé le récure.",
+        "Les oignons entiers et coupés se distinguent (🧅, 🧅🔪) ; deux cuisines de Sami : coupée en deux, le grand détour."
+      ],
+      "commits": [
+        "e5e0600",
+        "bf81a47"
+      ]
+    },
+    {
+      "version": "0.6",
+      "title": "La cuisson sans surveillance",
+      "date": "23/10",
+      "items": [
+        "La soupe cuit seule ; prête, elle brûle si personne ne la retire : le plat est perdu, le fourneau à nettoyer.",
+        "Les cuisiniers surveillent leur marmite ; corrigé : le robot qui coupe reposait sans fin les oignons qu'il venait de reprendre."
+      ],
+      "commits": [
+        "66d5ffe"
+      ]
+    },
+    {
+      "version": "0.5",
+      "title": "Les postes, les rôles, le chef au clavier",
+      "date": "23/10",
+      "items": [
+        "Les comptoirs gardent des oignons coupés ; des rôles pour les robots (coupe, cuisson, salade), avec un coup de main quand le travail s'empile.",
+        "Le chef se joue au clavier (Z Q S D, E) ; les robots replanifient autour de lui.",
+        "La cuisine « Postes » de Sami."
+      ],
+      "commits": [
+        "a2812ee"
+      ]
+    },
+    {
+      "version": "0.4",
+      "title": "Les comptoirs et la page des commandes",
+      "date": "23/10",
+      "items": [
+        "Le caractère _ pour un comptoir ; des vitesses lentes, la couleur et l'âge des commandes, une barre de patience."
+      ],
+      "commits": [
+        "bb5a0bc",
+        "d70454c",
+        "fe258e3"
+      ]
+    },
+    {
+      "version": "0.3",
+      "title": "La recherche",
+      "date": "22/10, soir",
+      "items": [
+        "Les robots choisissent leurs commandes par ISMCTS : environ un plat de plus à temps par service ; ce que vaut de connaître le cuisinier."
+      ],
+      "commits": [
+        "58a1996"
+      ]
+    },
+    {
+      "version": "0.2",
+      "title": "Le service, sa page et son modèle",
+      "date": "22/10",
+      "items": [
+        "Des cuisines en texte, des commandes qui arrivent, des chemins réservés dans le temps (A*), trois humains simulés, deux règles de référence."
+      ],
+      "commits": [
+        "58ed669"
+      ]
+    },
+    {
+      "version": "0.1",
+      "title": "Le dépôt",
+      "date": "22/10",
+      "items": [
+        "Le départ du projet, sur la bibliothèque commune mcts-commun."
+      ],
+      "commits": [
+        "f5d7cc1"
+      ]
+    }
+  ]
+}
