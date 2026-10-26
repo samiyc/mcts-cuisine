@@ -11,7 +11,10 @@ dossier rassemble ce que disent les sources publiées, et ce que le simulateur e
 4. [livraison.md](livraison.md) : la dark kitchen, les coursiers ;
 5. [indicateurs.md](indicateurs.md) : ce que mesurent les cuisines, ce que le simulateur compte, et les max ;
 6. [feuille-de-route.md](feuille-de-route.md) : les étapes, mesurées une à une, et leur avancement ;
-7. [oublis.md](oublis.md) : ce que les étapes ont laissé de côté ou découvert en chemin.
+7. [oublis.md](oublis.md) : ce que les étapes ont laissé de côté ou découvert en chemin ;
+8. [production.md](production.md) : la série, l'emballage, la plonge, l'hygiène, les pauses et la fatigue, les pannes, et
+   l'échelle du temps (un tour ≈ 30 s) ;
+9. [questions-specialiste.md](questions-specialiste.md) : ce qui ne s'est pas trouvé, à demander à quelqu'un du métier.
 
 Un chiffre cité a sa source dans le fichier qui le donne. Beaucoup de sources sur les restaurants sont des blogs
 d'éditeurs de logiciels de caisse (Toast, LS Central…) : leurs définitions sont reprises, leurs chiffres sont

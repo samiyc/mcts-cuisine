@@ -65,6 +65,20 @@
   ],
   "versions": [
     {
+      "version": "0.18",
+      "title": "La file pour les mesures longues, les chiffres vérifiés, les questions au spécialiste",
+      "date": "26/10",
+      "items": [
+        "Toutes les mesures longues passent par la file de la machine (mcts-backlog) : night.json refait en 66 mesures, une par cuisine et par cuisinier simulé, pour ce que le code du soir a changé.",
+        "Dans le grand détour, la recherche qui sait attendre bat enfin la règle de la table avec les tables (10,4 plats à temps contre 7,7) ; avec le cuisinier qui suit sa table, plus de la moitié des tables partent à temps.",
+        "Les chiffres des prochaines étapes cherchés sur internet (docs/recherche/production.md) : un tour vaut environ 30 secondes, ce qui rend cohérents le coursier qui attend 5 minutes, la patience de 30 minutes, le plat au chaud 30 minutes.",
+        "Ce qui ne s'est pas trouvé est rassemblé pour un spécialiste du métier : 24 questions, avec ce que le modèle suppose en attendant (docs/recherche/questions-specialiste.md)."
+      ],
+      "commits": [
+        "0aebd7c"
+      ]
+    },
+    {
       "version": "0.17",
       "title": "L'aboyeur et la mise en place",
       "date": "26/10",
@@ -73,7 +87,10 @@
         "La mise en place : un robot sans commande coupe d'avance les oignons d'une soupe et les pose sur un comptoir, deux au plus ; la commande suivante les reprend. +1,4 plat à temps dans la cuisine coupée en deux, rien ailleurs ; préparer des salades d'avance bouchait les comptoirs de relais. Éteinte par défaut, dans l'onglet Cuisine.",
         "npm run compare -- --aboyeur --mise-en-place."
       ],
-      "commits": []
+      "commits": [
+        "4595865",
+        "3f2be3b"
+      ]
     },
     {
       "version": "0.16",
