@@ -44,6 +44,13 @@ route : [`docs/recherche/`](docs/recherche/README.md).
    un humain : le modèle de l'humain est le cœur du projet.
 4. **La page** : on joue le cuisinier dans le navigateur, avec les robots.
 
+## Développer
+
+- `npm install` installe les outils et active le hook ; `npm run check` lance le lint, les types et les tests,
+  comme le hook avant chaque commit.
+- `npm run page` ouvre la page en onglets (Service, Cuisine, Replays, Stats) sur http://127.0.0.1:4803/web/.
+- L'outillage et ses raisons : [`docs/outillage.md`](docs/outillage.md).
+
 ## D'où ça vient
 
 - [`planification.md`](https://github.com/samiyc/lopin/blob/main/docs/ismcts-ailleurs/planification.md) § 4 :

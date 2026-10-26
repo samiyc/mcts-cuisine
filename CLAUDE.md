@@ -21,4 +21,14 @@ where the ISMCTS was built and measured). The plan and the reasons live in lopin
 - **A simple rule first**, measured on the same scenarios; a search must beat it, paired over the same
   scenarios, with its interval. A quick screen rejects, it never promotes (lopin's lesson).
 - **Markdown files stay under 800 lines**, this one under 300.
+- **`npm run check` passes before every commit** (the pre-commit hook runs it): lint, types, tests. Never skip the
+  hook. The tooling and its reasons: `docs/outillage.md`.
+- **The lint budget is lopin's** (`eslint.config.js`: 40 lines a function, 220 a file, complexity 8): a module that
+  outgrows it is split along its seams, the limit is never raised.
+- **The fingerprints** (`tests/fingerprint.test.js`) hold what the kitchen does: a refactor changes none; a change
+  meant to alter the model updates its hash and says so in the commit, with the measures before and after.
+- **Types come from JSDoc** (`npm run types`); the shapes the modules hand each other are in `src/types.js`.
+- **The changelog** is data, `docs/changelog.json`: a new version is a new first entry, then `npm run changelog`.
+- **The page is in tabs** (lopin's layout): a tab's settings in the panel on the left (`web/tabs/`), its view beside.
+- **The trades' roadmap** is `docs/recherche/feuille-de-route.md`: the restaurants' words and measures, step by step.
 - **Commit straight to `main`**; push only when Sami asks.

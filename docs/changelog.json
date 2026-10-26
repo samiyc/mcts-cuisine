@@ -65,6 +65,28 @@
   ],
   "versions": [
     {
+      "version": "0.13",
+      "title": "Les métiers de la cuisine, l'outillage de lopin, la page en onglets",
+      "date": "26/10",
+      "items": [
+        "Les recherches sur les restaurants, les traiteurs et la livraison (docs/recherche/) : le glossaire de la brigade et du service, les indicateurs et leurs maxima, et une feuille de route en étapes mesurées.",
+        "Les empreintes de la cuisine, prises avant toute refonte ; aucune n'a changé depuis.",
+        "Le lint de lopin (40 lignes par fonction, 220 par fichier, complexité 8) : simulate.js découpé en sept modules, mêmes chiffres ; les types d'après les commentaires JSDoc, le hook avant chaque commit.",
+        "La page en onglets, comme Lopin et les urgences : Service, Cuisine, Replays, Stats, les réglages dans un panneau à gauche qui se replie.",
+        "Ce journal tiré de docs/changelog.json par npm run changelog, dans le dépôt (docs/outillage.md)."
+      ],
+      "commits": [
+        "7f89738",
+        "4280b5d",
+        "1451be1",
+        "554571a",
+        "7b5fbed",
+        "349c0e8",
+        "b3dd61f",
+        "2fdd1cb"
+      ]
+    },
+    {
       "version": "0.12",
       "title": "Le robot qui attendait le chef, l'allure orange",
       "date": "23/10, tard",
