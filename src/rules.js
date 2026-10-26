@@ -34,8 +34,9 @@ const DONE = new Set(["passed", "served", "refused", "gone"]);
 /**
  * « Faire marcher » (step 1 of the trades' roadmap): a dish is fired when its table-mates still to finish need no more
  * than its own work and `HOLD` turns: it then reaches the pass with them. A soup ready on a stove is always taken off.
- * Counting the free hands as well (who will make the mates, and when) was measured on 26/10 and changed nothing (+0.1
- * dish in time on average, docs/metiers.md): the simpler rule stays.
+ * Counting the free hands as well (who will make the mates, and when), and calling first for a dish whose mates wait
+ * at the pass (the aboyeur's « réclame »), were measured on 26/10 and changed nothing (+0.1 dish in time on average,
+ * and about 0; docs/metiers.md): the simpler rule stays.
  */
 function fires(state, order) {
   if (!order.table || order.status === "ready") return true;

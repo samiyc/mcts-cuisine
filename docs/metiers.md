@@ -309,6 +309,23 @@ lui, premier essai (10 services, le grand détour, le cuisinier « le plus urgen
 la règle de la table 5,9, la plus ancienne 3,6 ; **3,9 tables sur 8,1 à temps** (la table : 2,5), 2,6 plats morts au
 passe (la table : 4,7). Le meilleur résultat des tables jusqu'ici, à confirmer par les mesures de nuit.
 
+Mesuré (30 services, la petite cuisine ; plats à temps, tables à temps sur 8,3, plats morts au passe ; la meilleure
+règle, la recherche des mesures de nuit, la recherche qui attend) :
+
+| Le cuisinier | la meilleure règle | la recherche, la nuit | la recherche qui attend |
+|---|---|---|---|
+| « le plus proche » | 3,9 ; 1,8 ; 14,2 (la plus ancienne) | 6,2 ; 2,7 ; 15,5 | 5,9 ; 2,6 ; 11,7 |
+| « le plus urgent » | 4,3 ; 1,9 ; 11,7 (le rétroplanning) | 6,3 ; 2,7 ; 13,7 | **7,5 ; 3,2 ; 9,3** (+3,40, de 2,04 à 4,76) |
+| « au hasard » | 4,0 ; 1,8 ; 11,8 (le rétroplanning) | 5,6 ; 2,5 ; 14,7 | **6,3 ; 2,7 ; 9,8** |
+| « suit sa table » | 5,5 ; 2,4 ; 10,1 (le rétroplanning) | — | **8,3 ; 3,5 ; 8,2** |
+| sans humain | 2,2 ; 1,0 ; 7,6 (le rétroplanning) | 4,0 ; 1,8 ; 14,2 | **4,4 ; 1,9 ; 6,1** |
+
+- **Attendre fait mourir moins de plats au passe** (un tiers de moins) et sert plus de tables, sauf avec le cuisinier
+  « le plus proche », où c'est égal.
+- **Le meilleur service des tables** : la recherche qui attend avec le cuisinier qui suit sa table, 3,5 tables sur 8,3
+  à temps. Les tables restent difficiles : il en part moins de la moitié à temps.
+- Le grand détour et la grande brigade : en cours.
+
 ## Les trois derniers indicateurs de l'étape 0 (26/10, le soir)
 
 Comptés sans rien décider (`src/service-measures.js`) : la **courbe du service** (les commandes venues et servies par
@@ -340,3 +357,9 @@ Ce qu'ils disent (30 services, le plat le plus rapide, le cuisinier « le plus u
   rien. Ce n'est pas le travail de chacun, c'est qui sert.
 - **La courbe** monte en 25 tours, tient à peu près 2,5 plats par tranche dans la petite cuisine (4 à 5 dans la grande
   brigade), puis retombe à la fin, quand les dernières commandes ne sont plus finies.
+
+**La réclame de l'aboyeur : mesurée, pas gardée.** La règle de la table a appris à réclamer d'abord le plat dont les
+voisins attendent déjà au passe, celui qui attend depuis le plus longtemps (`src/rules.js`, le 26/10). Sur les sept
+cuisines et les cinq cuisiniers, 30 services : de −0,3 à +0,6 plat à temps, autour de zéro en moyenne. Comme pour les
+mains comptées, une règle simple de plus ne fait pas avancer les tables ; ce qui les fait avancer, c'est la recherche
+qui sait attendre. L'aboyeur reste à faire en rôle (un robot au passe qui annonce et réclame), pas en règle.

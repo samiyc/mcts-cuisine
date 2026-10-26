@@ -41,8 +41,9 @@ point dit où il se rangera.
 
 ## Annoncés, pas encore faits
 
-- **L'aboyeur qui réclame** ([brigade-service.md](brigade-service.md)) : le rôle `passe` en est l'ébauche ; il pourrait
-  annoncer les tables, réclamer le plat qui manque, et ne servir que les tables complètes. Rangé : étape 1.
+- **L'aboyeur qui réclame** ([brigade-service.md](brigade-service.md)) : le rôle `passe` en est l'ébauche. La réclame
+  en règle (le plat dont les voisins attendent au passe d'abord) est mesurée le 26/10 : rien. Reste l'aboyeur en rôle,
+  un robot au passe qui annonce et réclame aux autres. Rangé : étape 1.
 - **La mise en place** : reportée par Sami (26/10) ; c'est le chantier des robots en avance (`docs/modele.md`, « La
   suite » 3) : une nouvelle décision pour les règles et la recherche (quoi préparer, combien), et trois cuisines sans
   comptoir pour la poser. Rangé : une étape à part, après les tables et la rupture.
