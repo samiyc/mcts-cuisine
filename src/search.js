@@ -1,9 +1,9 @@
 import { search } from "mcts-commun/mcts.js";
 import { createRng } from "mcts-commun/random.js";
 import { RECIPES } from "./kitchens.js";
-import { HUMANS, RULES } from "./rules.js";
+import { HUMANS, RULES, humansOf } from "./rules.js";
 import { redrawCouriers, withCourier } from "./service-delivery.js";
-import { drawTables, firstAfter } from "./service-tables.js";
+import { drawTables, firstAfter, passOf } from "./service-tables.js";
 
 /** An order nothing more can be won on: refused (the 86), or gone with its courier. */
 const LOST = new Set(["refused", "gone"]);
@@ -13,7 +13,7 @@ import { advance, choose, cloneService } from "./simulate.js";
  * The search (ISMCTS, `search` of mcts-commun) choosing which order a free robot takes. It knows what the
  * robots know: the kitchen, the orders come, who cooks what and where. What it cannot know it draws again at
  * every iteration: the orders still to come (at the service's usual pace), and the human, whose habits the
- * robots do not know (one of the three models of `HUMANS`, drawn per world, with his own draws). The robot's
+ * robots do not know (one of the models of `HUMANS` the service may have, drawn per world, with his own draws). The robot's
  * choices are judged on common worlds, a tree of `depth` choices (this robot's, then the next free robot's),
  * the quickest-dish rule beyond, for `horizon` turns.
  *
@@ -63,7 +63,8 @@ export function drawWorld(state, rng, horizon = SEARCH_SETTINGS.horizon, human =
   world.upcoming = [...come, ...drawComing(state.setup, state.t, come, rng)];
   // The couriers not yet come: when they will come, nobody knows (service-delivery.js).
   redrawCouriers(world, rng);
-  const names = Object.keys(HUMANS);
+  // The humans this service may have: the one who follows his table only where there are tables.
+  const names = humansOf(state.setup);
   const drawn = HUMANS[names[rng.int(names.length)]];
   // A human in the kitchen (simulated, or the chef at the keyboard, who has no model: state.human is null then)
   // is played in the worlds by a model drawn at random (Sami, 23/10: the search crashed with the chef at the keyboard).
@@ -102,10 +103,11 @@ function rollOut(world) {
 }
 
 /**
- * May a robot wait, in the worlds as the backward planning does? At a banquet and with couriers, where a dish
- * started too early dies warm (the night measures of 26/10: without it, the search never beat the backward planning).
+ * May a robot wait, in the worlds as the backward planning and the table's rule do? Wherever a dish waits at the pass
+ * (tables, a banquet, couriers) and dies there if it came too early (the night measures of 26/10: without it, the
+ * search never beat the backward planning at a banquet, nor the table's rule in the detour).
  */
-const mayHold = (setup) => Boolean(setup.banquet || setup.delivery);
+const mayHold = (setup) => Boolean(passOf(setup));
 
 /** The free robot's moves: each open order, and waiting when it may (`order` null). */
 function movesOf(world) {

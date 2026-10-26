@@ -21,13 +21,13 @@ Ses choix :
 - **les mots du métier** dans la page et les docs, d'après [glossaire.md](glossaire.md) : le bon, le passe, faire
   marcher, réclamer, la rupture, le coup de feu.
 
-## L'avancement (26/10, fin d'après-midi)
+## L'avancement (26/10, le soir)
 
 | Étape | État | Où |
 |---|---|---|
 | Avant : l'outillage, la page en onglets | **fait** | `docs/outillage.md` |
 | 0 : les indicateurs | **fait** ; reste : les bons par tranche, les plats par robot, le temps réservé sans travailler | `src/service-measures.js` |
-| 1 : la brigade | **en partie** : les tables, le passe à durée limitée, la rupture et la règle « la table » sont faits (réglages éteints par défaut) ; les tables restent ratées (le manque de mains) ; l'aboyeur et un humain « qui suit sa table » à faire ; la mise en place reportée | `src/service-tables.js`, `src/service-supply.js` |
+| 1 : la brigade | **en partie** : les tables, le passe à durée limitée, la rupture et la règle « la table » sont faits (réglages éteints par défaut) ; l'humain « qui suit sa table » (il aide dans cinq cuisines sur sept) ; compter les mains, mesuré, sans effet ; la recherche qui attend fait enfin avancer les tables (premier essai : 3,9 tables sur 8 à temps dans le grand détour) ; reste : l'aboyeur, la mise en place (reportée) | `src/service-tables.js`, `src/service-supply.js` |
 | Hors étape : marcher plus vite, deux passes | **fait** (Sami, 26/10) : 2 cases par tour par défaut, aucune superposition | `src/service-legs.js`, `src/kitchens.js` |
 | Les mesures de nuit, refaites | **faites** (26/10) : la recherche bat toutes les règles dans les sept cuisines ; elle fait avancer les tables (sauf dans le grand détour, où la règle de la table la bat) et la livraison ; au banquet, elle ne voyait pas l'heure d'envoi, corrigé et remesuré | `night.json`, `docs/modele.md` |
 | 2 : le banquet | **fait** (26/10) : commandes connues, envois à l'heure, étuve, règle du rétroplanning ; la recherche sait attendre ; reste : la coupe en série, un humain « qui suit le plan » | `src/service-banquet.js` |

@@ -34,6 +34,8 @@ const DONE = new Set(["passed", "served", "refused", "gone"]);
 /**
  * « Faire marcher » (step 1 of the trades' roadmap): a dish is fired when its table-mates still to finish need no more
  * than its own work and `HOLD` turns: it then reaches the pass with them. A soup ready on a stove is always taken off.
+ * Counting the free hands as well (who will make the mates, and when) was measured on 26/10 and changed nothing (+0.1
+ * dish in time on average, docs/modele.md): the simpler rule stays.
  */
 function fires(state, order) {
   if (!order.table || order.status === "ready") return true;
@@ -88,8 +90,19 @@ export const HUMANS = Object.freeze({
   nearest: (open, { reach }) => first(open, (a, b) => reach(a) < reach(b)),
   urgent: (open) => first(open, (a, b) => a.deadline < b.deadline),
   random: (open, { rng }) => open[rng.int(open.length)],
+  /**
+   * The cook who follows his table (Sami, 26/10, step 1): the oldest table, its longest dish first; at a banquet or
+   * for a courier, not a dish that would wait too long at the pass (he waits, as the production plan says). Without
+   * tables, the oldest order.
+   */
+  table: (open, { state }) => {
+    const ready = open.filter((order) => !tooEarly(state, order));
+    return ready.length ? first(ready, tableFirst) : undefined;
+  },
 });
-export const HUMAN_LABELS = Object.freeze({ nearest: "prend le plus proche", urgent: "prend le plus urgent", random: "prend au hasard", clavier: "c'est vous, au clavier (Z Q S D, E)", none: "pas d'humain" });
+/** The humans a service may have: the one who follows his table only where there are tables (a banquet's courses, a courier's order). */
+export const humansOf = (setup) => Object.keys(HUMANS).filter((name) => name !== "table" || passOf(setup));
+export const HUMAN_LABELS = Object.freeze({ nearest: "prend le plus proche", urgent: "prend le plus urgent", random: "prend au hasard", table: "suit sa table", clavier: "c'est vous, au clavier (Z Q S D, E)", none: "pas d'humain" });
 
 const mean = (values) => values.reduce((sum, value) => sum + value, 0) / values.length;
 // The indicators of step 0 (26/10, docs/recherche/indicateurs.md) after the first ones: means over the services, maxima included.

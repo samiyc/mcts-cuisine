@@ -65,6 +65,34 @@
   ],
   "versions": [
     {
+      "version": "0.16",
+      "title": "Le cuisinier qui suit sa table, la recherche qui attend",
+      "date": "26/10",
+      "items": [
+        "Un quatrième cuisinier simulé, « suit sa table » : la table la plus ancienne, son plat le plus long d'abord ; au banquet, il ne lance pas un plat qui mourrait au chaud. Proposé seulement quand le service a des tables (ou un banquet, des coursiers), et imaginé par la recherche là seulement. Il sert plus de plats à temps dans cinq cuisines sur sept.",
+        "Compter les mains libres dans la règle de la table : mesuré sur les sept cuisines, +0,1 plat en moyenne, donc pas gardé ; la règle simple reste.",
+        "La recherche peut attendre aussi avec les tables, comme la règle de la table qui la battait dans le grand détour : premier essai, 9,6 plats à temps au lieu de 5,9 pour la règle, 3,9 tables sur 8 à temps, le meilleur résultat des tables jusqu'ici.",
+        "npm run compare -- --humain urgent : un seul cuisinier simulé, pour mesurer plus vite."
+      ],
+      "commits": []
+    },
+    {
+      "version": "0.15",
+      "title": "Le banquet, la livraison, la recherche qui sait attendre",
+      "date": "26/10",
+      "items": [
+        "Le banquet (étape 2) : toutes les commandes connues dès le début, environ six couverts, une entrée et un plat envoyés chacun à son heure, entiers ; un plat attend au chaud soixante tours au plus. Une règle de plus, « le rétroplanning » : le plat dont le début au plus tard est le plus proche, pas lancé s'il devait mourir au chaud. Réglage éteint par défaut, dans l'onglet Cuisine.",
+        "La livraison (étape 3) : chaque commande a son coursier, annoncé trente tours après elle mais qui vient à huit tours près, sans que personne le sache ; il attend son plat dix tours, puis repart sans lui. La recherche imagine l'heure des coursiers dans chacun de ses mondes. Un bug trouvé en mesurant : un plat pouvait partir vers un coursier déjà reparti.",
+        "Les mesures de nuit du 26/10, sur 18 fils : la recherche bat toutes les règles dans les sept cuisines, avec chaque cuisinier simulé et sans lui (le tableau ci-dessus) ; elle fait avancer les tables, sauf dans le grand détour où la règle de la table la bat ; avec les coursiers, elle perd moins de commandes que toutes les règles.",
+        "Au banquet, la recherche ne voyait pas l'heure des envois et ne savait pas attendre : elle faisait comme le plat le plus rapide. Ses mondes vont maintenant jusqu'au dernier envoi, et attendre est un de ses coups, au banquet et à la livraison."
+      ],
+      "commits": [
+        "2b9a58d",
+        "4031a48",
+        "b33de27"
+      ]
+    },
+    {
       "version": "0.14",
       "title": "Les indicateurs du métier, les tables, la rupture, marcher plus vite",
       "date": "26/10",
@@ -74,7 +102,7 @@
         "La rupture : chaque caisse a un stock, une caisse vide fait refuser les commandes de son plat ; réglage éteint par défaut.",
         "Les cuisiniers marchent deux cases par tour, réservées pas à pas : personne ne se superpose ni ne se croise ; le chef au clavier fait deux pas par tour lui aussi. Deux cases de passe dans chaque cuisine. La petite cuisine sert 85 % de ses plats à temps au lieu de 63 %.",
         "Les oublis, notés dans docs/recherche/oublis.md : les tables restent ratées (il manque des mains, pas des pas) ; la rupture ne choisit pas à qui donner les derniers ingrédients ; un poste réservé sans travailler n'est pas compté ; l'aboyeur, la mise en place et un humain « qui suit sa table » restent à faire ; l'impasse du passe dans la cuisine en couloir.",
-        "Les mesures de nuit refaites pour cette cuisine plus rapide (night.json) ; le tableau ci-dessus est encore celui du 23/10."
+        "Les mesures de nuit refaites pour cette cuisine plus rapide (night.json) : voir la version 0.15."
       ],
       "commits": [
         "4c0b2a2",

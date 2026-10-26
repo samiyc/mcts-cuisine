@@ -1,5 +1,5 @@
 import { KITCHENS } from "../src/kitchens.js";
-import { HUMAN_LABELS, HUMANS, RULE_LABELS, RULES, compareRules } from "../src/rules.js";
+import { HUMAN_LABELS, RULE_LABELS, RULES, compareRules, humansOf } from "../src/rules.js";
 import { searchRule } from "../src/search.js";
 import { bottleneckOf } from "../src/service-measures.js";
 import { BANQUET } from "../src/service-banquet.js";
@@ -8,8 +8,9 @@ import { SUPPLY } from "../src/service-supply.js";
 import { TABLES } from "../src/service-tables.js";
 
 /**
- * `npm run compare -- [--kitchen petite|couloir|brigade] [--services 100] [--search [budget]] [--tables] [--rupture [n]] [--banquet] [--livraison]`: the robots' rules
- * on the same drawn services, with each simulated human and with none; every kitchen when none is named.
+ * `npm run compare -- [--kitchen petite|couloir|brigade] [--services 100] [--search [budget]] [--tables] [--rupture [n]] [--banquet] [--livraison] [--humain urgent]`: the
+ * robots' rules on the same drawn services, with each simulated human the service may have (src/rules.js, `humansOf`)
+ * and with none, or only `--humain` (a name of HUMANS, or none); every kitchen when none is named.
  * `--search` adds the search (src/search.js, ~1 to 3 s a service). Since step 0 of the trades' roadmap (26/10), each
  * row also gives the ticket time at the 9th decile and at most, the rush (the most orders open at once) and the
  * bottleneck: the station kind most at work, and the one cooks waited for most (means over the services).
@@ -18,6 +19,7 @@ const args = process.argv.slice(2);
 const services = args.includes("--services") ? Number(args[args.indexOf("--services") + 1]) : 100;
 const named = args.includes("--kitchen") ? [args[args.indexOf("--kitchen") + 1]] : Object.keys(KITCHENS);
 const searching = args.includes("--search");
+const onlyHuman = args.includes("--humain") ? args[args.indexOf("--humain") + 1] : null;
 const budget = searching && /^\d+$/.test(args[args.indexOf("--search") + 1] ?? "") ? Number(args[args.indexOf("--search") + 1]) : undefined;
 const rules = searching ? { ...RULES, search: searchRule(budget ? { budget } : {}) } : RULES;
 // `--rupture [n]`: every crate holds n ingredients (6 by default, service-supply.js), the orders refused once it is empty.
@@ -46,7 +48,7 @@ for (const id of named) {
   if (!KITCHENS[id]) throw new Error(`cuisine inconnue ; au choix : ${Object.keys(KITCHENS).join(", ")}`);
   console.log(`\n${setup.label} : ${services} services`);
   console.log(HEAD);
-  for (const humanName of [...Object.keys(HUMANS), "none"]) {
+  for (const humanName of onlyHuman ? [onlyHuman] : [...humansOf(setup), "none"]) {
     const result = compareRules(setup, { services, humanName, rules });
     for (const [name, row] of Object.entries(result)) {
       const first = [HUMAN_LABELS[humanName].padEnd(21), RULE_LABELS[name].padEnd(24), fixed(row.orders).padStart(9), fixed(row.onTime).padStart(7), fixed(row.late).padStart(9), fixed(row.missed).padStart(8), gainOf(name, row).padStart(22)];

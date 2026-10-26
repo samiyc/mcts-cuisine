@@ -653,3 +653,42 @@ elle +0,1. Deux raisons, corrigées le soir même (`src/search.js`) :
   recherche lançait toujours quelque chose. Au banquet et à la livraison, attendre est maintenant un de ses coups.
 Et sa liste courte commence par le choix de la règle de ses mondes (la table, le rétroplanning) : ce que la règle
 ferait, elle peut toujours le faire. Sans tables, banquet ni livraison, rien ne change (les empreintes).
+
+## L'humain qui suit sa table, les mains comptées (26/10, le soir, suite de l'étape 1)
+
+Sami (26/10) : d'accord pour finir l'étape 1 par un humain « qui suit sa table » et une règle qui compte les mains.
+
+**Le cuisinier qui suit sa table** (`HUMANS.table`, `src/rules.js`) : la table la plus ancienne, son plat le plus long
+d'abord ; au banquet et pour un coursier, il ne lance pas un plat qui attendrait trop au passe (il attend, comme le dit
+le plan de production). Sans tables, c'est la plus ancienne commande : il n'est donc proposé qu'aux services qui ont
+des tables (`humansOf` : les tables, le banquet, la livraison), et la recherche ne l'imagine que là. Les services sans
+tables sont inchangés (les empreintes, qui ne prennent que les humains de chaque service).
+
+Avec lui (30 services, tables ; plats à temps avec la meilleure règle de chaque cuisine, comparés au cuisinier
+« le plus urgent ») :
+
+| Cuisine | « le plus urgent » | « suit sa table » |
+|---|---|---|
+| petite | 4,3 (le rétroplanning) | **5,5** (le rétroplanning) |
+| en couloir | 0,5 | 0,7 |
+| grande brigade | 5,1 (la table) | **5,5** (la table) |
+| passe-plats | 2,4 (la table) | **3,1** (la table) |
+| postes | 1,9 (le rétroplanning) | **3,1** (le rétroplanning) |
+| coupée en deux | 2,5 (le plus rapide) | 2,5 (le plus rapide) |
+| le grand détour | **7,7** (la table) | 5,4 (la table) |
+
+Un humain qui suit sa table aide dans cinq cuisines sur sept, perd dans le grand détour, et ne sauve pas les tables :
+un tiers d'entre elles à temps au mieux.
+
+**Compter les mains : mesuré, pas gardé.** La règle de la table a appris qui fera les voisins d'un plat et quand :
+chaque autre cuisinier libre maintenant, ou à la fin de son plat, prend le voisin le plus long d'abord. Sur les sept
+cuisines et les quatre humains, 30 services, l'écart sur les plats à temps va de −0,6 à +0,7, **+0,1 en moyenne** : rien.
+Avec ces deux recettes (une soupe de 11 tours, une salade de 4), la règle retenait déjà la salade tant que la soupe
+n'était pas coupée ; les mains ne changent la décision que rarement. La règle simple reste ; la mesure est notée dans
+son commentaire.
+
+**La recherche attend aussi avec les tables.** Le coup « attendre » du banquet (plus haut) sert aussi aux tables : la
+règle de la table bat la recherche dans le grand détour parce qu'elle retient les plats qui mourraient au passe. Avec
+lui, premier essai (10 services, le grand détour, le cuisinier « le plus urgent ») : la recherche **9,6** plats à temps,
+la règle de la table 5,9, la plus ancienne 3,6 ; **3,9 tables sur 8,1 à temps** (la table : 2,5), 2,6 plats morts au
+passe (la table : 4,7). Le meilleur résultat des tables jusqu'ici, à confirmer par les mesures de nuit.

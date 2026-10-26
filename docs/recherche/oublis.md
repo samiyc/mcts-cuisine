@@ -10,8 +10,7 @@ point dit où il se rangera.
 - **Les tables manquent de mains.** Avec deux robots et un cuisinier, une table de trois plats ne peut pas se faire en
   même temps ; ses plats arrivent au passe à 20 ou 30 tours d'écart, et le premier meurt avant le dernier. Marcher plus
   vite n'y change rien, il en meurt même davantage (les plats rapides arrivent plus tôt). Pistes, à mesurer :
-  - **la règle « la table » compte les mains libres** : elle ne fait marcher un plat que si un cuisinier pourra faire
-    les autres en même temps ; aujourd'hui elle ne retient jamais deux plats identiques ;
+  - ~~la règle « la table » compte les mains libres~~ : mesuré le 26/10, rien (+0,1 plat), pas gardé ;
   - **une patience par table**, proportionnelle à sa taille ;
   - **un passe chauffé** (une lampe) : le plat y tient plus longtemps, comme dans les vraies cuisines.
   Rangé : étape 1, à reprendre avec les mesures de nuit du 26/10 (la recherche sur les tables).
@@ -28,9 +27,9 @@ point dit où il se rangera.
   chaîne ; le modèle fait un plat par voyage, de la caisse au passe. À 8 couverts et 30 tours au chaud, aucun envoi ne
   partait jamais (`docs/modele.md`, « Le banquet »). Rangé : étape 2, un geste « en série » (couper N portions, plus
   long qu'une mais bien moins que N).
-- **L'humain du banquet** : les trois humains simulés lancent les plats sans regarder l'heure d'envoi ; « au hasard »,
-  il fait mourir presque tous les envois de trois cuisines. Un humain « qui suit le plan de production », à mesurer
-  comme celui « qui suit sa table ». Rangé : étape 2.
+- **L'humain du banquet** : « au hasard », il fait mourir presque tous les envois de trois cuisines. L'humain « qui
+  suit sa table » suit aussi le plan de production (il ne lance pas un plat qui mourrait au chaud) : à mesurer au
+  banquet. Rangé : étape 2.
 
 - **La livraison sans emballage ni enseignes** : le poste d'emballage (une lettre de plus dans les plans, une étape de
   plus à chaque plat) et les deux enseignes sous un toit ([livraison.md](livraison.md)) ne sont pas faits ; une règle
@@ -46,8 +45,8 @@ point dit où il se rangera.
 - **La mise en place** : reportée par Sami (26/10) ; c'est le chantier des robots en avance (`docs/modele.md`, « La
   suite » 3) : une nouvelle décision pour les règles et la recherche (quoi préparer, combien), et trois cuisines sans
   comptoir pour la poser. Rangé : une étape à part, après les tables et la rupture.
-- **Les humains simulés ignorent les tables et la rupture** : « le plus urgent » prend un plat sans regarder sa table.
-  Le modèle de l'humain est le cœur du projet : un quatrième humain, « qui suit sa table », à mesurer. Rangé : étape 1.
+- **Les humains simulés ignorent la rupture** : l'humain « qui suit sa table » est fait (26/10) ; aucun ne regarde
+  le stock. Rangé : étape 1.
 - **Les indicateurs pas encore comptés** ([indicateurs.md](indicateurs.md)) : les bons par tranche de tours (une
   courbe du service), les plats servis par chaque robot, le temps réservé sans travailler. Rangé : étape 0.
 - **La recherche sur les tables et la rupture** : son évaluation compte les plats à temps ; avec les tables, c'est la
@@ -66,3 +65,5 @@ Les oublis réglés quittent cette liste et vont dans [modele.md](../modele.md) 
 - **La recherche au banquet ne voyait pas l'heure d'envoi et ne savait pas attendre** (trouvé par ces mesures) :
   ses mondes vont jusqu'au dernier envoi, attendre est un de ses coups, et sa liste courte commence par le choix de
   la règle de ses mondes.
+- **L'humain « qui suit sa table »** (26/10) : il aide dans cinq cuisines sur sept (`docs/modele.md`).
+- **La recherche qui attend**, au banquet, à la livraison et avec les tables (26/10).

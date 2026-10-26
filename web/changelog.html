@@ -16,22 +16,44 @@
     <main class="changelog">
       <section>
         <h2>Ce que gagne la recherche (ISMCTS)</h2>
-        <p class="hint">Plats servis à temps par service, 50 services par cuisine, mêmes services pour tous ; le cuisinier « au hasard », la cuisson sans surveillance (les réglages par défaut). Les mesures du 23/10 au soir, jouées par l'ordonnanceur commun (mcts-backlog, night.json) ; avec les autres cuisiniers simulés, la recherche gagne aussi partout (docs/modele.md).</p>
+        <p class="hint">Plats servis à temps par service, 50 services par cuisine, mêmes services pour tous ; le cuisinier « au hasard », la cuisson sans surveillance, deux cases par tour, deux passes (les réglages par défaut). Les mesures de nuit du 26/10, jouées par l'ordonnanceur commun (mcts-backlog, night.json) ; avec les autres cuisiniers simulés et sans humain, la recherche gagne aussi partout (docs/modele.md).</p>
         <div class="scroll"><table>
           <thead><tr><th>Cuisine</th><th class="num">la plus ancienne</th><th class="num">le plat le plus rapide</th><th class="num">recherche</th><th class="num">écart sur la meilleure règle</th></tr></thead>
           <tbody>
-          <tr><td>Petite cuisine</td><td class="num">9,5</td><td class="num">11,7</td><td class="num"><strong>12,8</strong></td><td class="num">+1,1</td></tr>
-          <tr><td>En couloir</td><td class="num">4,3</td><td class="num">5,3</td><td class="num"><strong>5,7</strong></td><td class="num">+0,4</td></tr>
-          <tr><td>Grande brigade</td><td class="num">8,9</td><td class="num">16,9</td><td class="num"><strong>17,0</strong></td><td class="num">+0,1</td></tr>
-          <tr><td>Passe-plats</td><td class="num">6,7</td><td class="num">7,0</td><td class="num"><strong>7,9</strong></td><td class="num">+0,9</td></tr>
-          <tr><td>Postes</td><td class="num">8,4</td><td class="num">8,9</td><td class="num"><strong>10,6</strong></td><td class="num">+1,7</td></tr>
-          <tr><td>Coupée en deux</td><td class="num">11,1</td><td class="num">11,0</td><td class="num"><strong>12,7</strong></td><td class="num">+1,6</td></tr>
-          <tr><td>Le grand détour</td><td class="num">5,8</td><td class="num">8,9</td><td class="num"><strong>10,1</strong></td><td class="num">+1,2</td></tr>
+          <tr><td>Petite cuisine</td><td class="num">16,2</td><td class="num">16,3</td><td class="num"><strong>17,5</strong></td><td class="num">+1,2</td></tr>
+          <tr><td>En couloir</td><td class="num">6,1</td><td class="num">7,9</td><td class="num"><strong>8,3</strong></td><td class="num">+0,4</td></tr>
+          <tr><td>Grande brigade</td><td class="num">22,1</td><td class="num">24,5</td><td class="num"><strong>28,0</strong></td><td class="num">+3,5</td></tr>
+          <tr><td>Passe-plats</td><td class="num">11,1</td><td class="num">11,4</td><td class="num"><strong>12,1</strong></td><td class="num">+0,7</td></tr>
+          <tr><td>Postes</td><td class="num">13,3</td><td class="num">14,0</td><td class="num"><strong>15,4</strong></td><td class="num">+1,4</td></tr>
+          <tr><td>Coupée en deux</td><td class="num">13,9</td><td class="num">13,4</td><td class="num"><strong>15,0</strong></td><td class="num">+1,1</td></tr>
+          <tr><td>Le grand détour</td><td class="num">11,6</td><td class="num">13,9</td><td class="num"><strong>15,2</strong></td><td class="num">+1,3</td></tr>
           </tbody>
         </table></div>
       </section>
       <section>
         <h2>Les versions</h2>
+
+      <article class="version">
+        <h3><span class="tag">0.16</span> Le cuisinier qui suit sa table, la recherche qui attend <span class="date">26/10</span></h3>
+        <ul>
+          <li>Un quatrième cuisinier simulé, « suit sa table » : la table la plus ancienne, son plat le plus long d'abord ; au banquet, il ne lance pas un plat qui mourrait au chaud. Proposé seulement quand le service a des tables (ou un banquet, des coursiers), et imaginé par la recherche là seulement. Il sert plus de plats à temps dans cinq cuisines sur sept.</li>
+          <li>Compter les mains libres dans la règle de la table : mesuré sur les sept cuisines, +0,1 plat en moyenne, donc pas gardé ; la règle simple reste.</li>
+          <li>La recherche peut attendre aussi avec les tables, comme la règle de la table qui la battait dans le grand détour : premier essai, 9,6 plats à temps au lieu de 5,9 pour la règle, 3,9 tables sur 8 à temps, le meilleur résultat des tables jusqu'ici.</li>
+          <li>npm run compare -- --humain urgent : un seul cuisinier simulé, pour mesurer plus vite.</li>
+        </ul>
+        <p class="commits"></p>
+      </article>
+
+      <article class="version">
+        <h3><span class="tag">0.15</span> Le banquet, la livraison, la recherche qui sait attendre <span class="date">26/10</span></h3>
+        <ul>
+          <li>Le banquet (étape 2) : toutes les commandes connues dès le début, environ six couverts, une entrée et un plat envoyés chacun à son heure, entiers ; un plat attend au chaud soixante tours au plus. Une règle de plus, « le rétroplanning » : le plat dont le début au plus tard est le plus proche, pas lancé s'il devait mourir au chaud. Réglage éteint par défaut, dans l'onglet Cuisine.</li>
+          <li>La livraison (étape 3) : chaque commande a son coursier, annoncé trente tours après elle mais qui vient à huit tours près, sans que personne le sache ; il attend son plat dix tours, puis repart sans lui. La recherche imagine l'heure des coursiers dans chacun de ses mondes. Un bug trouvé en mesurant : un plat pouvait partir vers un coursier déjà reparti.</li>
+          <li>Les mesures de nuit du 26/10, sur 18 fils : la recherche bat toutes les règles dans les sept cuisines, avec chaque cuisinier simulé et sans lui (le tableau ci-dessus) ; elle fait avancer les tables, sauf dans le grand détour où la règle de la table la bat ; avec les coursiers, elle perd moins de commandes que toutes les règles.</li>
+          <li>Au banquet, la recherche ne voyait pas l'heure des envois et ne savait pas attendre : elle faisait comme le plat le plus rapide. Ses mondes vont maintenant jusqu'au dernier envoi, et attendre est un de ses coups, au banquet et à la livraison.</li>
+        </ul>
+        <p class="commits"><code>2b9a58d</code> <code>4031a48</code> <code>b33de27</code></p>
+      </article>
 
       <article class="version">
         <h3><span class="tag">0.14</span> Les indicateurs du métier, les tables, la rupture, marcher plus vite <span class="date">26/10</span></h3>
@@ -41,7 +63,7 @@
           <li>La rupture : chaque caisse a un stock, une caisse vide fait refuser les commandes de son plat ; réglage éteint par défaut.</li>
           <li>Les cuisiniers marchent deux cases par tour, réservées pas à pas : personne ne se superpose ni ne se croise ; le chef au clavier fait deux pas par tour lui aussi. Deux cases de passe dans chaque cuisine. La petite cuisine sert 85 % de ses plats à temps au lieu de 63 %.</li>
           <li>Les oublis, notés dans docs/recherche/oublis.md : les tables restent ratées (il manque des mains, pas des pas) ; la rupture ne choisit pas à qui donner les derniers ingrédients ; un poste réservé sans travailler n'est pas compté ; l'aboyeur, la mise en place et un humain « qui suit sa table » restent à faire ; l'impasse du passe dans la cuisine en couloir.</li>
-          <li>Les mesures de nuit refaites pour cette cuisine plus rapide (night.json) ; le tableau ci-dessus est encore celui du 23/10.</li>
+          <li>Les mesures de nuit refaites pour cette cuisine plus rapide (night.json) : voir la version 0.15.</li>
         </ul>
         <p class="commits"><code>4c0b2a2</code> <code>e30218a</code> <code>989c012</code> <code>1b10afe</code> <code>d63a244</code></p>
       </article>

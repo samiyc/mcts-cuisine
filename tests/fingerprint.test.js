@@ -4,7 +4,7 @@ import { createHash } from "node:crypto";
 import { readFileSync } from "node:fs";
 import { KITCHENS } from "../src/kitchens.js";
 import { playReplay } from "../src/replay.js";
-import { HUMANS, RULES } from "../src/rules.js";
+import { HUMANS, RULES, humansOf } from "../src/rules.js";
 import { searchRule } from "../src/search.js";
 import { measuresOf, runService } from "../src/simulate.js";
 
@@ -28,11 +28,12 @@ const played = (setup, seed, rule, humanName) => {
   const { state, measures } = runService(setup, seed, rule, HUMANS[humanName] ?? null);
   return traceOf(state, measures);
 };
-const HUMAN_NAMES = [...Object.keys(HUMANS), "none"];
+// The humans each service may have (the one who follows his table only with tables), and none.
+const humanNames = (setup) => [...humansOf(setup), "none"];
 
 const FINGERPRINTS = {
-  // Every kitchen under every rule, with every simulated human and none, two services each.
-  rules: () => Object.values(KITCHENS).flatMap((setup) => [1, 2].flatMap((seed) => Object.values(RULES).flatMap((rule) => HUMAN_NAMES.map((human) => played(setup, seed, rule, human))))),
+  // Every kitchen under every rule, with every simulated human it may have and none, two services each.
+  rules: () => Object.values(KITCHENS).flatMap((setup) => [1, 2].flatMap((seed) => Object.values(RULES).flatMap((rule) => humanNames(setup).map((human) => played(setup, seed, rule, human))))),
   // The settings the kitchens leave at their defaults: cooking watched, no roles, a soup that burns at once.
   variants: () =>
     [

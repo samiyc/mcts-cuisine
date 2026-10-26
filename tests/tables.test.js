@@ -1,10 +1,12 @@
 import { describe, it } from "node:test";
 import assert from "node:assert/strict";
 import { KITCHENS } from "../src/kitchens.js";
-import { HUMANS, RULES } from "../src/rules.js";
-import { searchRule } from "../src/search.js";
+import { createRng } from "mcts-commun/random.js";
+import { HUMANS, RULES, humansOf } from "../src/rules.js";
+import { drawWorld, searchRule } from "../src/search.js";
+import { BANQUET } from "../src/service-banquet.js";
 import { TABLES } from "../src/service-tables.js";
-import { drawOrders, runService } from "../src/simulate.js";
+import { createService, drawOrders, runService } from "../src/simulate.js";
 
 /** The tables and the pass (step 1 of docs/recherche/feuille-de-route.md, Sami's choices of 26/10/2026). */
 const withTables = (id, tables = TABLES) => ({ ...KITCHENS[id], tables });
@@ -69,5 +71,26 @@ describe("the tables (src/service-tables.js)", () => {
     assert.equal("tables" in runService(KITCHENS.petite, 1, RULES.quickest, HUMANS.urgent).measures, false);
     const { measures } = runService(withTables("petite"), 1, searchRule({ budget: 8 }), HUMANS.urgent);
     assert.ok(measures.tables > 0 && measures.orders > 0);
+  });
+  it("has a cook who follows his table: the oldest table, its longest dish first; at a banquet, nothing that would die warm", () => {
+    const soup = { id: 1, recipe: "soupe", arrival: 5, deadline: 65, table: 1, status: "open" };
+    const salad = { id: 2, recipe: "salade", arrival: 5, deadline: 65, table: 1, status: "open" };
+    const older = { id: 3, recipe: "salade", arrival: 2, deadline: 50, table: 2, status: "open" };
+    const setup = withTables("petite");
+    assert.equal(HUMANS.table([salad, soup], { state: { t: 10, setup } }), soup);
+    assert.equal(HUMANS.table([older, salad, soup], { state: { t: 10, setup } }), soup, "la table 1, la plus ancienne");
+    const banquet = { ...KITCHENS.petite, banquet: BANQUET };
+    const late = { id: 4, recipe: "soupe", arrival: 0, deadline: 135, table: 2, sendAt: 130, status: "open" };
+    assert.equal(HUMANS.table([late], { state: { t: 0, setup: banquet } }), undefined);
+    assert.equal(HUMANS.table([late], { state: { t: 50, setup: banquet } }), late);
+  });
+
+  it("gives that cook only to the services with tables, and lets the search imagine him there", () => {
+    assert.deepEqual(humansOf(KITCHENS.petite), ["nearest", "urgent", "random"]);
+    assert.deepEqual(humansOf(withTables("petite")), ["nearest", "urgent", "random", "table"]);
+    const state = createService(withTables("petite"), drawOrders(1, withTables("petite")), { human: "table", seed: 1 });
+    const drawn = new Set([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12].map((seed) => drawWorld(state, createRng(seed)).humanRule));
+    assert.ok(drawn.has(HUMANS.table));
+    assert.ok(runService(withTables("petite"), 1, RULES.table, HUMANS.table).measures.tables > 0);
   });
 });
