@@ -70,3 +70,5 @@ Les oublis réglés quittent cette liste et vont dans [modele.md](../modele.md) 
   erreurs de commande) n'est pas modélisé.
 - **La plonge** (26/10, le soir) : les assiettes comptées, l'évier `L`, le rôle `plonge` (`docs/metiers.md`). Reste : laver par
   paniers pleins plutôt qu'une assiette à la fois.
+- **Les allergènes et le ménage** (26/10, le soir) : les planches qui se souviennent, une salade sur dix « sans oignon »
+  (`docs/metiers.md`). Reste : une cuisine à une planche, plusieurs allergènes, le code couleur des planches.

@@ -32,7 +32,7 @@ Ses choix :
 | Les mesures de nuit, refaites | **faites** (26/10) : la recherche bat toutes les règles dans les sept cuisines ; elle fait avancer les tables (sauf dans le grand détour, où la règle de la table la bat) et la livraison ; au banquet, elle ne voyait pas l'heure d'envoi, corrigé et remesuré | `night.json`, `docs/metiers.md` |
 | 2 : le banquet | **fait** (26/10) : commandes connues, envois à l'heure, étuve, règle du rétroplanning ; la recherche sait attendre ; l'humain qui suit le plan ; **la coupe en série** (le soir : à 8 couverts et 30 tours au chaud, 8 à 13 plats sur 16 au lieu de 0) | `src/service-banquet.js` |
 | 3 : la livraison | **fait** (26/10) : un coursier par commande, son heure cachée, il repart sans le plat ; la recherche, qui imagine les coursiers, perd moins de commandes que toutes les règles ; **le poste d'emballage** et la dark kitchen (le soir : un plat à temps de moins par tour d'emballage) ; reste : deux enseignes | `src/service-delivery.js` |
-| 4 : la plonge, l'hygiène, l'humain | **en cours** (26/10, le soir) : la plonge faite (des assiettes comptées, un évier, la brigade avec plonge) ; les allergènes, les pauses, la fatigue, les erreurs, les pannes à suivre | `src/service-plates.js` |
+| 4 : la plonge, l'hygiène, l'humain | **en cours** (26/10, le soir) : la plonge (des assiettes comptées, un évier, la brigade avec plonge) et l'hygiène (les allergènes, le ménage) faites ; les pauses, la fatigue, les erreurs, les pannes à suivre | `src/service-plates.js`, `src/service-hygiene.js` |
 
 Ce qui manque à chaque étape est dans [oublis.md](oublis.md).
 

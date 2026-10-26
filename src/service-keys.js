@@ -1,6 +1,7 @@
 import { RECIPES } from "./kitchens.js";
 import { packFirst } from "./service-delivery.js";
 import { plateFor } from "./service-plates.js";
+import { useBoard } from "./service-hygiene.js";
 import { PUT, collectSteps, isWorkStation, keyOf, orderOf, pickupSteps, standsOn, stepsOf } from "./service-basics.js";
 import { drop, holdHere, paceOf, planLeg, stepAt, turnsOf, unfit } from "./service-legs.js";
 import { isOut, useSupply } from "./service-supply.js";
@@ -81,7 +82,8 @@ export function steer(state, dx, dy) {
 function startWork(state, cook, station) {
   const step = cook.steps[cook.step];
   if (isWorkStation(step.kind) && !step.at) state.claims.set(keyOf(station), cook.id);
-  const turns = turnsOf(state, step, station);
+  const turns = turnsOf(state, step, station, cook);
+  if (step.type === "cut") useBoard(state, station, cook);
   Object.assign(cook, { phase: "working", station, until: state.t + turns, span: turns, target: null });
 }
 

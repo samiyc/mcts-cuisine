@@ -3,6 +3,7 @@ import { BANQUET } from "../../src/service-banquet.js";
 import { DELIVERY } from "../../src/service-delivery.js";
 import { MISE } from "../../src/service-mise.js";
 import { PLATES } from "../../src/service-plates.js";
+import { HYGIENE } from "../../src/service-hygiene.js";
 import { SUPPLY } from "../../src/service-supply.js";
 import { TABLES } from "../../src/service-tables.js";
 import { board } from "../board.js";
@@ -60,16 +61,26 @@ function optionFields(setup) {
   ];
 }
 
-/** The options of 26/10: delivery and packing, the dish room, the mise en place, the banquet and its batches. */
+/** A figure that may be 0, read as a number. */
+const zeroField = (label, name, value) => el("label", {}, label, el("input", { name, type: "number", min: "0", value: String(value) }));
+
+/** The figures of the options of 26/10, the kitchen's own or the defaults. */
+const FIGURES = { packing: ["delivery", 0], stock: ["plates", PLATES.stock], every: ["hygiene", HYGIENE.every], batch: ["banquet", BANQUET.batch] };
+const figuresOf = (setup) => Object.fromEntries(Object.entries(FIGURES).map(([name, [option, value]]) => [name, setup[option]?.[name] ?? value]));
+
+/** The options of 26/10: delivery and packing, the dish room, the hygiene, the mise en place, the banquet and its batches. */
 function laterFields(setup) {
+  const { packing, stock, every, batch } = figuresOf(setup);
   return [
     check("delivery", setup.delivery, `La livraison : un coursier par commande, annoncé ${DELIVERY.prep} tours après elle, à ${DELIVERY.spread} tours près ; il attend ${DELIVERY.wait} tours`),
-    el("label", {}, "Emballer un plat (tours ; 0 : sans emballage ; il faut un poste « E » dans le plan)", el("input", { name: "packing", type: "number", min: "0", value: String(setup.delivery?.packing ?? 0) })),
+    zeroField("Emballer un plat (tours ; 0 : sans emballage ; il faut un poste « E » dans le plan)", "packing", packing),
     check("plates", setup.plates, `La plonge : des assiettes comptées, rendues sales ${PLATES.back} tours après le plat, lavées par ${PLATES.rack} à l'évier « L »`),
-    field("Assiettes pour le service", "stock", setup.plates?.stock ?? PLATES.stock),
+    field("Assiettes pour le service", "stock", stock),
+    check("hygiene", setup.hygiene, `L'hygiène : une salade sur ${Math.round(1 / HYGIENE.share)} pour un allergique à l'oignon ; une planche qui a coupé des oignons se nettoie avant (${HYGIENE.clean} tours)`),
+    zeroField("Nettoyer chaque planche toutes les (coupes ; 0 : jamais)", "boardEvery", every),
     check("miseEnPlace", setup.miseEnPlace, `La mise en place : un robot sans commande coupe d'avance les oignons d'une soupe et les pose sur un comptoir (${MISE.ahead} au plus)`),
     check("banquet", setup.banquet, `Un banquet : ${BANQUET.covers} couverts environ, l'entrée vers le tour ${BANQUET.courses[0].at}, le plat vers le tour ${BANQUET.courses[1].at}, ${BANQUET.pass} tours au chaud au plus`),
-    field("Plats d'un envoi faits ensemble (coupe en série ; 1 : un par un)", "batch", setup.banquet?.batch ?? BANQUET.batch),
+    field("Plats d'un envoi faits ensemble (coupe en série ; 1 : un par un)", "batch", batch),
   ];
 }
 
@@ -90,6 +101,7 @@ const OPTIONS = {
   delivery: (_number, data) => ({ ...DELIVERY, packing: Math.max(0, Number(data.get("packing")) || 0) }),
   miseEnPlace: () => MISE,
   plates: (number) => ({ ...PLATES, stock: number("stock") }),
+  hygiene: (_number, data) => ({ ...HYGIENE, every: Math.max(0, Number(data.get("boardEvery")) || 0) }),
 };
 
 /** The kitchen the form describes, from `setup`: its text, its service, its robots' roles, its options. */

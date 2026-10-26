@@ -65,6 +65,17 @@
   ],
   "versions": [
     {
+      "version": "0.22",
+      "title": "Le ménage et les allergènes",
+      "date": "26/10",
+      "items": [
+        "Les planches se souviennent du dernier ingrédient coupé ; une salade sur dix est pour un allergique à l'oignon : sur une planche qui a coupé des oignons, il faut d'abord la nettoyer. Le ménage nettoie aussi une planche toutes les N coupes.",
+        "Mesuré : presque rien ne change avec deux planches, le cuisinier prend la propre ; le ménage fréquent coûte un peu.",
+        "Le réglage « L'hygiène » dans l'onglet Cuisine ; npm run compare -- --hygiene."
+      ],
+      "commits": []
+    },
+    {
       "version": "0.21",
       "title": "La plonge",
       "date": "26/10",
@@ -73,7 +84,9 @@
         "Une nouvelle cuisine, la brigade avec plonge. Mesuré : avec 15 assiettes, laver entre deux plats coûte un plat à temps ; un plongeur dédié en coûte trois (un cuisinier de moins) ; sous 12 assiettes, l'attente d'assiette écrase le service.",
         "Le réglage « La plonge » et le nombre d'assiettes dans l'onglet Cuisine ; le chef au clavier peut faire la plonge."
       ],
-      "commits": []
+      "commits": [
+        "36d6f8e"
+      ]
     },
     {
       "version": "0.20",

@@ -1,6 +1,7 @@
 import { astar } from "mcts-commun/grid.js";
 import { distancesFrom } from "./kitchen.js";
 import { FREE, isWorkStation, keyOf, standsOn } from "./service-basics.js";
+import { boardCleaning, useBoard } from "./service-hygiene.js";
 
 /**
  * The cooks' legs (split from simulate.js, 26/10/2026): the paths reserved in space and time, the station each step
@@ -52,17 +53,21 @@ export function unfit(state, station, step) {
 /** Is `station` of another kind than `step` needs, or not the dish's own counter or stove? Taken or not. */
 export const unfitKind = (station, step) => station.kind !== step.kind || (Boolean(step.at) && keyOf(station) !== step.at);
 
-/** How long `step` takes at `station`: putting a pot on is one turn when it cooks alone, the cleaning first on a burnt stove. */
-export function turnsOf(state, step, station) {
+/**
+ * How long `step` takes at `station` for `cook`: putting a pot on is one turn when it cooks alone, the cleaning first on a
+ * burnt stove; a cut, the board's cleaning first when it must be cleaned (service-hygiene.js).
+ */
+export function turnsOf(state, step, station, cook) {
+  if (step.type === "cut") return step.turns + boardCleaning(state, station, cook);
   const { unattended } = state.setup;
   if (step.type !== "cook" || !unattended) return step.turns;
   return 1 + (state.dirty.has(keyOf(station)) ? unattended.clean : 0);
 }
 
 /** The nearest free side of `station` from `distances`, if nearer than `best` (a burnt stove counts its cleaning). */
-function nearerSide(state, station, { distances, taken }, best) {
-  // A burnt stove costs its cleaning: a clean one a little further is better.
-  const extra = state.dirty.has(keyOf(station)) ? state.setup.unattended.clean : 0;
+function nearerSide(state, station, { distances, taken, cook, step }, best) {
+  // A burnt stove, or a board to clean, costs its cleaning: a clean one a little further is better.
+  const extra = (state.dirty.has(keyOf(station)) ? state.setup.unattended.clean : 0) + (step.type === "cut" ? boardCleaning(state, station, cook) : 0);
   for (const cell of station.access) {
     const steps = distances.get(keyOf(cell));
     const cost = steps / paceOf(state) + extra;
@@ -73,7 +78,7 @@ function nearerSide(state, station, { distances, taken }, best) {
 
 /** The station for `cook`'s `step`, and the cell to work it from: the nearest free one, or null. */
 export function stationFor(state, cook, step) {
-  const around = { distances: distancesFrom(state.kitchen, cook), taken: takenCells(state, cook) };
+  const around = { distances: distancesFrom(state.kitchen, cook), taken: takenCells(state, cook), cook, step };
   let best = null;
   for (const station of state.kitchen.stations) if (!unfit(state, station, step)) best = nearerSide(state, station, around, best);
   return best;
@@ -211,8 +216,14 @@ function stepAlong(cook, step) {
 function arrive(state, cook, step) {
   if (!cook.target || !standsOn(cook, cook.target) || (cook.path?.at(-1)?.t ?? 0) > step) return;
   cook.target = null;
-  if (cook.phase !== "moving") return;
-  const turns = turnsOf(state, cook.steps[cook.step], cook.station);
+  if (cook.phase === "moving") startWorking(state, cook);
+}
+
+/** `cook` at his station starts his gesture: its turns, a board remembered (service-hygiene.js). */
+function startWorking(state, cook) {
+  const doing = cook.steps[cook.step];
+  const turns = turnsOf(state, doing, cook.station, cook);
+  if (doing.type === "cut") useBoard(state, cook.station, cook);
   Object.assign(cook, { phase: "working", until: state.t + turns, span: turns });
 }
 

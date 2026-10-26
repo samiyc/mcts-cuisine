@@ -533,3 +533,28 @@ Mesuré par paires (30 services, le plat le plus rapide, le cuisinier « le plus
 - Laver une seule assiette à la fois (dès qu'il y en a une sale) gaspille le cycle : un vrai plongeur attend un panier
   plein, sauf quand il manque des assiettes. Une règle à mesurer.
 - La recherche dans cette cuisine : dans la file.
+
+## Le ménage et les allergènes (26/10, le soir)
+
+**Les planches se souviennent** (`setup.hygiene`, `src/service-hygiene.js`) : chaque planche garde le dernier
+ingrédient coupé. **Une salade sur dix est pour un allergique à l'oignon** (« sans oignon », tirée à part : les
+commandes elles-mêmes ne changent pas ; la recherche en imagine dans ses mondes). Couper sa salade sur une planche qui
+a coupé des oignons demande de la **nettoyer d'abord, 3 tours** ; un cuisinier préfère une planche qu'il n'a pas à
+nettoyer, comme un fourneau propre plutôt qu'un brûlé. **Le ménage** : une planche se nettoie aussi toutes les N
+coupes (0 par défaut). Les chiffres sont des hypothèses : ni la part des commandes « sans », ni le temps d'un
+nettoyage ne se trouvent ([questions au spécialiste](recherche/questions-specialiste.md), 18-20). Dans l'onglet
+Cuisine et `npm run compare -- --hygiene`.
+
+Mesuré par paires (30 services, le plat le plus rapide, le cuisinier « le plus urgent ») :
+
+| Cuisine | sans | 10 % sans oignon | 30 % | 10 %, ménage toutes les 6 coupes |
+|---|---|---|---|---|
+| petite | 16,9 | 16,8 (−0,03) ; 0,2 nettoyage | 16,9 (0) ; 0,9 | 16,6 (−0,23) ; 2,4 |
+| grande brigade | 25,0 | 25,0 (0) ; 0,5 | 24,8 (−0,20) ; 1,3 | 24,8 (−0,20) ; 3,9 |
+| postes | 13,6 | 13,6 (+0,03) ; 0,2 | 13,8 (+0,23) ; 0,9 | 14,0 (+0,40) ; 2,2 |
+| coupée en deux | 12,0 | 12,0 (0) ; 0 | 12,0 (0) ; 0 | 12,0 (+0,03) ; 0,6 |
+
+- **Les allergènes ne coûtent presque rien ici** : moins d'un plat « sans » par service à 10 %, et avec deux planches,
+  le cuisinier prend celle qui n'a pas coupé d'oignons : moins d'un nettoyage par service. Dans une cuisine à une
+  seule planche, ou avec plusieurs allergènes, ce serait autre chose : une variante à faire si Sami le veut.
+- **Le ménage** toutes les 6 coupes coûte au plus 0,2 plat à temps. Il ne pèse que si on le rend fréquent.

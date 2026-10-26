@@ -4,6 +4,7 @@ import { RECIPES } from "./kitchens.js";
 import { HUMANS, RULES, humansOf } from "./rules.js";
 import { redrawCouriers, withCourier } from "./service-delivery.js";
 import { drawTables, firstAfter, passOf } from "./service-tables.js";
+import { allergic } from "./service-hygiene.js";
 
 /** An order nothing more can be won on: refused (the 86), or gone with its courier. */
 const LOST = new Set(["refused", "gone"]);
@@ -40,8 +41,9 @@ function drawComing(setup, t, come, rng) {
   for (let at = t + gap(); at <= setup.lastOrder; at += gap()) {
     coming.push({ id: lastId + coming.length + 1, recipe: names[rng.int(names.length)], arrival: at, deadline: at + setup.patience, status: "upcoming", cook: null, servedAt: null });
   }
-  // Each with its courier, when the service delivers (service-delivery.js).
-  return setup.delivery ? coming.map((order) => withCourier(order, setup.delivery, rng)) : coming;
+  // Each with its courier, when the service delivers (service-delivery.js); some guests allergic (service-hygiene.js).
+  const delivered = setup.delivery ? coming.map((order) => withCourier(order, setup.delivery, rng)) : coming;
+  return setup.hygiene ? allergic(delivered, setup.hygiene, rng) : delivered;
 }
 
 /**

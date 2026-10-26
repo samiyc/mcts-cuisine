@@ -8,6 +8,7 @@ import { letGo, move, stepAside, watch } from "./service-legs.js";
 import { countTurn, createTally, measuresOf } from "./service-measures.js";
 import { prepareAhead } from "./service-mise.js";
 import { clonePlates, platesBack, platesOf, washUp } from "./service-plates.js";
+import { boardsOf, cloneBoards, withAllergens } from "./service-hygiene.js";
 import { startStep } from "./service-relays.js";
 import { drawBanquet } from "./service-banquet.js";
 import { deliveryOrders } from "./service-delivery.js";
@@ -82,6 +83,12 @@ export { measuresOf } from "./service-measures.js";
 
 /** The service's orders, drawn from a seed: `{ id, recipe, arrival, deadline }`, by arrival. */
 export function drawOrders(seed, setup) {
+  // Some guests allergic to onions, with hygiene on (service-hygiene.js), from a draw of their own.
+  return withAllergens(drawEach(seed, setup), setup, seed);
+}
+
+/** The orders of the service's kind: a banquet's, tables', deliveries', or à la carte. */
+function drawEach(seed, setup) {
   const rng = createRng(seed);
   if (setup.banquet) return drawBanquet(setup, rng);
   if (setup.tables) return drawTables(setup, rng, { start: 1 + rng.int(3) });
@@ -115,7 +122,7 @@ export function createService(setup, orders, { human = "urgent", seed = 1, manua
   const reservations = createReservations();
   // Every cook holds its place from the start: nobody plans through a cook standing still.
   for (const one of cooks) reservations.reserve(one.id, [{ x: one.x, y: one.y, t: 0 }], { stay: true });
-  return { kitchen, setup, human, rng: createRng(seed + 7_919), t: 0, cooks, upcoming: orders.map((order) => ({ ...order, status: "upcoming", cook: null, servedAt: null })), claims: new Map(), shelf: new Map(), pots: new Map(), dirty: new Set(), burnt: 0, reservations, log: [], cursor: null, tally: createTally(), supply: supplyOf(setup), plates: platesOf(setup) };
+  return { kitchen, setup, human, rng: createRng(seed + 7_919), t: 0, cooks, upcoming: orders.map((order) => ({ ...order, status: "upcoming", cook: null, servedAt: null })), claims: new Map(), shelf: new Map(), pots: new Map(), dirty: new Set(), burnt: 0, reservations, log: [], cursor: null, tally: createTally(), supply: supplyOf(setup), plates: platesOf(setup), boards: boardsOf(setup) };
 }
 
 /** The orders `cook` may take now, as they would be offered to it (the replays' analysis, src/replay.js). */
@@ -242,6 +249,7 @@ export function cloneService(state) {
     tally: null,
     supply: state.supply && { ...state.supply },
     plates: clonePlates(state.plates),
+    boards: cloneBoards(state.boards),
   };
 }
 
