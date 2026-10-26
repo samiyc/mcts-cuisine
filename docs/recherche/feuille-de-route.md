@@ -21,6 +21,21 @@ Ses choix :
 - **les mots du métier** dans la page et les docs, d'après [glossaire.md](glossaire.md) : le bon, le passe, faire
   marcher, réclamer, la rupture, le coup de feu.
 
+## L'avancement (26/10, après-midi)
+
+| Étape | État | Où |
+|---|---|---|
+| Avant : l'outillage, la page en onglets | **fait** | `docs/outillage.md` |
+| 0 : les indicateurs | **fait** ; reste : les bons par tranche, les plats par robot, le temps réservé sans travailler | `src/service-measures.js` |
+| 1 : la brigade | **en partie** : les tables, le passe à durée limitée, la rupture et la règle « la table » sont faits (réglages éteints par défaut) ; les tables restent ratées (le manque de mains) ; l'aboyeur et un humain « qui suit sa table » à faire ; la mise en place reportée | `src/service-tables.js`, `src/service-supply.js` |
+| Hors étape : marcher plus vite, deux passes | **fait** (Sami, 26/10) : 2 cases par tour par défaut, aucune superposition | `src/service-legs.js`, `src/kitchens.js` |
+| Les mesures de nuit, refaites | **en cours** (26/10) : la recherche contre les règles, avec et sans tables, avec la rupture, sur 18 fils | `night.json` |
+| 2 : le banquet | à faire, **la suivante** | — |
+| 3 : la livraison | à faire | — |
+| 4 : plus tard | la plonge, les allergènes, la fatigue, les menus en plusieurs temps | — |
+
+Ce qui manque à chaque étape est dans [oublis.md](oublis.md).
+
 ## Avant : l'outillage et la page en onglets
 
 Faits dans la foulée de ces recherches (26/10) :

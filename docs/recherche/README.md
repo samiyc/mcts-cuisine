@@ -10,7 +10,8 @@ dossier rassemble ce que disent les sources publiées, et ce que le simulateur e
 3. [traiteur.md](traiteur.md) : la production planifiée, le banquet, les liaisons chaude et froide ;
 4. [livraison.md](livraison.md) : la dark kitchen, les coursiers ;
 5. [indicateurs.md](indicateurs.md) : ce que mesurent les cuisines, ce que le simulateur compte, et les max ;
-6. [feuille-de-route.md](feuille-de-route.md) : les étapes, mesurées une à une.
+6. [feuille-de-route.md](feuille-de-route.md) : les étapes, mesurées une à une, et leur avancement ;
+7. [oublis.md](oublis.md) : ce que les étapes ont laissé de côté ou découvert en chemin.
 
 Un chiffre cité a sa source dans le fichier qui le donne. Beaucoup de sources sur les restaurants sont des blogs
 d'éditeurs de logiciels de caisse (Toast, LS Central…) : leurs définitions sont reprises, leurs chiffres sont
