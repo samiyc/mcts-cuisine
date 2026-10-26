@@ -23,8 +23,6 @@ point dit où il se rangera.
   n'est pas compté. Rangé : étape 0, une mesure de plus.
 - **L'impasse du passe** : dans la cuisine en couloir, les deux passes sont au fond d'une impasse et l'attente reste
   (18 à 25 tours par service). Un plan à revoir, si Sami le veut.
-- **Les mesures d'avant le 26/10** (la recherche, les mesures de nuit du 23/10) étaient au pas 1, avec un seul passe :
-  elles sont refaites par `night.json`.
 
 - **Un plat par voyage** : au banquet, un vrai traiteur coupe en série (plusieurs portions d'un coup) et dresse à la
   chaîne ; le modèle fait un plat par voyage, de la caisse au passe. À 8 couverts et 30 tours au chaud, aucun envoi ne
@@ -53,11 +51,18 @@ point dit où il se rangera.
 - **Les indicateurs pas encore comptés** ([indicateurs.md](indicateurs.md)) : les bons par tranche de tours (une
   courbe du service), les plats servis par chaque robot, le temps réservé sans travailler. Rangé : étape 0.
 - **La recherche sur les tables et la rupture** : son évaluation compte les plats à temps ; avec les tables, c'est la
-  table qui compte, et un plat mort au passe n'y pèse pas. Rangé : après les mesures de nuit.
+  table qui compte, et un plat mort au passe n'y pèse pas. Les mesures de nuit du 26/10 (`docs/modele.md`) : elle
+  fait avancer les tables dans la petite cuisine et la grande brigade, mais la règle de la table la bat dans le grand
+  détour ; avec la rupture, elle gagne peu. Rangé : une évaluation par table, à mesurer.
 - **La plonge, les allergènes, la fatigue, les menus en plusieurs temps** : prévus « plus tard » dans la
   [feuille de route](feuille-de-route.md), étape 4.
-- **Les étapes 2 et 3** sont faites le 26/10 (le banquet, la livraison), sans la recherche mesurée : voir plus haut.
 
 ## Fait depuis
 
 Les oublis réglés quittent cette liste et vont dans [modele.md](../modele.md) avec leurs mesures.
+
+- **Les mesures d'avant le 26/10**, au pas 1 avec un seul passe : refaites la nuit du 26/10 (« Les mesures de nuit
+  du 26/10 »).
+- **La recherche au banquet ne voyait pas l'heure d'envoi et ne savait pas attendre** (trouvé par ces mesures) :
+  ses mondes vont jusqu'au dernier envoi, attendre est un de ses coups, et sa liste courte commence par le choix de
+  la règle de ses mondes.

@@ -21,7 +21,7 @@ Ses choix :
 - **les mots du métier** dans la page et les docs, d'après [glossaire.md](glossaire.md) : le bon, le passe, faire
   marcher, réclamer, la rupture, le coup de feu.
 
-## L'avancement (26/10, après-midi)
+## L'avancement (26/10, fin d'après-midi)
 
 | Étape | État | Où |
 |---|---|---|
@@ -29,9 +29,9 @@ Ses choix :
 | 0 : les indicateurs | **fait** ; reste : les bons par tranche, les plats par robot, le temps réservé sans travailler | `src/service-measures.js` |
 | 1 : la brigade | **en partie** : les tables, le passe à durée limitée, la rupture et la règle « la table » sont faits (réglages éteints par défaut) ; les tables restent ratées (le manque de mains) ; l'aboyeur et un humain « qui suit sa table » à faire ; la mise en place reportée | `src/service-tables.js`, `src/service-supply.js` |
 | Hors étape : marcher plus vite, deux passes | **fait** (Sami, 26/10) : 2 cases par tour par défaut, aucune superposition | `src/service-legs.js`, `src/kitchens.js` |
-| Les mesures de nuit, refaites | **en cours** (26/10) : la recherche contre les règles, avec et sans tables, avec la rupture, sur 18 fils | `night.json` |
-| 2 : le banquet | **fait** (26/10) : commandes connues, envois à l'heure, étuve, règle du rétroplanning ; reste : la coupe en série, la recherche mesurée au banquet | `src/service-banquet.js` |
-| 3 : la livraison | **fait** (26/10) : un coursier par commande, son heure cachée, il repart sans le plat ; reste : le poste d'emballage, deux enseignes, la recherche mesurée | `src/service-delivery.js` |
+| Les mesures de nuit, refaites | **faites** (26/10) : la recherche bat toutes les règles dans les sept cuisines ; elle fait avancer les tables (sauf dans le grand détour, où la règle de la table la bat) et la livraison ; au banquet, elle ne voyait pas l'heure d'envoi, corrigé et remesuré | `night.json`, `docs/modele.md` |
+| 2 : le banquet | **fait** (26/10) : commandes connues, envois à l'heure, étuve, règle du rétroplanning ; la recherche sait attendre ; reste : la coupe en série, un humain « qui suit le plan » | `src/service-banquet.js` |
+| 3 : la livraison | **fait** (26/10) : un coursier par commande, son heure cachée, il repart sans le plat ; la recherche, qui imagine les coursiers, perd moins de commandes que toutes les règles ; reste : le poste d'emballage, deux enseignes | `src/service-delivery.js` |
 | 4 : plus tard | la plonge, les allergènes, la fatigue, les menus en plusieurs temps | — |
 
 Ce qui manque à chaque étape est dans [oublis.md](oublis.md).

@@ -44,6 +44,16 @@ function drawComing(setup, t, come, rng) {
   return setup.delivery ? coming.map((order) => withCourier(order, setup.delivery, rng)) : coming;
 }
 
+/**
+ * Where a world stops: `horizon` turns from now; at a banquet, not before the last course is due, as its dishes are
+ * judged only when their course goes out (the night measures of 26/10: at sixty turns from the start, no course was
+ * yet due, every choice was worth the same, and the search did what the quickest dish does).
+ */
+function untilOf(world, until) {
+  if (!world.setup.banquet) return until;
+  return Math.max(until, ...world.upcoming.map((order) => order.deadline));
+}
+
 /** A world consistent with what the robots know at this choice, played to `horizon` turns from now. */
 export function drawWorld(state, rng, horizon = SEARCH_SETTINGS.horizon, human = null) {
   const world = cloneService(state);
@@ -59,7 +69,7 @@ export function drawWorld(state, rng, horizon = SEARCH_SETTINGS.horizon, human =
   // is played in the worlds by a model drawn at random (Sami, 23/10: the search crashed with the chef at the keyboard).
   world.humanRule = state.human || state.cooks.some((cook) => cook.kind === "human") ? (human ?? drawn) : null;
   world.rng = createRng(rng.int(2 ** 32));
-  world.until = state.t + horizon;
+  world.until = untilOf(world, state.t + horizon);
   world.choice = advance(world, world.humanRule, world.until);
   return world;
 }
@@ -91,12 +101,28 @@ function rollOut(world) {
   return world;
 }
 
-/** The shortlist: the quickest dish, the oldest order, the nearest crate, then the rest; `width` at most. */
+/**
+ * May a robot wait, in the worlds as the backward planning does? At a banquet and with couriers, where a dish
+ * started too early dies warm (the night measures of 26/10: without it, the search never beat the backward planning).
+ */
+const mayHold = (setup) => Boolean(setup.banquet || setup.delivery);
+
+/** The free robot's moves: each open order, and waiting when it may (`order` null). */
+function movesOf(world) {
+  const { cook, open } = world.choice;
+  const moves = open.map((order) => ({ id: order.id, order, key: `${cook.id}>${order.id}` }));
+  return mayHold(world.setup) ? [...moves, { id: undefined, order: null, key: `${cook.id}>hold` }] : moves;
+}
+
+/**
+ * The shortlist: the worlds' own rule's choice (the quickest dish, or the table's, or the backward planning, which
+ * may be to wait), waiting, the quickest dish, the oldest order, the nearest crate, then the rest; `width` at most.
+ */
 function shortlistOf(world, moves, width) {
-  const orders = moves.map((move) => move.order);
-  const { reach } = world.choice;
-  const favourites = [RULES.quickest(orders), RULES.oldest(orders), orders.reduce((best, order) => (reach(order) < reach(best) ? order : best))];
-  const ranked = [...favourites.map((order) => moves.find((move) => move.order === order)), ...moves];
+  const { open: orders, reach } = world.choice;
+  const nearest = orders.reduce((best, order) => (reach(order) < reach(best) ? order : best));
+  const favourites = [rolloutRule(world) ?? null, null, RULES.quickest(orders), RULES.oldest(orders), nearest];
+  const ranked = [...favourites.map((order) => moves.find((move) => move.order === order)).filter(Boolean), ...moves];
   return [...new Map(ranked.map((move) => [move.key, move])).values()].slice(0, width);
 }
 
@@ -104,7 +130,7 @@ function problemFor(base, { width, spread, horizon, human }) {
   return {
     sample: (state, rng) => drawWorld(state, rng, horizon, human),
     actor: () => "robots",
-    moves: (world) => world.choice.open.map((order) => ({ id: order.id, order, key: `${world.choice.cook.id}>${order.id}` })),
+    moves: movesOf,
     shortlist: (world, moves) => shortlistOf(world, moves, width),
     key: (move) => move.key,
     play(world, move) {
@@ -127,15 +153,17 @@ function baseOf(state, rng, { horizon, human }, runs = 4) {
 
 /**
  * The search as a robots' rule (rules.js's signature, reading `context.state`): a single open order is taken
- * at once; otherwise `budget` iterations, seeded from the turn and the robot.
+ * at once, unless the robot may wait; otherwise `budget` iterations, seeded from the turn and the robot. Waiting
+ * found best, it names no order.
  */
 export function searchRule(options = {}) {
   const { budget, depth, explore, width, spread, horizon, seed, human = null } = { ...SEARCH_SETTINGS, ...options };
   return (open, { state }) => {
-    if (open.length === 1) return open[0];
+    if (open.length === 1 && !mayHold(state.setup)) return open[0];
     const robot = state.cooks[state.cursor];
     const rng = createRng((Math.imul(seed, 0x9e3779b1) + state.t * 131 + robot.id * 7 + open.length) >>> 0);
     const found = search(state, problemFor(baseOf(state, rng, { horizon, human }), { width, spread, horizon, human }), { budget, rng, depth, explore, common: true });
+    if (found.move && found.move.order === null) return undefined;
     return open.find((order) => order.id === found.move?.id) ?? RULES.quickest(open);
   };
 }

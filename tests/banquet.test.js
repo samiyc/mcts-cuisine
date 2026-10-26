@@ -2,9 +2,10 @@ import { describe, it } from "node:test";
 import assert from "node:assert/strict";
 import { KITCHENS } from "../src/kitchens.js";
 import { HUMANS, RULES } from "../src/rules.js";
-import { searchRule } from "../src/search.js";
+import { createRng } from "mcts-commun/random.js";
+import { drawWorld, searchRule, SEARCH_SETTINGS } from "../src/search.js";
 import { BANQUET } from "../src/service-banquet.js";
-import { drawOrders, runService } from "../src/simulate.js";
+import { createService, drawOrders, runService } from "../src/simulate.js";
 
 /** The banquet (step 2 of docs/recherche/feuille-de-route.md, 26/10/2026): known orders, courses sent at their turn. */
 const banquet = (id) => ({ ...KITCHENS[id], banquet: BANQUET });
@@ -50,5 +51,21 @@ describe("the banquet (src/service-banquet.js)", () => {
     const { measures } = runService(banquet("petite"), 1, searchRule({ budget: 8 }), HUMANS.urgent);
     assert.equal(measures.tables, 2);
     assert.equal("maxSendLate" in runService(KITCHENS.petite, 1, RULES.quickest, HUMANS.urgent).measures, false);
+  });
+  it("lets the search see to the last course and wait, as the backward planning does (the night measures of 26/10)", () => {
+    const setup = banquet("comptoirs");
+    const state = createService(setup, drawOrders(1, setup), { human: "urgent", seed: 1 });
+    const last = Math.max(...state.upcoming.map((order) => order.deadline));
+    assert.equal(drawWorld(state, createRng(1)).until, last);
+    assert.equal(drawWorld(createService(KITCHENS.comptoirs, drawOrders(1, KITCHENS.comptoirs), { human: "urgent", seed: 1 }), createRng(1)).until, SEARCH_SETTINGS.horizon);
+    const rule = searchRule({ budget: 8 });
+    let held = 0;
+    const counting = (open, context) => {
+      const order = rule(open, context);
+      if (!order) held += 1;
+      return order;
+    };
+    runService(setup, 1, counting, HUMANS.urgent);
+    assert.ok(held > 0, "la recherche n'attend jamais");
   });
 });

@@ -584,3 +584,72 @@ leur plat :
 - **Suivre l'heure annoncée n'aide pas** : le rétroplanning fait un peu moins bien que la plus ancienne commande
   (significatif dans le grand détour). L'annonce n'apprend rien de plus que l'heure de la commande (elle en est
   toujours à 30 tours) et se trompe de ±8 tours ; c'est ce caché que la recherche imagine, à mesurer la nuit.
+
+## Les mesures de nuit du 26/10 (deux cases par tour, deux passes)
+
+`night.json`, 22 mesures sur 18 fils (mcts-backlog), de 13 h 09 à 14 h 56 : la recherche contre les règles,
+aux réglages par défaut, 50 services par cuisine et par humain ; 30 pour les tables, la rupture, le banquet et la
+livraison. Le gain se lit, par paires, contre la plus ancienne commande ; l'écart à la meilleure règle est la
+différence de deux gains, sans son intervalle.
+
+**Le service à la carte** (plats à temps : la plus ancienne / le plat le plus rapide / la recherche) :
+
+| Cuisine | le cuisinier « le plus urgent » | gain de la recherche | « au hasard » | sans humain |
+|---|---|---|---|---|
+| petite | 17,2 / 17,0 / **17,8** | +0,66 (0,27 à 1,05) | 16,2 / 16,3 / **17,5** | 12,2 / 13,4 / **15,7** |
+| en couloir | 8,8 / 9,1 / **9,6** | +0,80 (0,40 à 1,20) | 6,1 / 7,9 / **8,3** | 5,1 / 7,4 / **8,2** |
+| grande brigade | 23,3 / 24,9 / **28,4** | +5,02 (3,71 à 6,33) | 22,1 / 24,5 / **28,0** | 17,6 / 22,1 / **25,7** |
+| passe-plats | 11,5 / 11,6 / **12,1** | +0,60 (0,17 à 1,03) | 11,1 / 11,4 / **12,1** | 7,1 / 7,7 / **10,1** |
+| postes | 13,7 / 14,1 / **15,7** | +1,98 (1,23 à 2,73) | 13,3 / 14,0 / **15,4** | 8,3 / 8,6 / **11,7** |
+| coupée en deux | 13,9 / 13,2 / **15,3** | +1,42 (0,86 à 1,98) | 13,9 / 13,4 / **15,0** | 6,5 / 10,6 / **11,9** |
+| le grand détour | 15,2 / 15,9 / **17,1** | +1,88 (1,08 à 2,68) | 11,6 / 13,9 / **15,2** | 5,2 / 9,8 / **10,7** |
+
+- **La recherche bat toutes les règles, dans les sept cuisines, avec chaque humain et sans humain** ; son gain sur la
+  plus ancienne est significatif partout. Au pas 1 (23/10), elle n'était qu'au niveau de la meilleure règle dans
+  plusieurs cuisines : marcher plus vite laisse plus de choix à faire.
+- **La grande brigade** est là où elle gagne le plus : +5 plats à temps sur 34 avec un humain, +8 sans ; le bon au
+  9e décile passe de 61 à 54 tours. Quatre robots, c'est quatre choix qui se gênent ou s'aident.
+- La règle « la table » sans tables est la plus ancienne : mêmes chiffres, gain 0.
+
+**Les tables** (30 services, le cuisinier « le plus urgent » ; plats à temps, tables à temps, plats morts au passe) :
+
+| Cuisine | la plus ancienne | le plus rapide | la table | la recherche |
+|---|---|---|---|---|
+| petite | 4,1 ; 1,9 / 8,3 ; 12,4 | 3,1 ; 1,5 ; 18,5 | 3,2 ; 1,5 ; 13,1 | **6,3 ; 2,7** ; 13,7 |
+| grande brigade | 4,4 ; 2,0 / 14,3 ; 19,4 | 4,3 ; 2,0 ; 27,5 | 5,1 ; 2,2 ; 17,5 | **6,9 ; 3,1** ; 22,8 |
+| le grand détour | 3,5 ; 1,5 / 8,3 ; 9,4 | 3,0 ; 1,3 ; 11,3 | **7,7 ; 3,3 ; 3,2** | 4,1 ; 1,7 ; 10,0 |
+
+- **La recherche fait avancer les tables** dans la petite cuisine et la grande brigade (+2,2 et +2,5 plats à temps,
+  une table de plus), mais elles restent ratées : un tiers des tables à temps au mieux.
+- **Dans le grand détour, la règle de la table bat la recherche** (+4,2 contre +0,6) : elle retient les plats qui
+  attendraient leurs voisins (3 morts au passe au lieu de 10). La recherche ne l'avait pas dans sa liste courte (le
+  plat le plus rapide, la plus ancienne, la caisse la plus proche) : elle jouait ses mondes avec elle, sans jamais
+  pouvoir la choisir.
+
+**La rupture** (8 ingrédients par caisse) : la recherche gagne peu avec un humain (+0,1 à +0,7, significatif dans la
+grande brigade et avec le cuisinier « au hasard »), +2,3 et +1,3 sans humain ; elle refuse à peine moins de commandes
+(19,6 au lieu de 20,1 dans la grande brigade). Elle ne choisit pas encore à qui donner les derniers ingrédients.
+
+**La livraison** (le cuisinier « le plus urgent » ; plats à temps, commandes parties sans leur plat : la plus ancienne /
+le plus rapide / le rétroplanning / la recherche) :
+
+| Cuisine | à temps | parties | gain de la recherche | sans humain, à temps |
+|---|---|---|---|---|
+| petite | 13,1 / 13,3 / 13,0 / **14,1** | 6,6 / 6,4 / 6,6 / **5,6** | +1,00 (0,46 à 1,54) | 8,5 / 11,2 / 7,3 / **12,4** |
+| grande brigade | 18,1 / 20,4 / 17,7 / **21,7** | 15,8 / 13,6 / 16,2 / **12,3** | +3,67 (2,50 à 4,83) | 14,0 / 18,7 / 12,9 / **20,5** |
+| passe-plats | 8,8 / 8,9 / 8,7 / 8,8 | 6,3 / 6,2 / 6,4 / 6,3 | 0,00 (−0,38 à 0,38) | 5,0 / 5,7 / 4,9 / **6,8** |
+| postes | 11,7 / 11,4 / 11,0 / **12,1** | 8,0 / 8,3 / 8,7 / **7,6** | +0,43 (−0,21 à 1,08) | 6,2 / 6,7 / 5,9 / **8,4** |
+| le grand détour | 10,7 / 11,2 / 10,1 / **12,5** | 8,9 / 8,4 / 9,6 / **7,1** | +1,83 (0,96 à 2,71) | 4,6 / 7,8 / 3,7 / **8,9** |
+
+- **Imaginer les coursiers paie** : la recherche, qui retire leur heure dans chaque monde, perd moins de commandes
+  que toutes les règles, alors qu'elle joue ses mondes avec la pire d'entre elles (le rétroplanning).
+
+**Le banquet : la recherche ne voyait pas l'heure d'envoi.** Dans trois cuisines sur cinq, elle faisait exactement ce
+que fait le plat le plus rapide (gain 0,00, de 0,00 à 0,00) ; dans le passe-plats, le rétroplanning gagnait +3,3 et
+elle +0,1. Deux raisons, corrigées le soir même (`src/search.js`) :
+- ses mondes s'arrêtaient 60 tours plus loin ; au début du service, aucun envoi n'est encore dû, chaque plat y vaut
+  « encore à temps », et tous les choix se valent. Au banquet, un monde va maintenant jusqu'au dernier envoi ;
+- **elle ne savait pas attendre** : le rétroplanning gagne en ne lançant pas un plat qui mourrait au chaud, la
+  recherche lançait toujours quelque chose. Au banquet et à la livraison, attendre est maintenant un de ses coups.
+Et sa liste courte commence par le choix de la règle de ses mondes (la table, le rétroplanning) : ce que la règle
+ferait, elle peut toujours le faire. Sans tables, banquet ni livraison, rien ne change (les empreintes).
