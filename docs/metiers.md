@@ -334,10 +334,18 @@ Ailleurs (30 services ; plats à temps, tables à temps, plats morts au passe) :
 | Service | la meilleure règle | la recherche, la nuit | la recherche qui attend |
 |---|---|---|---|
 | grande brigade, « le plus urgent » | 5,1 ; 2,2 / 14,3 ; 17,5 (la table) | 6,9 ; 3,1 ; 22,8 | **10,4 ; 4,4 ; 14,0** (+6,00, de 3,97 à 8,03) |
+| grande brigade, « suit sa table » | 5,5 ; 2,5 / 14,3 ; 16,3 (la table) | — | **11,5 ; 4,8 ; 12,0** (+7,73) |
+| le grand détour, « le plus proche » | 5,9 ; 2,5 / 8,3 ; 5,0 (la table) | 3,7 ; 1,6 ; 13,4 | **9,9 ; 4,1 ; 3,2** |
+| le grand détour, « le plus urgent » | 7,7 ; 3,3 / 8,3 ; 3,2 (la table) | 4,1 ; 1,7 ; 10,0 | **10,4 ; 4,3 ; 2,5** (+6,87, de 5,31 à 8,42) |
+| le grand détour, « au hasard » | 3,2 ; 1,5 / 8,3 ; 5,5 (la table) | 2,5 ; 1,1 ; 11,0 | **5,6 ; 2,4 ; 5,2** |
+| le grand détour, « suit sa table » | 5,4 ; 2,3 / 8,3 ; 3,8 (la table) | — | **10,9 ; 4,5 ; 2,4** |
 | le grand détour, sans humain | 1,4 ; 0,6 / 8,3 ; 5,7 (la plus ancienne) | 2,3 ; 1,0 ; 9,5 | **4,0 ; 1,8 ; 1,4** |
 
 - **Dans la grande brigade, la recherche qui attend fait plus que doubler la meilleure règle** : cinq cuisiniers, c'est
-  là qu'il y a le plus à coordonner. Le grand détour avec un humain : en cours.
+  là qu'il y a le plus à coordonner.
+- **Dans le grand détour, la recherche qui attend bat enfin la règle de la table** (10,4 contre 7,7), qui la battait
+  la nuit (4,1 contre 7,7) ; avec le cuisinier qui suit sa table, **plus de la moitié des tables partent à temps**
+  (4,5 sur 8,3), et presque aucun plat ne meurt au passe.
 
 ## Les trois derniers indicateurs de l'étape 0 (26/10, le soir)
 

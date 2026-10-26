@@ -32,4 +32,6 @@ where the ISMCTS was built and measured). The plan and the reasons live in lopin
 - **The page is in tabs** (lopin's layout): a tab's settings in the panel on the left (`web/tabs/`), its view beside.
 - **The trades' roadmap** is `docs/recherche/feuille-de-route.md`: the restaurants' words and measures, step by step.
   What each step did, with its measures: `docs/metiers.md` (the model before them: `docs/modele.md`).
-- **Commit straight to `main`**; push only when Sami asks.
+- **Long measures go through the machine's queue** (`mcts-backlog`, a job or `night.json`), never beside it; by hand,
+  only short tries (under 10 services, one cook). See `docs/outillage.md`.
+- **Commit straight to `main`, and push** (Sami, 26/10: push the commits still local, every step).

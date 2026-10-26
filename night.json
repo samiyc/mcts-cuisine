@@ -1,27 +1,467 @@
 {
-  "about": "Les mesures de nuit de la cuisine (Sami, 23/10/2026 ; refaites le 26/10 : deux cases par tour, deux cases de passe) : la recherche contre les règles, aux réglages par défaut, 50 services par cuisine et par humain simulé ; puis, 30 services, les tables et la rupture (étape 1 de la feuille de route des métiers), le banquet (étape 2) et la livraison (étape 3). Un fil chacune : mcts-backlog --add-file mcts-cuisine/night.json, puis mcts-backlog.",
+  "about": "Les mesures de nuit de la cuisine (Sami, 23/10/2026 ; refaites le 26/10 l'après-midi, deux cases par tour et deux passes ; le 26/10 au soir, Sami : « tous les jobs longs passent par la file »). Un job par cuisine et par cuisinier simulé (--humain), 30 services, la recherche contre les règles, pour ce que le code du 26/10 au soir a changé (la recherche qui sait attendre au passe, le cuisinier qui suit sa table) et ce qui n'était pas mesuré : les tables, le banquet, la livraison dans les cuisines qui manquent ; la mise en place et l'aboyeur. Le service à la carte et la rupture n'ont pas changé (les empreintes) : leurs mesures de l'après-midi tiennent (docs/metiers.md). Ajout : mcts-backlog --add-file mcts-cuisine/night.json --tag <date>, puis mcts-backlog.",
   "jobs": [
-    { "id": "cuis-petite", "command": "npm run compare -- --kitchen petite --services 50 --search", "estimate": "15 min" },
-    { "id": "cuis-couloir", "command": "npm run compare -- --kitchen couloir --services 50 --search", "estimate": "10 min" },
-    { "id": "cuis-brigade", "command": "npm run compare -- --kitchen brigade --services 50 --search", "estimate": "1 h 30", "limit": 150 },
-    { "id": "cuis-comptoirs", "command": "npm run compare -- --kitchen comptoirs --services 50 --search", "estimate": "15 min" },
-    { "id": "cuis-postes", "command": "npm run compare -- --kitchen postes --services 50 --search", "estimate": "15 min" },
-    { "id": "cuis-separee", "command": "npm run compare -- --kitchen separee --services 50 --search", "estimate": "20 min" },
-    { "id": "cuis-detour", "command": "npm run compare -- --kitchen detour --services 50 --search", "estimate": "20 min" },
-    { "id": "cuis-tables-petite", "command": "npm run compare -- --kitchen petite --services 30 --tables --search", "estimate": "15 min" },
-    { "id": "cuis-tables-brigade", "command": "npm run compare -- --kitchen brigade --services 30 --tables --search", "estimate": "1 h", "limit": 150 },
-    { "id": "cuis-tables-detour", "command": "npm run compare -- --kitchen detour --services 30 --tables --search", "estimate": "15 min" },
-    { "id": "cuis-rupture-petite", "command": "npm run compare -- --kitchen petite --services 30 --rupture 8 --search", "estimate": "10 min" },
-    { "id": "cuis-rupture-brigade", "command": "npm run compare -- --kitchen brigade --services 30 --rupture 8 --search", "estimate": "45 min", "limit": 150 },
-    { "id": "cuis-banquet-petite", "command": "npm run compare -- --kitchen petite --services 30 --banquet --search", "estimate": "10 min" },
-    { "id": "cuis-banquet-comptoirs", "command": "npm run compare -- --kitchen comptoirs --services 30 --banquet --search", "estimate": "10 min" },
-    { "id": "cuis-banquet-postes", "command": "npm run compare -- --kitchen postes --services 30 --banquet --search", "estimate": "10 min" },
-    { "id": "cuis-banquet-detour", "command": "npm run compare -- --kitchen detour --services 30 --banquet --search", "estimate": "15 min" },
-    { "id": "cuis-banquet-brigade", "command": "npm run compare -- --kitchen brigade --services 30 --banquet --search", "estimate": "40 min", "limit": 150 },
-    { "id": "cuis-livraison-petite", "command": "npm run compare -- --kitchen petite --services 30 --livraison --search", "estimate": "15 min" },
-    { "id": "cuis-livraison-comptoirs", "command": "npm run compare -- --kitchen comptoirs --services 30 --livraison --search", "estimate": "15 min" },
-    { "id": "cuis-livraison-postes", "command": "npm run compare -- --kitchen postes --services 30 --livraison --search", "estimate": "15 min" },
-    { "id": "cuis-livraison-detour", "command": "npm run compare -- --kitchen detour --services 30 --livraison --search", "estimate": "15 min" },
-    { "id": "cuis-livraison-brigade", "command": "npm run compare -- --kitchen brigade --services 30 --livraison --search", "estimate": "45 min", "limit": 150 }
+    {
+      "id": "cuis-tables-couloir-nearest",
+      "command": "npm run compare -- --kitchen couloir --services 30 --tables --search --humain nearest",
+      "estimate": "1 h",
+      "priority": 1,
+      "limit": 240
+    },
+    {
+      "id": "cuis-tables-couloir-urgent",
+      "command": "npm run compare -- --kitchen couloir --services 30 --tables --search --humain urgent",
+      "estimate": "1 h",
+      "priority": 1,
+      "limit": 240
+    },
+    {
+      "id": "cuis-tables-couloir-random",
+      "command": "npm run compare -- --kitchen couloir --services 30 --tables --search --humain random",
+      "estimate": "1 h",
+      "priority": 1,
+      "limit": 240
+    },
+    {
+      "id": "cuis-tables-couloir-table",
+      "command": "npm run compare -- --kitchen couloir --services 30 --tables --search --humain table",
+      "estimate": "1 h",
+      "priority": 1,
+      "limit": 240
+    },
+    {
+      "id": "cuis-tables-couloir-none",
+      "command": "npm run compare -- --kitchen couloir --services 30 --tables --search --humain none",
+      "estimate": "1 h",
+      "priority": 1,
+      "limit": 240
+    },
+    {
+      "id": "cuis-tables-comptoirs-nearest",
+      "command": "npm run compare -- --kitchen comptoirs --services 30 --tables --search --humain nearest",
+      "estimate": "1 h",
+      "priority": 1,
+      "limit": 240
+    },
+    {
+      "id": "cuis-tables-comptoirs-urgent",
+      "command": "npm run compare -- --kitchen comptoirs --services 30 --tables --search --humain urgent",
+      "estimate": "1 h",
+      "priority": 1,
+      "limit": 240
+    },
+    {
+      "id": "cuis-tables-comptoirs-random",
+      "command": "npm run compare -- --kitchen comptoirs --services 30 --tables --search --humain random",
+      "estimate": "1 h",
+      "priority": 1,
+      "limit": 240
+    },
+    {
+      "id": "cuis-tables-comptoirs-table",
+      "command": "npm run compare -- --kitchen comptoirs --services 30 --tables --search --humain table",
+      "estimate": "1 h",
+      "priority": 1,
+      "limit": 240
+    },
+    {
+      "id": "cuis-tables-comptoirs-none",
+      "command": "npm run compare -- --kitchen comptoirs --services 30 --tables --search --humain none",
+      "estimate": "1 h",
+      "priority": 1,
+      "limit": 240
+    },
+    {
+      "id": "cuis-tables-postes-nearest",
+      "command": "npm run compare -- --kitchen postes --services 30 --tables --search --humain nearest",
+      "estimate": "1 h",
+      "priority": 1,
+      "limit": 240
+    },
+    {
+      "id": "cuis-tables-postes-urgent",
+      "command": "npm run compare -- --kitchen postes --services 30 --tables --search --humain urgent",
+      "estimate": "1 h",
+      "priority": 1,
+      "limit": 240
+    },
+    {
+      "id": "cuis-tables-postes-random",
+      "command": "npm run compare -- --kitchen postes --services 30 --tables --search --humain random",
+      "estimate": "1 h",
+      "priority": 1,
+      "limit": 240
+    },
+    {
+      "id": "cuis-tables-postes-table",
+      "command": "npm run compare -- --kitchen postes --services 30 --tables --search --humain table",
+      "estimate": "1 h",
+      "priority": 1,
+      "limit": 240
+    },
+    {
+      "id": "cuis-tables-postes-none",
+      "command": "npm run compare -- --kitchen postes --services 30 --tables --search --humain none",
+      "estimate": "1 h",
+      "priority": 1,
+      "limit": 240
+    },
+    {
+      "id": "cuis-tables-separee-nearest",
+      "command": "npm run compare -- --kitchen separee --services 30 --tables --search --humain nearest",
+      "estimate": "1 h",
+      "priority": 1,
+      "limit": 240
+    },
+    {
+      "id": "cuis-tables-separee-urgent",
+      "command": "npm run compare -- --kitchen separee --services 30 --tables --search --humain urgent",
+      "estimate": "1 h",
+      "priority": 1,
+      "limit": 240
+    },
+    {
+      "id": "cuis-tables-separee-random",
+      "command": "npm run compare -- --kitchen separee --services 30 --tables --search --humain random",
+      "estimate": "1 h",
+      "priority": 1,
+      "limit": 240
+    },
+    {
+      "id": "cuis-tables-separee-table",
+      "command": "npm run compare -- --kitchen separee --services 30 --tables --search --humain table",
+      "estimate": "1 h",
+      "priority": 1,
+      "limit": 240
+    },
+    {
+      "id": "cuis-tables-separee-none",
+      "command": "npm run compare -- --kitchen separee --services 30 --tables --search --humain none",
+      "estimate": "1 h",
+      "priority": 1,
+      "limit": 240
+    },
+    {
+      "id": "cuis-tables-brigade-nearest",
+      "command": "npm run compare -- --kitchen brigade --services 30 --tables --search --humain nearest",
+      "estimate": "3 h",
+      "priority": 1,
+      "limit": 480
+    },
+    {
+      "id": "cuis-tables-brigade-random",
+      "command": "npm run compare -- --kitchen brigade --services 30 --tables --search --humain random",
+      "estimate": "3 h",
+      "priority": 1,
+      "limit": 480
+    },
+    {
+      "id": "cuis-tables-brigade-none",
+      "command": "npm run compare -- --kitchen brigade --services 30 --tables --search --humain none",
+      "estimate": "3 h",
+      "priority": 1,
+      "limit": 480
+    },
+    {
+      "id": "cuis-banquet-brigade-nearest",
+      "command": "npm run compare -- --kitchen brigade --services 30 --banquet --search --humain nearest",
+      "estimate": "6 h",
+      "priority": 1,
+      "limit": 720
+    },
+    {
+      "id": "cuis-banquet-brigade-urgent",
+      "command": "npm run compare -- --kitchen brigade --services 30 --banquet --search --humain urgent",
+      "estimate": "6 h",
+      "priority": 1,
+      "limit": 720
+    },
+    {
+      "id": "cuis-banquet-brigade-random",
+      "command": "npm run compare -- --kitchen brigade --services 30 --banquet --search --humain random",
+      "estimate": "6 h",
+      "priority": 1,
+      "limit": 720
+    },
+    {
+      "id": "cuis-banquet-brigade-table",
+      "command": "npm run compare -- --kitchen brigade --services 30 --banquet --search --humain table",
+      "estimate": "6 h",
+      "priority": 1,
+      "limit": 720
+    },
+    {
+      "id": "cuis-banquet-brigade-none",
+      "command": "npm run compare -- --kitchen brigade --services 30 --banquet --search --humain none",
+      "estimate": "6 h",
+      "priority": 1,
+      "limit": 720
+    },
+    {
+      "id": "cuis-banquet-detour-nearest",
+      "command": "npm run compare -- --kitchen detour --services 30 --banquet --search --humain nearest",
+      "estimate": "2 h",
+      "priority": 1,
+      "limit": 300
+    },
+    {
+      "id": "cuis-banquet-detour-urgent",
+      "command": "npm run compare -- --kitchen detour --services 30 --banquet --search --humain urgent",
+      "estimate": "2 h",
+      "priority": 1,
+      "limit": 300
+    },
+    {
+      "id": "cuis-banquet-detour-random",
+      "command": "npm run compare -- --kitchen detour --services 30 --banquet --search --humain random",
+      "estimate": "2 h",
+      "priority": 1,
+      "limit": 300
+    },
+    {
+      "id": "cuis-banquet-detour-table",
+      "command": "npm run compare -- --kitchen detour --services 30 --banquet --search --humain table",
+      "estimate": "2 h",
+      "priority": 1,
+      "limit": 300
+    },
+    {
+      "id": "cuis-banquet-detour-none",
+      "command": "npm run compare -- --kitchen detour --services 30 --banquet --search --humain none",
+      "estimate": "2 h",
+      "priority": 1,
+      "limit": 300
+    },
+    {
+      "id": "cuis-banquet-couloir-nearest",
+      "command": "npm run compare -- --kitchen couloir --services 30 --banquet --search --humain nearest",
+      "estimate": "2 h",
+      "priority": 1,
+      "limit": 300
+    },
+    {
+      "id": "cuis-banquet-couloir-urgent",
+      "command": "npm run compare -- --kitchen couloir --services 30 --banquet --search --humain urgent",
+      "estimate": "2 h",
+      "priority": 1,
+      "limit": 300
+    },
+    {
+      "id": "cuis-banquet-couloir-random",
+      "command": "npm run compare -- --kitchen couloir --services 30 --banquet --search --humain random",
+      "estimate": "2 h",
+      "priority": 1,
+      "limit": 300
+    },
+    {
+      "id": "cuis-banquet-couloir-table",
+      "command": "npm run compare -- --kitchen couloir --services 30 --banquet --search --humain table",
+      "estimate": "2 h",
+      "priority": 1,
+      "limit": 300
+    },
+    {
+      "id": "cuis-banquet-couloir-none",
+      "command": "npm run compare -- --kitchen couloir --services 30 --banquet --search --humain none",
+      "estimate": "2 h",
+      "priority": 1,
+      "limit": 300
+    },
+    {
+      "id": "cuis-banquet-separee-nearest",
+      "command": "npm run compare -- --kitchen separee --services 30 --banquet --search --humain nearest",
+      "estimate": "2 h",
+      "priority": 1,
+      "limit": 300
+    },
+    {
+      "id": "cuis-banquet-separee-urgent",
+      "command": "npm run compare -- --kitchen separee --services 30 --banquet --search --humain urgent",
+      "estimate": "2 h",
+      "priority": 1,
+      "limit": 300
+    },
+    {
+      "id": "cuis-banquet-separee-random",
+      "command": "npm run compare -- --kitchen separee --services 30 --banquet --search --humain random",
+      "estimate": "2 h",
+      "priority": 1,
+      "limit": 300
+    },
+    {
+      "id": "cuis-banquet-separee-table",
+      "command": "npm run compare -- --kitchen separee --services 30 --banquet --search --humain table",
+      "estimate": "2 h",
+      "priority": 1,
+      "limit": 300
+    },
+    {
+      "id": "cuis-banquet-separee-none",
+      "command": "npm run compare -- --kitchen separee --services 30 --banquet --search --humain none",
+      "estimate": "2 h",
+      "priority": 1,
+      "limit": 300
+    },
+    {
+      "id": "cuis-livraison-brigade-nearest",
+      "command": "npm run compare -- --kitchen brigade --services 30 --livraison --search --humain nearest",
+      "estimate": "3 h",
+      "priority": 2,
+      "limit": 480
+    },
+    {
+      "id": "cuis-livraison-brigade-urgent",
+      "command": "npm run compare -- --kitchen brigade --services 30 --livraison --search --humain urgent",
+      "estimate": "3 h",
+      "priority": 2,
+      "limit": 480
+    },
+    {
+      "id": "cuis-livraison-brigade-random",
+      "command": "npm run compare -- --kitchen brigade --services 30 --livraison --search --humain random",
+      "estimate": "3 h",
+      "priority": 2,
+      "limit": 480
+    },
+    {
+      "id": "cuis-livraison-brigade-table",
+      "command": "npm run compare -- --kitchen brigade --services 30 --livraison --search --humain table",
+      "estimate": "3 h",
+      "priority": 2,
+      "limit": 480
+    },
+    {
+      "id": "cuis-livraison-brigade-none",
+      "command": "npm run compare -- --kitchen brigade --services 30 --livraison --search --humain none",
+      "estimate": "3 h",
+      "priority": 2,
+      "limit": 480
+    },
+    {
+      "id": "cuis-livraison-couloir-nearest",
+      "command": "npm run compare -- --kitchen couloir --services 30 --livraison --search --humain nearest",
+      "estimate": "1 h",
+      "priority": 2,
+      "limit": 240
+    },
+    {
+      "id": "cuis-livraison-couloir-urgent",
+      "command": "npm run compare -- --kitchen couloir --services 30 --livraison --search --humain urgent",
+      "estimate": "1 h",
+      "priority": 2,
+      "limit": 240
+    },
+    {
+      "id": "cuis-livraison-couloir-random",
+      "command": "npm run compare -- --kitchen couloir --services 30 --livraison --search --humain random",
+      "estimate": "1 h",
+      "priority": 2,
+      "limit": 240
+    },
+    {
+      "id": "cuis-livraison-couloir-table",
+      "command": "npm run compare -- --kitchen couloir --services 30 --livraison --search --humain table",
+      "estimate": "1 h",
+      "priority": 2,
+      "limit": 240
+    },
+    {
+      "id": "cuis-livraison-couloir-none",
+      "command": "npm run compare -- --kitchen couloir --services 30 --livraison --search --humain none",
+      "estimate": "1 h",
+      "priority": 2,
+      "limit": 240
+    },
+    {
+      "id": "cuis-livraison-separee-nearest",
+      "command": "npm run compare -- --kitchen separee --services 30 --livraison --search --humain nearest",
+      "estimate": "1 h",
+      "priority": 2,
+      "limit": 240
+    },
+    {
+      "id": "cuis-livraison-separee-urgent",
+      "command": "npm run compare -- --kitchen separee --services 30 --livraison --search --humain urgent",
+      "estimate": "1 h",
+      "priority": 2,
+      "limit": 240
+    },
+    {
+      "id": "cuis-livraison-separee-random",
+      "command": "npm run compare -- --kitchen separee --services 30 --livraison --search --humain random",
+      "estimate": "1 h",
+      "priority": 2,
+      "limit": 240
+    },
+    {
+      "id": "cuis-livraison-separee-table",
+      "command": "npm run compare -- --kitchen separee --services 30 --livraison --search --humain table",
+      "estimate": "1 h",
+      "priority": 2,
+      "limit": 240
+    },
+    {
+      "id": "cuis-livraison-separee-none",
+      "command": "npm run compare -- --kitchen separee --services 30 --livraison --search --humain none",
+      "estimate": "1 h",
+      "priority": 2,
+      "limit": 240
+    },
+    {
+      "id": "cuis-livraison-petite-table",
+      "command": "npm run compare -- --kitchen petite --services 30 --livraison --search --humain table",
+      "estimate": "1 h",
+      "priority": 2,
+      "limit": 240
+    },
+    {
+      "id": "cuis-livraison-comptoirs-table",
+      "command": "npm run compare -- --kitchen comptoirs --services 30 --livraison --search --humain table",
+      "estimate": "1 h",
+      "priority": 2,
+      "limit": 240
+    },
+    {
+      "id": "cuis-livraison-postes-table",
+      "command": "npm run compare -- --kitchen postes --services 30 --livraison --search --humain table",
+      "estimate": "1 h",
+      "priority": 2,
+      "limit": 240
+    },
+    {
+      "id": "cuis-livraison-detour-table",
+      "command": "npm run compare -- --kitchen detour --services 30 --livraison --search --humain table",
+      "estimate": "1 h",
+      "priority": 2,
+      "limit": 240
+    },
+    {
+      "id": "cuis-mise-comptoirs-urgent",
+      "command": "npm run compare -- --kitchen comptoirs --services 30 --search --mise-en-place --humain urgent",
+      "estimate": "40 min",
+      "priority": 3,
+      "limit": 180
+    },
+    {
+      "id": "cuis-mise-postes-urgent",
+      "command": "npm run compare -- --kitchen postes --services 30 --search --mise-en-place --humain urgent",
+      "estimate": "40 min",
+      "priority": 3,
+      "limit": 180
+    },
+    {
+      "id": "cuis-mise-detour-urgent",
+      "command": "npm run compare -- --kitchen detour --services 30 --search --mise-en-place --humain urgent",
+      "estimate": "40 min",
+      "priority": 3,
+      "limit": 180
+    },
+    {
+      "id": "cuis-aboyeur-detour-tables-urgent",
+      "command": "npm run compare -- --kitchen detour --services 30 --tables --search --aboyeur --humain urgent",
+      "estimate": "1 h",
+      "priority": 3,
+      "limit": 240
+    }
   ]
 }

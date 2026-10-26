@@ -115,3 +115,18 @@ lui-même (son lint, ses types, son hook) appartient à sa propre session, comme
 
 À proposer à mcts-commun, plus tard : la disposition en onglets et son CSS sont maintenant écrits deux fois (urgences
 et cuisine), presque à l'identique ; ils pourraient rejoindre `web/theme.css`.
+
+## Les mesures longues passent par la file (Sami, 26/10/2026, le soir)
+
+Toute mesure de plus de quelques minutes (la recherche sur 30 services, une cuisine entière, le banquet de la grande
+brigade) passe par **la file de la machine**, `mcts-backlog` (mcts-commun) : un job (`mcts-backlog --add ID --cwd
+mcts-cuisine --estimate "1 h" --limit 240 -- npm run compare -- …`) ou un fichier de jobs (`night.json`, ajouté par
+`mcts-backlog --add-file mcts-cuisine/night.json --tag <série>`). La file partage les 18 fils entre les projets, garde
+la température et la mémoire, et range les sorties dans `~/.mcts-backlog/runs/`. Le 26/10, huit mesures lancées à
+côté de la file tournaient pendant qu'elle occupait déjà tous les fils : tout ralentissait.
+
+- **Un job par cuisine et par cuisinier simulé** (`npm run compare -- --humain urgent`) : les jobs tiennent dans leur
+  `limit` et se partagent les fils ; la grande brigade et le banquet ont un `limit` large (jusqu'à 720 min).
+- **À la main**, seulement les essais courts : moins de 10 services, un cuisinier, quelques minutes.
+- **Pendant qu'une file tourne**, le dépôt reste utilisable à chaque instant : un job démarre avec le code tel qu'il
+  est sur le disque.
