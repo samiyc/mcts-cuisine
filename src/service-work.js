@@ -2,7 +2,7 @@ import { RECIPES } from "./kitchens.js";
 import { FREE, keyOf, orderOf } from "./service-basics.js";
 import { drop } from "./service-legs.js";
 import { refuseIfOut } from "./service-supply.js";
-import { toPass } from "./service-tables.js";
+import { passOf, toPass } from "./service-tables.js";
 
 /**
  * The work that ends (split from simulate.js, 26/10/2026): a step done, a dish put down on a counter or a pot put on,
@@ -97,7 +97,7 @@ function finish(state, cook) {
 
 /** The dish done: served, or, with tables (service-tables.js), at the pass to wait for its table. */
 function handOver(state, cook, order) {
-  if (state.setup.tables && order.table) return toPass(state, cook, order);
+  if (passOf(state.setup) && order.table) return toPass(state, cook, order);
   Object.assign(order, { status: "served", servedAt: state.t });
   state.log.push({ t: state.t, type: "served", cook: cook.id, order: order.id });
   Object.assign(cook, FREE);

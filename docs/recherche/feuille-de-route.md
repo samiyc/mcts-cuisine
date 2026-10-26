@@ -30,8 +30,8 @@ Ses choix :
 | 1 : la brigade | **en partie** : les tables, le passe à durée limitée, la rupture et la règle « la table » sont faits (réglages éteints par défaut) ; les tables restent ratées (le manque de mains) ; l'aboyeur et un humain « qui suit sa table » à faire ; la mise en place reportée | `src/service-tables.js`, `src/service-supply.js` |
 | Hors étape : marcher plus vite, deux passes | **fait** (Sami, 26/10) : 2 cases par tour par défaut, aucune superposition | `src/service-legs.js`, `src/kitchens.js` |
 | Les mesures de nuit, refaites | **en cours** (26/10) : la recherche contre les règles, avec et sans tables, avec la rupture, sur 18 fils | `night.json` |
-| 2 : le banquet | à faire, **la suivante** | — |
-| 3 : la livraison | à faire | — |
+| 2 : le banquet | **fait** (26/10) : commandes connues, envois à l'heure, étuve, règle du rétroplanning ; reste : la coupe en série, la recherche mesurée au banquet | `src/service-banquet.js` |
+| 3 : la livraison | à faire, **la suivante** | — |
 | 4 : plus tard | la plonge, les allergènes, la fatigue, les menus en plusieurs temps | — |
 
 Ce qui manque à chaque étape est dans [oublis.md](oublis.md).
@@ -81,7 +81,7 @@ D'après [brigade-service.md](brigade-service.md) :
 - les mesures : les tables servies à temps, le temps de table maximal, les plats perdus au passe, les commandes
   manquées par rupture.
 
-## Étape 2 : le traiteur
+## Étape 2 : le traiteur (le banquet fait le 26/10, `src/service-banquet.js` ; voir modele.md, « Le banquet »)
 
 D'après [traiteur.md](traiteur.md) :
 - **un banquet** : N couverts connus d'avance, deux ou trois envois à heure fixe (l'entrée, le plat) ;

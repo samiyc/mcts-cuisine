@@ -27,6 +27,8 @@ export const SEARCH_SETTINGS = Object.freeze({ budget: 64, depth: 2, explore: 0.
  */
 function drawComing(setup, t, come, rng) {
   const lastId = Math.max(0, ...come.map((order) => order.id));
+  // A banquet's orders are all known from the start: nothing to draw.
+  if (setup.banquet) return [];
   if (setup.tables) return drawTables(setup, rng, { start: firstAfter(setup, rng, t), lastId, lastTable: Math.max(0, ...come.map((order) => order.table ?? 0)) }).map((order) => ({ ...order, status: "upcoming", cook: null, servedAt: null }));
   const names = Object.keys(RECIPES);
   const coming = [];
@@ -66,8 +68,12 @@ export function valueOf(world) {
   return value;
 }
 
-/** The rule the worlds are played with: the quickest dish, or with tables the table's (the quickest would leave the long dishes behind). */
-const rolloutRule = (world) => (world.setup.tables ? RULES.table(world.choice.open, { state: world }) : RULES.quickest(world.choice.open));
+/** The rule the worlds are played with: the quickest dish; with tables the table's (the quickest would leave the long dishes behind); at a banquet the backward planning. */
+function rolloutRule(world) {
+  const { open } = world.choice;
+  if (world.setup.banquet) return RULES.retro(open, { state: world });
+  return world.setup.tables ? RULES.table(open, { state: world }) : RULES.quickest(open);
+}
 
 /** The quickest-dish rule (or the table's) to the horizon. */
 function rollOut(world) {

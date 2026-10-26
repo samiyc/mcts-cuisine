@@ -7,7 +7,8 @@ import { refuseIfOut } from "./service-supply.js";
  * orders). A table orders two or three dishes at once, each an order of one dish with the table's number and its
  * deadline. A dish made goes to the pass and waits for its table there (status "passed"); the table is sent, every
  * dish served, the turn its last one comes. A dish left at the pass more than `pass` turns « dies »: it is lost, its
- * order goes back to open, to make again (« à la volée »). `setup.tables`: `{ min, max, pass }`, off by default.
+ * order goes back to open, to make again (« à la volée »). `setup.tables`: `{ min, max, pass }`, off by default. The
+ * banquet (service-banquet.js) uses the same pass: a course is a table, sent at its turn (`sendAt`) and not before.
  *
  * The pace: a table comes every `every` turns times its mean size, so that a service has about as many dishes with
  * tables as without (a hypothesis, not a source).
@@ -49,6 +50,9 @@ export function toPass(state, cook, order) {
   Object.assign(cook, FREE);
 }
 
+/** The pass's settings: the tables' or the banquet's (`pass`, the turns a dish may wait there), or none. */
+export const passOf = (setup) => setup.tables ?? setup.banquet ?? null;
+
 /** The orders of `table` still to serve: every one of them, but a dish refused (off the menu, service-supply.js), which the table goes without. */
 const tableOrders = (state, table) => state.upcoming.filter((order) => order.table === table && order.status !== "refused");
 
@@ -57,7 +61,8 @@ function sendTables(state) {
   const tables = new Set(state.upcoming.filter((order) => order.status === "passed").map((order) => order.table));
   for (const table of tables) {
     const orders = tableOrders(state, table);
-    if (!orders.every((order) => order.status === "passed")) continue;
+    // A banquet's course waits for its turn (service-banquet.js).
+    if (!orders.every((order) => order.status === "passed") || state.t < (orders[0].sendAt ?? 0)) continue;
     for (const order of orders) Object.assign(order, { status: "served", servedAt: state.t });
     state.log.push({ t: state.t, type: "sent", table, orders: orders.map((order) => order.id) });
   }
@@ -66,7 +71,7 @@ function sendTables(state) {
 /** A dish left at the pass more than `pass` turns dies: lost, its order to make again. */
 function dieAtPass(state) {
   for (const order of state.upcoming) {
-    if (order.status !== "passed" || state.t - order.passedAt <= state.setup.tables.pass) continue;
+    if (order.status !== "passed" || state.t - order.passedAt <= passOf(state.setup).pass) continue;
     Object.assign(order, { status: "open", passedAt: null, died: (order.died ?? 0) + 1 });
     refuseIfOut(state, order);
     state.died = (state.died ?? 0) + 1;
@@ -76,7 +81,7 @@ function dieAtPass(state) {
 
 /** The pass, at the start of a turn: the tables complete are sent, then the dishes that waited too long die. */
 export function watchPass(state) {
-  if (!state.setup.tables) return;
+  if (!passOf(state.setup)) return;
   sendTables(state);
   dieAtPass(state);
 }
@@ -96,11 +101,18 @@ function longestAtPass(state) {
   return Math.max(...waits, ...still.map((order) => state.t - order.passedAt));
 }
 
+/** The worst lateness of a banquet's course: sent after its turn, or still not sent at the end. */
+function sendLate(state) {
+  const sent = new Map(state.log.filter((event) => event.type === "sent").map((event) => [event.table, event.t]));
+  const courses = new Map(state.upcoming.filter((order) => order.sendAt !== undefined).map((order) => [order.table, order.sendAt]));
+  return Math.max(0, ...[...courses].map(([table, at]) => (sent.get(table) ?? state.t) - at));
+}
+
 /** The tables' measures: the tables come, those sent in time (every dish by the deadline), the dishes dead at the pass, the longest wait there. */
 export function tableMeasures(state) {
-  if (!state.setup.tables) return {};
+  if (!passOf(state.setup)) return {};
   const come = new Set(state.upcoming.filter((order) => order.table && order.arrival <= state.t).map((order) => order.table));
   const servedInTime = (orders) => orders.length > 0 && orders.every((order) => order.status === "served" && order.servedAt <= order.deadline);
   const inTime = [...come].filter((table) => servedInTime(tableOrders(state, table)));
-  return { tables: come.size, tablesOnTime: inTime.length, died: state.died ?? 0, maxPass: longestAtPass(state) };
+  return { tables: come.size, tablesOnTime: inTime.length, died: state.died ?? 0, maxPass: longestAtPass(state), ...(state.setup.banquet ? { maxSendLate: sendLate(state) } : {}) };
 }

@@ -1,5 +1,6 @@
 import { paired } from "mcts-commun/measure.js";
 import { RECIPES } from "./kitchens.js";
+import { passOf } from "./service-tables.js";
 import { runService } from "./simulate.js";
 
 /** @typedef {import("./types.js").Measures} Measures */
@@ -48,6 +49,13 @@ function tableFirst(a, b) {
   return a.arrival < b.arrival;
 }
 
+/** The turns a dish is assumed to take beyond its work: walking, a station to wait for (a hypothesis). */
+const MARGIN = 10;
+/** The turn a dish must start by to go out on time: its send turn (a banquet's) or its deadline, less its work and the margin. */
+const latestStart = (order) => (order.sendAt ?? order.deadline) - workOf(order) - MARGIN;
+/** Started now, would a banquet's dish wait warm longer than the pass allows? A soup ready on its stove is always taken off. */
+const tooEarly = (state, order) => order.sendAt !== undefined && order.status !== "ready" && state.t < latestStart(order) - (passOf(state.setup)?.pass ?? Infinity);
+
 /** @type {Readonly<Record<string, Rule>>} */
 export const RULES = Object.freeze({
   /** The order that came first. */
@@ -62,8 +70,17 @@ export const RULES = Object.freeze({
     const fired = open.filter((order) => fires(context.state, order));
     return fired.length ? first(fired, tableFirst) : undefined;
   },
+  /**
+   * The backward planning (Sami, 26/10, step 2, the caterer's « rétroplanning »): the dish whose latest start is the
+   * nearest first; a banquet's dish not before it would wait warm longer than the pass allows. Without a banquet, the
+   * order with the least slack.
+   */
+  retro: (open, context) => {
+    const ready = open.filter((order) => !tooEarly(context.state, order));
+    return ready.length ? first(ready, (a, b) => latestStart(a) < latestStart(b) || (latestStart(a) === latestStart(b) && a.id < b.id)) : undefined;
+  },
 });
-export const RULE_LABELS = Object.freeze({ oldest: "la plus ancienne", quickest: "le plat le plus rapide", table: "la table (faire marcher)", search: "recherche (ISMCTS)" });
+export const RULE_LABELS = Object.freeze({ oldest: "la plus ancienne", quickest: "le plat le plus rapide", table: "la table (faire marcher)", retro: "le rétroplanning", search: "recherche (ISMCTS)" });
 
 /** Three simulated humans (docs: the human's model is the heart of the project; start with three). */
 /** @type {Readonly<Record<string, Rule>>} */
@@ -76,7 +93,7 @@ export const HUMAN_LABELS = Object.freeze({ nearest: "prend le plus proche", urg
 
 const mean = (values) => values.reduce((sum, value) => sum + value, 0) / values.length;
 // The indicators of step 0 (26/10, docs/recherche/indicateurs.md) after the first ones: means over the services, maxima included.
-const MEASURES = ["orders", "onTime", "late", "missed", "meanServe", "waits", "burnt", "p90Serve", "maxServe", "maxLate", "peakOpen", "servedByHuman", "useBoard", "useStove", "usePass", "useCounter", "waitBoard", "waitStove", "waitPass", "waitCounter", "tables", "tablesOnTime", "died", "maxPass", "refused"];
+const MEASURES = ["orders", "onTime", "late", "missed", "meanServe", "waits", "burnt", "p90Serve", "maxServe", "maxLate", "peakOpen", "servedByHuman", "useBoard", "useStove", "usePass", "useCounter", "waitBoard", "waitStove", "waitPass", "waitCounter", "tables", "tablesOnTime", "died", "maxPass", "refused", "maxSendLate"];
 
 /**
  * The robots' rules on the same `services` services of `setup`, with the human `humanName` (or none): each

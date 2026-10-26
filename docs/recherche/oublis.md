@@ -26,6 +26,14 @@ point dit où il se rangera.
 - **Les mesures d'avant le 26/10** (la recherche, les mesures de nuit du 23/10) étaient au pas 1, avec un seul passe :
   elles sont refaites par `night.json`.
 
+- **Un plat par voyage** : au banquet, un vrai traiteur coupe en série (plusieurs portions d'un coup) et dresse à la
+  chaîne ; le modèle fait un plat par voyage, de la caisse au passe. À 8 couverts et 30 tours au chaud, aucun envoi ne
+  partait jamais (`docs/modele.md`, « Le banquet »). Rangé : étape 2, un geste « en série » (couper N portions, plus
+  long qu'une mais bien moins que N).
+- **L'humain du banquet** : les trois humains simulés lancent les plats sans regarder l'heure d'envoi ; « au hasard »,
+  il fait mourir presque tous les envois de trois cuisines. Un humain « qui suit le plan de production », à mesurer
+  comme celui « qui suit sa table ». Rangé : étape 2.
+
 ## Annoncés, pas encore faits
 
 - **L'aboyeur qui réclame** ([brigade-service.md](brigade-service.md)) : le rôle `passe` en est l'ébauche ; il pourrait

@@ -6,6 +6,7 @@ import { ask, choiceOf, take } from "./service-choice.js";
 import { letGo, move, stepAside, watch } from "./service-legs.js";
 import { countTurn, createTally, measuresOf } from "./service-measures.js";
 import { startStep } from "./service-relays.js";
+import { drawBanquet } from "./service-banquet.js";
 import { refuseIfOut } from "./service-supply.js";
 import { drawTables, watchPass } from "./service-tables.js";
 import { adoptStock, finishWork, watchPots } from "./service-work.js";
@@ -78,6 +79,7 @@ export { measuresOf } from "./service-measures.js";
 /** The service's orders, drawn from a seed: `{ id, recipe, arrival, deadline }`, by arrival. */
 export function drawOrders(seed, setup) {
   const rng = createRng(seed);
+  if (setup.banquet) return drawBanquet(setup, rng);
   if (setup.tables) return drawTables(setup, rng, { start: 1 + rng.int(3) });
   const orders = [];
   const names = Object.keys(RECIPES);

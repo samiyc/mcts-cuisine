@@ -499,3 +499,50 @@ rapide, et tables à temps avec la règle de la table :
 
 Toutes les mesures d'avant ce jour (la recherche, les mesures de nuit) étaient au pas 1 avec un passe : elles sont à
 refaire.
+
+## Le banquet (26/10, étape 2 de la feuille de route des métiers)
+
+Sami (26/10) : « continue sur les étapes suivantes ». Le banquet (`setup.banquet`, `src/service-banquet.js`,
+[`recherche/traiteur.md`](recherche/traiteur.md)) :
+- **les commandes sont connues dès le début** : environ 6 couverts (5 à 7, tirés de la graine), une entrée (salade)
+  envoyée vers le tour 70, un plat (soupe) vers le tour 130, chaque envoi tiré à ±10 tours de son heure : un traiteur
+  ne fait jamais deux fois le même banquet, et les services d'une mesure ne sont pas tous le même ;
+- **un plat prêt attend au chaud** (l'étuve : le passe), 60 tours au plus, sinon il est perdu et refait ; un envoi part
+  **entier, à son heure et pas avant**, à temps jusqu'à 5 tours après ; c'est la mécanique des tables, un envoi est une
+  table qui attend son tour ;
+- **la recherche n'a rien à tirer** : toutes les commandes sont connues ; le seul caché est l'humain ;
+- **une règle simple de plus, « le rétroplanning »** : le plat dont le début au plus tard (son envoi, moins son
+  travail, moins 10 tours de marge, une hypothèse) est le plus proche ; un plat de banquet n'est pas lancé s'il devait
+  attendre au chaud plus que l'étuve ne tient. Sans banquet, c'est la commande qui a le moins de marge. La recherche
+  joue ses mondes avec elle au banquet.
+
+**Le premier calibrage a échoué** : à 8 couverts et 30 tours au chaud, aucune cuisine n'envoyait jamais une entrée.
+Dans la petite cuisine, une salade fait 14 tours de la caisse au passe pour un robot : deux robots en sortent une tous
+les 7 tours, soit 56 tours pour 8 salades, et les premières meurent avant que les dernières arrivent. Un vrai traiteur
+coupe **en série**, plusieurs portions à la fois ; le modèle fait un plat par voyage (un oubli, `recherche/oublis.md`).
+D'où 6 couverts et 60 tours.
+
+**Ce qu'il donne** (20 banquets par cuisine ; envois à l'heure sur 2, et plats perdus au chaud, pour la plus ancienne
+/ le plat le plus rapide / la table / le rétroplanning) :
+
+| Cuisine | sans humain | le cuisinier « le plus urgent » |
+|---|---|---|
+| petite | 0,9 / 0,9 / 0,9 / 1,0 (perdus 5,0 / 5,2 / 1,9 / 1,6) | 0,9 / 0,9 / 0,9 / 0,8 |
+| en couloir | 0 partout (8 perdus) | 0,9 partout ; perdus 4 / 4 / 0,9 / 0,6 |
+| grande brigade | 0,9 / 0,9 / 1,1 / **1,3** | 0,9 partout |
+| passe-plats | 0 / 0 / 0 / **0,5** | 0,3 / 0,3 / 0,3 / **0,9** |
+| postes | 0 partout | 0,6 / 0,6 / 0,3 / **0,8** |
+| coupée en deux | 0,5 partout | 0,8 partout |
+| le grand détour | 0,6 partout | 1,1 / 1,1 / **1,6** / 1,1 (la table : aucun perdu) |
+
+- **Le banquet départage les règles**, ce que le service à la carte au pas 2 ne fait presque plus : le rétroplanning
+  l'emporte dans le passe-plats, la grande brigade et « postes », la règle de la table dans le grand détour.
+- **Sans humain, c'est parfois pire** : dans la cuisine en couloir, aucun envoi sans le cuisinier, qui apporte des
+  mains. Avec le cuisinier « au hasard », presque rien ne part dans trois cuisines (en couloir, passe-plats, postes :
+  0,1 à 0,2 envoi sur 2) : il lance des plats à n'importe quel moment, et ils meurent au chaud.
+  L'humain qui ne suit pas le plan de production est l'obstacle, et les robots ne le commandent pas : c'est là que
+  la recherche, qui imagine ce qu'il va faire, a quelque chose à gagner.
+- **La soupe est l'envoi difficile** : deux fourneaux pour six marmites, elles sortent en vagues ; la première attend
+  la dernière au chaud (à mesurer : l'attente au chaud par envoi).
+
+Dans l'onglet Cuisine (« Un banquet »), et `npm run compare -- --banquet`.

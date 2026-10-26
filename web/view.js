@@ -159,6 +159,9 @@ function stoveText(state, order, time) {
   return order.burnt ? `brûlée, à refaire, ${time}` : `personne, ${time}`;
 }
 
+/** What a dish at the pass waits for: its table, or its banquet course's turn. */
+const waitsFor = (order) => (order.sendAt === undefined ? "sa table" : `son envoi (tour ${order.sendAt})`);
+
 /** Where an order stands, in words. */
 function statusOf(state, order) {
   const left = order.deadline - state.t;
@@ -167,7 +170,7 @@ function statusOf(state, order) {
   if (order.status === "taken") return `${takerOf(state, order)}, ${time}`;
   if (order.status === "prepped") return `oignons coupés sur un comptoir, ${time}`;
   if (order.status === "refused") return `refusée : plus de ${RECIPES[order.recipe].label} ce soir (86)`;
-  if (order.status === "passed") return `au passe depuis ${state.t - order.passedAt} tours, attend sa table, ${time}`;
+  if (order.status === "passed") return `au passe depuis ${state.t - order.passedAt} tours, attend ${waitsFor(order)}, ${time}`;
   return stoveText(state, order, time);
 }
 
@@ -184,6 +187,7 @@ export function ordersOf(state) {
       return {
         id: order.id,
         table: order.table ?? null,
+        sendAt: order.sendAt ?? null,
         dish: RECIPES[order.recipe].label,
         emoji: RECIPES[order.recipe].emoji,
         recipe: order.recipe,
