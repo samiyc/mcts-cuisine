@@ -17,15 +17,16 @@ point dit où il se rangera.
 - **La rupture ne choisit pas à qui donner les derniers ingrédients.** Avec un stock serré, toutes les règles font
   pareil : la première commande prise vide la caisse. Une commande qui sera servie à temps vaut mieux qu'une qui sera en
   retard. Rangé : la recherche (étape 4 des urgences, ici après l'étape 3).
-- **Un poste réservé n'est pas un poste au travail.** Dans la cuisine coupée en deux, les fourneaux sont attendus 56
-  tours par service pour 23 % d'usage : un cuisinier encore loin les réserve. Le temps « réservé sans travailler »
-  n'est pas compté. Rangé : étape 0, une mesure de plus.
+- **L'attente aux fourneaux de la cuisine coupée en deux** (70 tours par service, pour 26 % d'usage du plus chargé) :
+  on la croyait due à des fourneaux réservés par des cuisiniers encore loin ; compté le 26/10, ils ne le sont que 11
+  tours par service. La cause reste à trouver (la mesure d'attente elle-même, ou les marmites prêtes qui attendent
+  d'être retirées). Rangé : étape 0.
 - **L'impasse du passe** : dans la cuisine en couloir, les deux passes sont au fond d'une impasse et l'attente reste
   (18 à 25 tours par service). Un plan à revoir, si Sami le veut.
 
 - **Un plat par voyage** : au banquet, un vrai traiteur coupe en série (plusieurs portions d'un coup) et dresse à la
   chaîne ; le modèle fait un plat par voyage, de la caisse au passe. À 8 couverts et 30 tours au chaud, aucun envoi ne
-  partait jamais (`docs/modele.md`, « Le banquet »). Rangé : étape 2, un geste « en série » (couper N portions, plus
+  partait jamais (`docs/metiers.md`, « Le banquet »). Rangé : étape 2, un geste « en série » (couper N portions, plus
   long qu'une mais bien moins que N).
 - **L'humain du banquet** : « au hasard », il fait mourir presque tous les envois de trois cuisines. L'humain « qui
   suit sa table » suit aussi le plan de production (il ne lance pas un plat qui mourrait au chaud) : à mesurer au
@@ -47,10 +48,8 @@ point dit où il se rangera.
   comptoir pour la poser. Rangé : une étape à part, après les tables et la rupture.
 - **Les humains simulés ignorent la rupture** : l'humain « qui suit sa table » est fait (26/10) ; aucun ne regarde
   le stock. Rangé : étape 1.
-- **Les indicateurs pas encore comptés** ([indicateurs.md](indicateurs.md)) : les bons par tranche de tours (une
-  courbe du service), les plats servis par chaque robot, le temps réservé sans travailler. Rangé : étape 0.
 - **La recherche sur les tables et la rupture** : son évaluation compte les plats à temps ; avec les tables, c'est la
-  table qui compte, et un plat mort au passe n'y pèse pas. Les mesures de nuit du 26/10 (`docs/modele.md`) : elle
+  table qui compte, et un plat mort au passe n'y pèse pas. Les mesures de nuit du 26/10 (`docs/metiers.md`) : elle
   fait avancer les tables dans la petite cuisine et la grande brigade, mais la règle de la table la bat dans le grand
   détour ; avec la rupture, elle gagne peu. Rangé : une évaluation par table, à mesurer.
 - **La plonge, les allergènes, la fatigue, les menus en plusieurs temps** : prévus « plus tard » dans la
@@ -58,12 +57,14 @@ point dit où il se rangera.
 
 ## Fait depuis
 
-Les oublis réglés quittent cette liste et vont dans [modele.md](../modele.md) avec leurs mesures.
+Les oublis réglés quittent cette liste et vont dans [modele.md](../modele.md) ou [metiers.md](../metiers.md) avec leurs mesures.
 
 - **Les mesures d'avant le 26/10**, au pas 1 avec un seul passe : refaites la nuit du 26/10 (« Les mesures de nuit
   du 26/10 »).
 - **La recherche au banquet ne voyait pas l'heure d'envoi et ne savait pas attendre** (trouvé par ces mesures) :
   ses mondes vont jusqu'au dernier envoi, attendre est un de ses coups, et sa liste courte commence par le choix de
   la règle de ses mondes.
-- **L'humain « qui suit sa table »** (26/10) : il aide dans cinq cuisines sur sept (`docs/modele.md`).
+- **L'humain « qui suit sa table »** (26/10) : il aide dans cinq cuisines sur sept (`docs/metiers.md`).
 - **La recherche qui attend**, au banquet, à la livraison et avec les tables (26/10).
+- **Les trois derniers indicateurs de l'étape 0** (26/10) : la courbe du service, les plats par cuisinier, le temps
+  réservé sans travailler.

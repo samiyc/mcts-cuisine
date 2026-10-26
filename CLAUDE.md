@@ -31,4 +31,5 @@ where the ISMCTS was built and measured). The plan and the reasons live in lopin
 - **The changelog** is data, `docs/changelog.json`: a new version is a new first entry, then `npm run changelog`.
 - **The page is in tabs** (lopin's layout): a tab's settings in the panel on the left (`web/tabs/`), its view beside.
 - **The trades' roadmap** is `docs/recherche/feuille-de-route.md`: the restaurants' words and measures, step by step.
+  What each step did, with its measures: `docs/metiers.md` (the model before them: `docs/modele.md`).
 - **Commit straight to `main`**; push only when Sami asks.

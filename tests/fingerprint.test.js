@@ -14,10 +14,10 @@ import { measuresOf, runService } from "../src/simulate.js";
  * does updates its hash here, and its commit says so, with the measures before and after.
  */
 const EXPECTED = {
-  rules: "a6c60854a0c72b30",
-  variants: "0fcfb078f7c6d309",
-  replay: "c6f50c74d38b62b9",
-  search: "5c24271a56155620",
+  rules: "9145985725905f31",
+  variants: "7c3bea5bc808ab9e",
+  replay: "165960bd12b38780",
+  search: "976ec2207dff02a8",
 };
 
 const digest = (value) => createHash("sha256").update(JSON.stringify(value)).digest("hex").slice(0, 16);

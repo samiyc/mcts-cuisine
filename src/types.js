@@ -48,7 +48,7 @@
  * }} Service
  */
 
-/** A service's counts, turn by turn (service-measures.js): the turns, the rush and its turn, each station's turns at work, the waits by kind. @typedef {{ turns: number, peakOpen: number, peakAt: number, busy: Map<string, number>, waitsFor: Record<string, number> }} Tally */
+/** A service's counts, turn by turn (service-measures.js): the turns, the rush and its turn, each station's turns at work and claimed idle, the waits by kind. @typedef {{ turns: number, peakOpen: number, peakAt: number, busy: Map<string, number>, idle: Map<string, number>, waitsFor: Record<string, number> }} Tally */
 
 /** What a rule is told at a choice: the turn, the floor distance to an order, the draws, and the service (only the search reads it). @typedef {{ t?: number, reach?: (order: Order) => number, rng?: object, state?: Service }} RuleContext */
 
@@ -62,7 +62,8 @@
  *   orders: number, onTime: number, late: number, missed: number, meanServe: number, p90Serve: number, maxServe: number,
  *   maxLate: number, moves: number, waits: number, servedByHuman: number, burnt?: number, peakOpen?: number, peakAt?: number,
  *   useBoard?: number, useStove?: number, usePass?: number, useCounter?: number, waitBoard?: number, waitStove?: number,
- *   waitPass?: number, waitCounter?: number, tables?: number, tablesOnTime?: number, died?: number, maxPass?: number, refused?: number, maxSendLate?: number, gone?: number, meanCourierWait?: number,
+ *   waitPass?: number, waitCounter?: number, idleBoard?: number, idleStove?: number, idlePass?: number, idleCounter?: number,
+ *   servedByCook: number[], cameBySlice: number[], servedBySlice: number[], tables?: number, tablesOnTime?: number, died?: number, maxPass?: number, refused?: number, maxSendLate?: number, gone?: number, meanCourierWait?: number,
  *   maxCourierWait?: number, maxDishWait?: number,
  *   outAt?: Record<string, number>,
  * }} Measures

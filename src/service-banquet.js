@@ -9,7 +9,7 @@
  * `covers`, each course sent up to `spread` turns before or after its turn. The figures are hypotheses, not sources:
  * six guests, a salad at turn 70, a soup at turn 130, ten turns either way, five of slack, sixty warm. At eight guests
  * and thirty turns warm, no kitchen could send a course: one dish a trip, the first ones died before the last came
- * (docs/modele.md).
+ * (docs/metiers.md).
  */
 export const BANQUET = Object.freeze({
   covers: 6,

@@ -55,7 +55,7 @@ ${gainsHtml(project)}
         <h2>Les versions</h2>
 ${project.versions.map(versionHtml).join("\n")}
       </section>
-      <p class="hint">Le détail de chaque version, ses chiffres et ses erreurs corrigées, est dans <code>docs/modele.md</code> du dépôt ${project.repo}.</p>
+      <p class="hint">Le détail de chaque version, ses chiffres et ses erreurs corrigées, est dans <code>docs/modele.md</code> et <code>docs/metiers.md</code> du dépôt ${project.repo}.</p>
     </main>
   </body>
 </html>

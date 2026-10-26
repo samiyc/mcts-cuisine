@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import { KITCHENS } from "../src/kitchens.js";
 import { HUMANS, RULES, compareRules } from "../src/rules.js";
 import { searchRule } from "../src/search.js";
-import { bottleneckOf } from "../src/service-measures.js";
+import { SLICE, bottleneckOf } from "../src/service-measures.js";
 import { cloneService, createService, drawOrders, isOver, measuresOf, runService, stepService } from "../src/simulate.js";
 
 /** The restaurants' indicators (step 0 of docs/recherche/feuille-de-route.md): counted, deciding nothing. */
@@ -54,5 +54,22 @@ describe("the indicators of a service (src/service-measures.js)", () => {
       assert.ok(neck.use.share > 0 && neck.use.share <= 1);
       assert.ok(neck.wait.turns >= 0);
     }
+  });
+  it("counts each cook's dishes, the service's curve by slices, and the stations claimed with nobody at work", () => {
+    for (const id of ["petite", "separee", "brigade"]) {
+      const { state, measures } = runService(KITCHENS[id], 1, RULES.quickest, HUMANS.urgent);
+      const sum = (values) => values.reduce((total, value) => total + value, 0);
+      assert.equal(measures.servedByCook.length, state.cooks.length);
+      assert.equal(sum(measures.servedByCook), state.log.filter((event) => event.type === "served" || event.type === "passed").length);
+      assert.equal(measures.servedByCook[state.cooks.findIndex((cook) => cook.kind === "human")], measures.servedByHuman);
+      assert.equal(measures.cameBySlice.length, Math.ceil(state.setup.service / SLICE));
+      assert.equal(sum(measures.cameBySlice), measures.orders);
+      assert.equal(sum(measures.servedBySlice), measures.onTime + measures.late);
+      assert.ok(measures.idleStove >= 0 && measures.idleBoard >= 0);
+    }
+    // A station is at work or claimed idle, never both in a turn.
+    const { state } = runService(KITCHENS.brigade, 1, RULES.quickest, HUMANS.urgent);
+    assert.ok(state.tally.idle.size > 0);
+    for (const [key, turns] of state.tally.idle) assert.ok(turns + (state.tally.busy.get(key) ?? 0) <= state.tally.turns);
   });
 });

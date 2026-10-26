@@ -35,7 +35,7 @@ const DONE = new Set(["passed", "served", "refused", "gone"]);
  * « Faire marcher » (step 1 of the trades' roadmap): a dish is fired when its table-mates still to finish need no more
  * than its own work and `HOLD` turns: it then reaches the pass with them. A soup ready on a stove is always taken off.
  * Counting the free hands as well (who will make the mates, and when) was measured on 26/10 and changed nothing (+0.1
- * dish in time on average, docs/modele.md): the simpler rule stays.
+ * dish in time on average, docs/metiers.md): the simpler rule stays.
  */
 function fires(state, order) {
   if (!order.table || order.status === "ready") return true;
@@ -106,7 +106,7 @@ export const HUMAN_LABELS = Object.freeze({ nearest: "prend le plus proche", urg
 
 const mean = (values) => values.reduce((sum, value) => sum + value, 0) / values.length;
 // The indicators of step 0 (26/10, docs/recherche/indicateurs.md) after the first ones: means over the services, maxima included.
-const MEASURES = ["orders", "onTime", "late", "missed", "meanServe", "waits", "burnt", "p90Serve", "maxServe", "maxLate", "peakOpen", "servedByHuman", "useBoard", "useStove", "usePass", "useCounter", "waitBoard", "waitStove", "waitPass", "waitCounter", "tables", "tablesOnTime", "died", "maxPass", "refused", "maxSendLate", "gone", "meanCourierWait", "maxCourierWait", "maxDishWait"];
+const MEASURES = ["orders", "onTime", "late", "missed", "meanServe", "waits", "burnt", "p90Serve", "maxServe", "maxLate", "peakOpen", "servedByHuman", "useBoard", "useStove", "usePass", "useCounter", "waitBoard", "waitStove", "waitPass", "waitCounter", "idleBoard", "idleStove", "idlePass", "idleCounter", "tables", "tablesOnTime", "died", "maxPass", "refused", "maxSendLate", "gone", "meanCourierWait", "maxCourierWait", "maxDishWait"];
 
 /**
  * The robots' rules on the same `services` services of `setup`, with the human `humanName` (or none): each

@@ -25,9 +25,10 @@ ajoutera pour comparer les règles et la recherche. Les sources sont dans [briga
 
 Comptés depuis le 26/10 (étape 0, `src/service-measures.js`) : le temps de bon au 9e décile et au maximum
 (`p90Serve`, `maxServe`), le retard maximal (`maxLate`), le coup de feu (`peakOpen`, `peakAt`), l'utilisation et
-l'attente par sorte de poste (`useBoard`… `waitPass`…), les plats du cuisinier humain (`servedByHuman`). Restent à
-compter : les bons par tranche de tours (une courbe), les plats par robot, et le temps où un poste est réservé sans
-travailler.
+l'attente par sorte de poste (`useBoard`… `waitPass`…), les plats du cuisinier humain (`servedByHuman`). Le soir
+même : les commandes venues et servies par tranche de 25 tours (`cameBySlice`, `servedBySlice`, la courbe du
+service), les plats tendus par chaque cuisinier (`servedByCook`, la dernière main seulement), et les tours où un poste
+est réservé par un cuisinier encore en chemin, personne n'y travaillant (`idleBoard`… `idleCounter`).
 
 ## Le banquet
 

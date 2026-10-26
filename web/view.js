@@ -206,7 +206,8 @@ export function ordersOf(state) {
 
 /**
  * The end of a service, in words (step 0 of the trades' roadmap, 26/10): the longest ticket, the rush, the dishes the
- * cook served, the bottleneck, then the dishes not served and the mean ticket time.
+ * cook served, each cook's dishes, the bottleneck and the station claimed idle the most, then the dishes not served
+ * and the mean ticket time.
  */
 function endOf(state, measures) {
   const neck = bottleneckOf(measures);
@@ -215,7 +216,11 @@ function endOf(state, measures) {
   const busiest = neck ? [`poste le plus occupé : ${neck.use.word} (${Math.round(100 * neck.use.share)} % des tours)`] : [];
   const tables = measures.tables === undefined ? [] : [`${measures.tablesOnTime} tables sur ${measures.tables} parties à temps`, `${measures.died} plats morts au passe`];
   const refused = measures.refused === undefined ? [] : [`${measures.refused} commandes refusées (rupture)`];
-  return [`bon le plus long : ${measures.maxServe} tours`, ...rush, ...tables, ...refused, ...human, ...busiest, `${measures.missed} pas servies`, `${Math.round(measures.meanServe)} tours en moyenne de la commande à la table`];
+  const idle = neck?.idle.turns ? [`réservé sans travailler : ${neck.idle.word}, ${neck.idle.turns} tours`] : [];
+  const nameOf = (cook) => (cook.kind === "human" ? "le cuisinier" : `robot ${cook.id}`);
+  const dishes = state.cooks.map((cook, i) => `${nameOf(cook)} ${measures.servedByCook[i]}`);
+  const byCook = ["plats par cuisinier : " + dishes.join(", ")];
+  return [`bon le plus long : ${measures.maxServe} tours`, ...rush, ...tables, ...refused, ...human, ...byCook, ...busiest, ...idle, `${measures.missed} pas servies`, `${Math.round(measures.meanServe)} tours en moyenne de la commande à la table`];
 }
 
 /** The service in one line. */

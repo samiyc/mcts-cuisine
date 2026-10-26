@@ -26,10 +26,10 @@ Ses choix :
 | Étape | État | Où |
 |---|---|---|
 | Avant : l'outillage, la page en onglets | **fait** | `docs/outillage.md` |
-| 0 : les indicateurs | **fait** ; reste : les bons par tranche, les plats par robot, le temps réservé sans travailler | `src/service-measures.js` |
+| 0 : les indicateurs | **fait**, avec (26/10, le soir) la courbe du service, les plats par cuisinier, le temps réservé sans travailler | `src/service-measures.js` |
 | 1 : la brigade | **en partie** : les tables, le passe à durée limitée, la rupture et la règle « la table » sont faits (réglages éteints par défaut) ; l'humain « qui suit sa table » (il aide dans cinq cuisines sur sept) ; compter les mains, mesuré, sans effet ; la recherche qui attend fait enfin avancer les tables (premier essai : 3,9 tables sur 8 à temps dans le grand détour) ; reste : l'aboyeur, la mise en place (reportée) | `src/service-tables.js`, `src/service-supply.js` |
 | Hors étape : marcher plus vite, deux passes | **fait** (Sami, 26/10) : 2 cases par tour par défaut, aucune superposition | `src/service-legs.js`, `src/kitchens.js` |
-| Les mesures de nuit, refaites | **faites** (26/10) : la recherche bat toutes les règles dans les sept cuisines ; elle fait avancer les tables (sauf dans le grand détour, où la règle de la table la bat) et la livraison ; au banquet, elle ne voyait pas l'heure d'envoi, corrigé et remesuré | `night.json`, `docs/modele.md` |
+| Les mesures de nuit, refaites | **faites** (26/10) : la recherche bat toutes les règles dans les sept cuisines ; elle fait avancer les tables (sauf dans le grand détour, où la règle de la table la bat) et la livraison ; au banquet, elle ne voyait pas l'heure d'envoi, corrigé et remesuré | `night.json`, `docs/metiers.md` |
 | 2 : le banquet | **fait** (26/10) : commandes connues, envois à l'heure, étuve, règle du rétroplanning ; la recherche sait attendre ; reste : la coupe en série, un humain « qui suit le plan » | `src/service-banquet.js` |
 | 3 : la livraison | **fait** (26/10) : un coursier par commande, son heure cachée, il repart sans le plat ; la recherche, qui imagine les coursiers, perd moins de commandes que toutes les règles ; reste : le poste d'emballage, deux enseignes | `src/service-delivery.js` |
 | 4 : plus tard | la plonge, les allergènes, la fatigue, les menus en plusieurs temps | — |
@@ -47,7 +47,8 @@ Faits dans la foulée de ces recherches (26/10) :
 ## Étape 0 : les indicateurs (faite le 26/10, `src/service-measures.js`)
 
 Ce qu'ils ont montré, dans [modele.md](../modele.md) : aucun poste n'est saturé ; on attend la case unique du passe,
-et, dans la cuisine coupée en deux, des fourneaux réservés par des cuisiniers encore loin.
+et, dans la cuisine coupée en deux, de longues attentes aux fourneaux (ce n'est pas, mesuré le soir même, qu'ils soient
+réservés à vide).
 
 D'après [indicateurs.md](indicateurs.md), compter sans rien décider :
 - le temps de bon au 9e décile et au maximum, le retard maximal ;
@@ -65,7 +66,7 @@ Les choix de Sami (26/10) : une table est un groupe de commandes ; un plat atten
 refait ; une caisse vide fait refuser les commandes ; la mise en place attend les robots en avance. Faits :
 `src/service-tables.js`, `src/service-supply.js`, la règle « la table ». **À trancher** : avec l'échelle de temps
 d'aujourd'hui (une case de marche vaut une minute de coupe), presque aucune table ne part à temps ; voir
-[modele.md](../modele.md), « Les tables, le passe et la rupture ».
+[metiers.md](../metiers.md), « Les tables, le passe et la rupture ».
 
 D'après [brigade-service.md](brigade-service.md) :
 - **les tables** : une commande de deux ou trois plats, servie quand tous sont au passe ; le temps de bon est
@@ -81,7 +82,7 @@ D'après [brigade-service.md](brigade-service.md) :
 - les mesures : les tables servies à temps, le temps de table maximal, les plats perdus au passe, les commandes
   manquées par rupture.
 
-## Étape 2 : le traiteur (le banquet fait le 26/10, `src/service-banquet.js` ; voir modele.md, « Le banquet »)
+## Étape 2 : le traiteur (le banquet fait le 26/10, `src/service-banquet.js` ; voir metiers.md, « Le banquet »)
 
 D'après [traiteur.md](traiteur.md) :
 - **un banquet** : N couverts connus d'avance, deux ou trois envois à heure fixe (l'entrée, le plat) ;

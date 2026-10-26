@@ -21,7 +21,7 @@ export const UNATTENDED = Object.freeze({ burn: 6, clean: 5 });
 
 /**
  * The pace, in every kitchen (Sami, 26/10/2026: walk faster, as long as nobody overlaps; service-legs.js): two cells a
- * turn. At one, a cell walked was worth a turn of cutting and the walking bound the whole kitchen (docs/modele.md);
+ * turn. At one, a cell walked was worth a turn of cutting and the walking bound the whole kitchen (docs/metiers.md);
  * at three or four, nearly every dish goes out in time and nothing is left to tell the rules apart.
  */
 export const PACE = 2;

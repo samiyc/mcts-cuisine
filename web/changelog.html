@@ -16,7 +16,7 @@
     <main class="changelog">
       <section>
         <h2>Ce que gagne la recherche (ISMCTS)</h2>
-        <p class="hint">Plats servis à temps par service, 50 services par cuisine, mêmes services pour tous ; le cuisinier « au hasard », la cuisson sans surveillance, deux cases par tour, deux passes (les réglages par défaut). Les mesures de nuit du 26/10, jouées par l'ordonnanceur commun (mcts-backlog, night.json) ; avec les autres cuisiniers simulés et sans humain, la recherche gagne aussi partout (docs/modele.md).</p>
+        <p class="hint">Plats servis à temps par service, 50 services par cuisine, mêmes services pour tous ; le cuisinier « au hasard », la cuisson sans surveillance, deux cases par tour, deux passes (les réglages par défaut). Les mesures de nuit du 26/10, jouées par l'ordonnanceur commun (mcts-backlog, night.json) ; avec les autres cuisiniers simulés et sans humain, la recherche gagne aussi partout (docs/metiers.md).</p>
         <div class="scroll"><table>
           <thead><tr><th>Cuisine</th><th class="num">la plus ancienne</th><th class="num">le plat le plus rapide</th><th class="num">recherche</th><th class="num">écart sur la meilleure règle</th></tr></thead>
           <tbody>
@@ -34,14 +34,17 @@
         <h2>Les versions</h2>
 
       <article class="version">
-        <h3><span class="tag">0.16</span> Le cuisinier qui suit sa table, la recherche qui attend <span class="date">26/10</span></h3>
+        <h3><span class="tag">0.16</span> Le cuisinier qui suit sa table, la recherche qui attend, les derniers indicateurs <span class="date">26/10</span></h3>
         <ul>
           <li>Un quatrième cuisinier simulé, « suit sa table » : la table la plus ancienne, son plat le plus long d'abord ; au banquet, il ne lance pas un plat qui mourrait au chaud. Proposé seulement quand le service a des tables (ou un banquet, des coursiers), et imaginé par la recherche là seulement. Il sert plus de plats à temps dans cinq cuisines sur sept.</li>
           <li>Compter les mains libres dans la règle de la table : mesuré sur les sept cuisines, +0,1 plat en moyenne, donc pas gardé ; la règle simple reste.</li>
           <li>La recherche peut attendre aussi avec les tables, comme la règle de la table qui la battait dans le grand détour : premier essai, 9,6 plats à temps au lieu de 5,9 pour la règle, 3,9 tables sur 8 à temps, le meilleur résultat des tables jusqu'ici.</li>
+          <li>Au banquet, la recherche qui attend sert maintenant deux fois plus de plats à temps que la meilleure règle (petite cuisine : 9,2 contre 5,0) ; à la livraison, elle gagne un peu plus qu'avant.</li>
+          <li>Les trois derniers indicateurs de l'étape 0 : la courbe du service (les plats servis par tranche de 25 tours), les plats tendus par chaque cuisinier, et le temps où un poste est réservé par un cuisinier encore en chemin. Ils ont démenti une hypothèse : l'attente aux fourneaux de la cuisine coupée en deux ne vient pas de fourneaux réservés à vide.</li>
           <li>npm run compare -- --humain urgent : un seul cuisinier simulé, pour mesurer plus vite.</li>
+          <li>Les étapes des métiers, faites et mesurées, ont leur fichier : docs/metiers.md.</li>
         </ul>
-        <p class="commits"></p>
+        <p class="commits"><code>9b056ba</code> <code>391a04b</code></p>
       </article>
 
       <article class="version">
@@ -193,7 +196,7 @@
         <p class="commits"><code>f5d7cc1</code></p>
       </article>
       </section>
-      <p class="hint">Le détail de chaque version, ses chiffres et ses erreurs corrigées, est dans <code>docs/modele.md</code> du dépôt mcts-cuisine.</p>
+      <p class="hint">Le détail de chaque version, ses chiffres et ses erreurs corrigées, est dans <code>docs/modele.md</code> et <code>docs/metiers.md</code> du dépôt mcts-cuisine.</p>
     </main>
   </body>
 </html>

@@ -77,7 +77,9 @@ describe("the kitchen (src/kitchen.js, src/simulate.js)", () => {
     assert.ok(state.log.some((event) => event.type === "served"));
     assert.deepEqual(runService(KITCHENS.couloir, 3, RULES.quickest, HUMANS.random).measures, runService(KITCHENS.couloir, 3, RULES.quickest, HUMANS.random).measures);
     const nothing = { orders: 0, onTime: 0, late: 0, missed: 0, meanServe: 0, p90Serve: 0, maxServe: 0, maxLate: 0, moves: 0, waits: 0, servedByHuman: 0, burnt: 0, peakOpen: 0, peakAt: 0 };
-    assert.deepEqual(measuresOf(createService(KITCHENS.petite, [])), { ...nothing, useBoard: 0, waitBoard: 0, useStove: 0, waitStove: 0, usePass: 0, waitPass: 0 });
+    const curve = { servedByCook: [0, 0, 0], cameBySlice: [0, 0, 0, 0, 0, 0, 0, 0], servedBySlice: [0, 0, 0, 0, 0, 0, 0, 0] };
+    const stations = { useBoard: 0, waitBoard: 0, idleBoard: 0, useStove: 0, waitStove: 0, idleStove: 0, usePass: 0, waitPass: 0, idlePass: 0 };
+    assert.deepEqual(measuresOf(createService(KITCHENS.petite, [])), { ...nothing, ...curve, ...stations });
   });
 
   it("gives robots roles: the cutter puts cut onions on a counter, one batch a counter, and they are cooked and served", () => {

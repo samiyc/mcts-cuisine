@@ -31,7 +31,8 @@ function indicatorsRow(state, name, row) {
   const neck = bottleneckOf(row);
   const used = neck ? `${neck.use.word} ${Math.round(100 * neck.use.share)} %` : "—";
   const waited = neck ? `${neck.wait.word} ${fixed(neck.wait.turns)}` : "—";
-  return el("tr", { class: name === state.rule ? "current" : null }, el("td", {}, RULE_LABELS[name]), num(fixed(row.meanServe)), num(fixed(row.p90Serve)), num(fixed(row.maxServe)), num(fixed(row.maxLate)), num(fixed(row.peakOpen)), num(used), num(waited));
+  const idle = neck ? `${neck.idle.word} ${fixed(neck.idle.turns)}` : "—";
+  return el("tr", { class: name === state.rule ? "current" : null }, el("td", {}, RULE_LABELS[name]), num(fixed(row.meanServe)), num(fixed(row.p90Serve)), num(fixed(row.maxServe)), num(fixed(row.maxLate)), num(fixed(row.peakOpen)), num(used), num(waited), num(idle));
 }
 
 export function statsView({ state }) {
@@ -43,8 +44,8 @@ export function statsView({ state }) {
     el("h2", {}, `Sur les mêmes ${services} services, le cuisinier ${HUMAN_LABELS[state.human]}`),
     table(["Les robots prennent", "commandes", "à temps", "en retard", "pas servies", "gain à temps (IC 95 %)"], entries.map(([name, row]) => dishesRow(state, name, row))),
     el("h3", {}, "Les indicateurs du métier (moyennes par service, en tours)"),
-    el("p", { class: "hint" }, "Le bon : de la commande au passe. Le coup de feu : le plus de bons ouverts à la fois. Le poste le plus occupé : la part des tours où le plus chargé de sa sorte travaille ; l'attente : les tours passés à attendre qu'un poste de cette sorte se libère (docs/recherche/indicateurs.md)."),
-    table(["Les robots prennent", "bon moyen", "bon p90", "bon max", "retard max", "coup de feu", "poste le plus occupé", "le plus attendu"], entries.map(([name, row]) => indicatorsRow(state, name, row))),
+    el("p", { class: "hint" }, "Le bon : de la commande au passe. Le coup de feu : le plus de bons ouverts à la fois. Le poste le plus occupé : la part des tours où le plus chargé de sa sorte travaille ; l'attente : les tours passés à attendre qu'un poste de cette sorte se libère ; réservé sans travailler : les tours où un poste de cette sorte est retenu par un cuisinier encore en chemin (docs/recherche/indicateurs.md)."),
+    table(["Les robots prennent", "bon moyen", "bon p90", "bon max", "retard max", "coup de feu", "poste le plus occupé", "le plus attendu", "réservé sans travailler"], entries.map(([name, row]) => indicatorsRow(state, name, row))),
     ...(entries[0][1].tables === undefined ? [] : tablesPart(state, entries)),
     ...(entries[0][1].refused === undefined ? [] : rupturePart(state, entries)),
   ];
