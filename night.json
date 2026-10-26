@@ -1,5 +1,5 @@
 {
-  "about": "Les mesures de nuit de la cuisine (Sami, 23/10/2026 ; refaites le 26/10 : deux cases par tour, deux cases de passe) : la recherche contre les règles, aux réglages par défaut, 50 services par cuisine et par humain simulé ; puis, 30 services, les tables et la rupture (étape 1 de la feuille de route des métiers) et le banquet (étape 2). Un fil chacune : mcts-backlog --add-file mcts-cuisine/night.json, puis mcts-backlog.",
+  "about": "Les mesures de nuit de la cuisine (Sami, 23/10/2026 ; refaites le 26/10 : deux cases par tour, deux cases de passe) : la recherche contre les règles, aux réglages par défaut, 50 services par cuisine et par humain simulé ; puis, 30 services, les tables et la rupture (étape 1 de la feuille de route des métiers) le banquet (étape 2) et la livraison (étape 3). Un fil chacune : mcts-backlog --add-file mcts-cuisine/night.json, puis mcts-backlog.",
   "jobs": [
     { "id": "cuis-petite", "command": "npm run compare -- --kitchen petite --services 50 --search", "estimate": "15 min" },
     { "id": "cuis-couloir", "command": "npm run compare -- --kitchen couloir --services 50 --search", "estimate": "10 min" },
@@ -17,6 +17,11 @@
     { "id": "cuis-banquet-comptoirs", "command": "npm run compare -- --kitchen comptoirs --services 30 --banquet --search", "estimate": "10 min" },
     { "id": "cuis-banquet-postes", "command": "npm run compare -- --kitchen postes --services 30 --banquet --search", "estimate": "10 min" },
     { "id": "cuis-banquet-detour", "command": "npm run compare -- --kitchen detour --services 30 --banquet --search", "estimate": "15 min" },
-    { "id": "cuis-banquet-brigade", "command": "npm run compare -- --kitchen brigade --services 30 --banquet --search", "estimate": "40 min", "limit": 150 }
+    { "id": "cuis-banquet-brigade", "command": "npm run compare -- --kitchen brigade --services 30 --banquet --search", "estimate": "40 min", "limit": 150 },
+    { "id": "cuis-livraison-petite", "command": "npm run compare -- --kitchen petite --services 30 --livraison --search", "estimate": "15 min" },
+    { "id": "cuis-livraison-comptoirs", "command": "npm run compare -- --kitchen comptoirs --services 30 --livraison --search", "estimate": "15 min" },
+    { "id": "cuis-livraison-postes", "command": "npm run compare -- --kitchen postes --services 30 --livraison --search", "estimate": "15 min" },
+    { "id": "cuis-livraison-detour", "command": "npm run compare -- --kitchen detour --services 30 --livraison --search", "estimate": "15 min" },
+    { "id": "cuis-livraison-brigade", "command": "npm run compare -- --kitchen brigade --services 30 --livraison --search", "estimate": "45 min", "limit": 150 }
   ]
 }
