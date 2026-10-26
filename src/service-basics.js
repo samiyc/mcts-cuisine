@@ -41,12 +41,13 @@ export function placeOf(order) {
   return null;
 }
 
-/** What each role takes among the orders not ready to serve. The pass's robot takes only what is ready. */
+/** What each role takes among the orders not ready to serve. The pass's robot and the aboyeur take only what is ready. */
 const ROLE_FITS = Object.freeze({
   coupe: (order, cooked) => order.status === "open" && cooked,
   cuisson: (order) => order.status === "prepped",
   salade: (order, cooked) => order.status === "open" && !cooked,
   passe: () => false,
+  aboyeur: () => false,
 });
 
 /** Does order `order` (open, prepped on a counter, ready on a stove) belong to role `role`? Any order for no role; a ready soup for everyone, before it burns. */

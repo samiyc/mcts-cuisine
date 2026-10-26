@@ -1,6 +1,7 @@
 import { distancesFrom } from "./kitchen.js";
 import { RECIPES } from "./kitchens.js";
 import { PILE, fitsRole, keyOf, kindDistance, placeOf, servable, sideDistance, stepsFrom, stoveFree } from "./service-basics.js";
+import { toldBy } from "./service-aboyeur.js";
 import { paceOf, stepAside, watch } from "./service-legs.js";
 import { useSupply } from "./service-supply.js";
 
@@ -11,6 +12,12 @@ import { useSupply } from "./service-supply.js";
 
 /** A dish in the making somewhere (in a cook's hands once fetched, on a counter, on a stove): the pass's robot waits for it. */
 const dishOnItsWay = (state, cook) => state.pots.size > 0 || state.shelf.size > 0 || state.cooks.some((other) => other !== cook && other.order && other.step > 0);
+
+/**
+ * A cooking robot watches the stoves while a pot is on, the pass's robot the pass while a dish is on its way: they help
+ * elsewhere only when there is nothing to watch. The aboyeur never leaves the pass (service-aboyeur.js).
+ */
+const watching = (state, cook) => cook.role === "aboyeur" || (cook.role === "cuisson" && state.pots.size > 0) || (cook.role === "passe" && dishOnItsWay(state, cook));
 
 /**
  * A soup ready on a stove: only if the cook gets there before it burns; the keyboard chef's own, left to him
@@ -45,9 +52,8 @@ export function choiceOf(state, cook) {
   // Cut onions piling up on the counters (two or more): the stove is behind, any robot gives a hand.
   const pile = all.filter((order) => order.status === "prepped");
   const mine = all.filter((order) => fitsRole(cook.role, order) || (pile.length >= PILE && order.status === "prepped"));
-  // A cooking robot watches the stoves while a pot is on: it helps elsewhere only when none is.
-  const watching = (cook.role === "cuisson" && state.pots.size > 0) || (cook.role === "passe" && dishOnItsWay(state, cook));
-  const open = mine.length > 0 || watching ? mine : all;
+  // With an aboyeur, a robot makes what he fired and calls for (service-aboyeur.js).
+  const open = toldBy(state, cook, mine.length > 0 || watching(state, cook) ? mine : all);
   // A cook whose pot is on keeps an eye on it: a soup to take off, or an order it cuts before its own is ready.
   const own = [...state.pots.values()].find((pot) => pot.owner === cook.id && state.t < pot.ready);
   if (own) return { cook, open: open.filter((order) => order.status === "ready" || (order.status === "open" && walk(order) + 1 + RECIPES[order.recipe].cut + 2 <= own.ready - state.t)), reach };

@@ -17,7 +17,7 @@ function stageOf(order, step) {
   if (step?.type === "cut") return "whole";
   return order.cooked || RECIPES[order.recipe].cook === 0 || READY_STEPS.has(step?.type) ? "ready" : "cut";
 }
-const ROLE_LABELS = Object.freeze({ coupe: "coupe", cuisson: "cuisson", salade: "salades", passe: "passe" });
+const ROLE_LABELS = Object.freeze({ coupe: "coupe", cuisson: "cuisson", salade: "salades", passe: "passe", aboyeur: "aboyeur" });
 const plural = (count, word) => `${count} ${word}${count > 1 ? "s" : ""}`;
 
 /** The progress of every busy board or stove, by "x,y": a cook's gesture, or a pot cooking alone. */

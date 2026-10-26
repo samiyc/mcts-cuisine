@@ -64,7 +64,7 @@
  *   useBoard?: number, useStove?: number, usePass?: number, useCounter?: number, waitBoard?: number, waitStove?: number,
  *   waitPass?: number, waitCounter?: number, idleBoard?: number, idleStove?: number, idlePass?: number, idleCounter?: number,
  *   servedByCook: number[], cameBySlice: number[], servedBySlice: number[], tables?: number, tablesOnTime?: number, died?: number, maxPass?: number, refused?: number, maxSendLate?: number, gone?: number, meanCourierWait?: number,
- *   maxCourierWait?: number, maxDishWait?: number,
+ *   maxCourierWait?: number, maxDishWait?: number, ahead?: number, aheadUsed?: number, aheadLeft?: number,
  *   outAt?: Record<string, number>,
  * }} Measures
  */

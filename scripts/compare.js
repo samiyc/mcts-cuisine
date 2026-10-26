@@ -1,14 +1,16 @@
+import { readKitchen } from "../src/kitchen.js";
 import { KITCHENS } from "../src/kitchens.js";
 import { HUMAN_LABELS, RULE_LABELS, RULES, compareRules, humansOf } from "../src/rules.js";
 import { searchRule } from "../src/search.js";
 import { bottleneckOf } from "../src/service-measures.js";
 import { BANQUET } from "../src/service-banquet.js";
 import { DELIVERY } from "../src/service-delivery.js";
+import { MISE } from "../src/service-mise.js";
 import { SUPPLY } from "../src/service-supply.js";
 import { TABLES } from "../src/service-tables.js";
 
 /**
- * `npm run compare -- [--kitchen petite|couloir|brigade] [--services 100] [--search [budget]] [--tables] [--rupture [n]] [--banquet] [--livraison] [--humain urgent]`: the
+ * `npm run compare -- [--kitchen petite|couloir|brigade] [--services 100] [--search [budget]] [--tables] [--rupture [n]] [--banquet] [--livraison] [--mise-en-place] [--aboyeur] [--humain urgent]`: the
  * robots' rules on the same drawn services, with each simulated human the service may have (src/rules.js, `humansOf`)
  * and with none, or only `--humain` (a name of HUMANS, or none); every kitchen when none is named.
  * `--search` adds the search (src/search.js, ~1 to 3 s a service). Since step 0 of the trades' roadmap (26/10), each
@@ -35,6 +37,13 @@ const tables = args.includes("--tables");
 const banquet = args.includes("--banquet");
 // `--livraison`: every order is delivered by a courier (service-delivery.js).
 const delivery = args.includes("--livraison");
+// `--mise-en-place`: free robots prepare soups ahead (service-mise.js); `--aboyeur`: the last robot is the aboyeur (service-aboyeur.js).
+const mise = args.includes("--mise-en-place");
+const aboyeur = args.includes("--aboyeur");
+function withAboyeur(setup) {
+  const robots = readKitchen(setup.text).robots.length;
+  return { ...setup, roles: Array.from({ length: robots }, (_, i) => (i === robots - 1 ? "aboyeur" : (setup.roles?.[i] ?? null))) };
+}
 const fixed = (value, digits = 1) => value.toFixed(digits).replace(".", ",");
 const gainOf = (name, row) => (name === "oldest" ? "—" : `${fixed(row.gain.mean, 2)} (${fixed(row.gain.low, 2)} à ${fixed(row.gain.high, 2)})`);
 /** The bottleneck in words: the kind most at work (its busiest station's share of the turns), the one waited for most. */
@@ -44,7 +53,8 @@ function bottleneckText(row) {
 }
 const HEAD = "L'humain              | Règle des robots         | commandes | à temps | en retard | manquées | gain à temps (IC 95 %) | bon p90 | bon max | pic | goulot";
 for (const id of named) {
-  const setup = { ...KITCHENS[id], ...(tables ? { tables: TABLES } : {}), ...(rupture ? { supply: { o: rupture, t: rupture } } : {}), ...(banquet ? { banquet: BANQUET } : {}), ...(delivery ? { delivery: DELIVERY } : {}) };
+  const setup = { ...KITCHENS[id], ...(tables ? { tables: TABLES } : {}), ...(rupture ? { supply: { o: rupture, t: rupture } } : {}), ...(banquet ? { banquet: BANQUET } : {}), ...(delivery ? { delivery: DELIVERY } : {}), ...(mise ? { miseEnPlace: MISE } : {}) };
+  if (aboyeur) Object.assign(setup, withAboyeur(setup));
   if (!KITCHENS[id]) throw new Error(`cuisine inconnue ; au choix : ${Object.keys(KITCHENS).join(", ")}`);
   console.log(`\n${setup.label} : ${services} services`);
   console.log(HEAD);

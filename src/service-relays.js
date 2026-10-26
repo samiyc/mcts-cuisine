@@ -26,7 +26,7 @@ function relayable(state, cook, step) {
  * The robots that may take the dish up from a counter (the human is not commanded): a free robot, or the pass's robot
  * for a dish to serve, even busy (it comes once done); any robot when the relay is forced.
  */
-const takersOf = (state, cook, step, forced) => state.cooks.filter((other) => other !== cook && other.kind === "robot" && (forced || (other.phase === "idle" && !other.order) || (other.role === "passe" && step.type === "serve")));
+const takersOf = (state, cook, step, forced) => state.cooks.filter((other) => other !== cook && other.kind === "robot" && (forced || (other.phase === "idle" && !other.order) || ((other.role === "passe" || other.role === "aboyeur") && step.type === "serve")));
 
 /**
  * How soon the dish gets to its next station through `counter` (`there` turns away, the station `ahead` beyond it)

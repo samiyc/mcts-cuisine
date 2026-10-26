@@ -41,12 +41,11 @@ point dit où il se rangera.
 
 ## Annoncés, pas encore faits
 
-- **L'aboyeur qui réclame** ([brigade-service.md](brigade-service.md)) : le rôle `passe` en est l'ébauche. La réclame
-  en règle (le plat dont les voisins attendent au passe d'abord) est mesurée le 26/10 : rien. Reste l'aboyeur en rôle,
-  un robot au passe qui annonce et réclame aux autres. Rangé : étape 1.
-- **La mise en place** : reportée par Sami (26/10) ; c'est le chantier des robots en avance (`docs/modele.md`, « La
-  suite » 3) : une nouvelle décision pour les règles et la recherche (quoi préparer, combien), et trois cuisines sans
-  comptoir pour la poser. Rangé : une étape à part, après les tables et la rupture.
+- **La mise en place, une décision** : faite le 26/10 comme une habitude fixe (un robot sans commande coupe une soupe
+  d'avance) ; quoi préparer et combien n'est pas encore un choix des règles ni de la recherche. Les trois cuisines sans
+  comptoir n'en ont pas. Rangé : les robots en avance (`docs/modele.md`, « La suite » 3).
+- **L'aboyeur sans comptoir** : dans la grande brigade, personne ne lui apporte de plat ; il faudrait qu'on lui tende
+  le plat au passe (un relais par le passe). Et un humain qui lui obéit. Rangé : étape 1.
 - **Les humains simulés ignorent la rupture** : l'humain « qui suit sa table » est fait (26/10) ; aucun ne regarde
   le stock. Rangé : étape 1.
 - **La recherche sur les tables et la rupture** : son évaluation compte les plats à temps ; avec les tables, c'est la
@@ -69,3 +68,4 @@ Les oublis réglés quittent cette liste et vont dans [modele.md](../modele.md) 
 - **La recherche qui attend**, au banquet, à la livraison et avec les tables (26/10).
 - **Les trois derniers indicateurs de l'étape 0** (26/10) : la courbe du service, les plats par cuisinier, le temps
   réservé sans travailler.
+- **L'aboyeur et la mise en place** (26/10, le soir) : faits, éteints par défaut, mesurés (`docs/metiers.md`).

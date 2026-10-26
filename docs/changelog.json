@@ -65,6 +65,17 @@
   ],
   "versions": [
     {
+      "version": "0.17",
+      "title": "L'aboyeur et la mise en place",
+      "date": "26/10",
+      "items": [
+        "L'aboyeur, un rôle de robot : il tient le passe, fait marcher les plats des tables et réclame celui qui manque quand ses voisins attendent déjà au passe ; les autres robots ne font que ce qu'il annonce. Mesuré : presque rien de gagné avec les tables, une perte au banquet ; sans comptoir, personne ne lui apporte de plat.",
+        "La mise en place : un robot sans commande coupe d'avance les oignons d'une soupe et les pose sur un comptoir, deux au plus ; la commande suivante les reprend. +1,4 plat à temps dans la cuisine coupée en deux, rien ailleurs ; préparer des salades d'avance bouchait les comptoirs de relais. Éteinte par défaut, dans l'onglet Cuisine.",
+        "npm run compare -- --aboyeur --mise-en-place."
+      ],
+      "commits": []
+    },
+    {
       "version": "0.16",
       "title": "Le cuisinier qui suit sa table, la recherche qui attend, les derniers indicateurs",
       "date": "26/10",
@@ -79,7 +90,9 @@
       ],
       "commits": [
         "9b056ba",
-        "391a04b"
+        "391a04b",
+        "153245c",
+        "f120cfc"
       ]
     },
     {

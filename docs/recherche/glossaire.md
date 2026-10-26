@@ -17,7 +17,7 @@ La brigade de cuisine est l'organisation hiérarchique attribuée à Escoffier :
 | **Commis** | aide un chef de partie : mise en place, cuisson, nettoyage ; un ou deux par partie ([lesiteduchef][siteduchef]) | — |
 | **Tournant** | remplace les chefs de partie absents, passe d'un poste à l'autre | le robot sans rôle, qui fait des plats entiers |
 | **Plongeur** (la plonge) | lave la batterie et la vaisselle | — (étape 4, « plus tard ») |
-| **Aboyeur** (*expo*, *expediter*) | entre la salle et la cuisine pendant le service : il annonce les bons, fait marcher les plats, les réclame, contrôle avant l'envoi ; souvent le chef ou le second ([lesiteduchef][siteduchef]) | le rôle `passe` en est l'ébauche : il ne fait que servir ce qui est prêt |
+| **Aboyeur** (*expo*, *expediter*) | entre la salle et la cuisine pendant le service : il annonce les bons, fait marcher les plats, les réclame, contrôle avant l'envoi ; souvent le chef ou le second ([lesiteduchef][siteduchef]) | le rôle `aboyeur` (`src/service-aboyeur.js`, 26/10) : au passe, il fait marcher les plats des tables et réclame celui qui manque ; les autres robots font ce qu'il annonce |
 
 Les sources ne s'accordent pas toutes : Wikipedia fait prendre les commandes de la salle à l'aboyeur, qui les
 distribue aux postes ; une autre source le confond avec le serveur, ce qui est une erreur (l'aboyeur est en
@@ -30,7 +30,7 @@ cuisine).
 | **Le bon** (*ticket*) | la commande d'une table, écrite par la salle, affichée ou imprimée en cuisine | une commande (`upcoming`, `arrival`, `deadline`) |
 | **Annoncer**, « **ça marche** » | l'aboyeur lit le bon à voix haute ; les parties répondent pour dire qu'elles l'ont entendu | la commande devient visible à son `arrival` |
 | **Faire marcher** (*fire*) | lancer la préparation d'un plat, au bon moment pour qu'il sorte avec les autres de la table | — : un plat se lance dès qu'un cuisinier le prend |
-| **Réclamer** | l'aboyeur demande l'envoi d'un plat dont la table attend | — |
+| **Réclamer** | l'aboyeur demande l'envoi d'un plat dont la table attend | `order.called`, l'événement `called` du journal |
 | **J'envoie**, « **envoyez** » | le plat est dressé, il part au passe | `servedAt` |
 | **Le passe** (*pass*, *window*) | le comptoir chaud où les plats attendent les serveurs | `S` dans les plans |
 | **Mourir au passe** (*dying on the pass*) | un plat resté trop longtemps au passe, qui n'est plus servable ([WebstaurantStore][webstaurant]) | — ; la soupe qui brûle sur le fourneau (`burnt`) en est l'analogue |
@@ -45,7 +45,7 @@ cuisine).
 
 | Terme | Ce que c'est | Dans le simulateur |
 |---|---|---|
-| **La mise en place** | tout ce qui est préparé et rangé au poste avant de cuisiner | — : les comptoirs (`_`) tiennent des oignons coupés, mais seulement pour une commande |
+| **La mise en place** | tout ce qui est préparé et rangé au poste avant de cuisiner | `setup.miseEnPlace` (`src/service-mise.js`, 26/10) : un robot sans commande coupe d'avance les oignons d'une soupe et les pose sur un comptoir ; la commande suivante les reprend |
 | **La fiche technique** | le document d'un plat : ses phases avec temps et températures, ses denrées, son coût par portion ([nomadeducation][nomad-fiche]) | `RECIPES` dans `src/kitchens.js` : `cut`, `cook` |
 | **L'ordonnancement** | le tableau des phases d'une production, avec leurs durées et leur ordre ([nomadeducation][nomad-fiche]) | ce que décident les règles et la recherche |
 | **Le rétroplanning** | partir de l'heure d'envoi et remonter les étapes | — (étape 2, le traiteur) |

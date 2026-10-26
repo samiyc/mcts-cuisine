@@ -3,8 +3,10 @@ import { createRng } from "mcts-commun/random.js";
 import { readKitchen } from "./kitchen.js";
 import { RECIPES } from "./kitchens.js";
 import { ask, choiceOf, take } from "./service-choice.js";
+import { callForDishes } from "./service-aboyeur.js";
 import { letGo, move, stepAside, watch } from "./service-legs.js";
 import { countTurn, createTally, measuresOf } from "./service-measures.js";
+import { prepareAhead } from "./service-mise.js";
 import { startStep } from "./service-relays.js";
 import { drawBanquet } from "./service-banquet.js";
 import { deliveryOrders } from "./service-delivery.js";
@@ -137,6 +139,7 @@ export function beginTurn(state, human) {
   finishWork(state);
   if (state.setup.unattended) watchPots(state);
   watchPass(state);
+  callForDishes(state);
   for (const order of state.upcoming) if (order.status === "upcoming" && order.arrival <= state.t) open(state, order);
   adoptStock(state);
   countTurn(state);
@@ -158,6 +161,8 @@ export function nextChoice(state) {
     if (cook.kind !== "robot" || cook.phase !== "idle") continue;
     const choice = choiceOf(state, cook);
     if (choice.open.length > 0) return choice;
+    // Nothing to take: a robot prepares ahead when the kitchen does its mise en place (service-mise.js).
+    if (prepareAhead(state, cook)) continue;
     if (!state.setup.unattended || !watch(state, cook)) stepAside(state, cook);
   }
   return null;

@@ -1,6 +1,7 @@
 import { KITCHENS } from "../../src/kitchens.js";
 import { BANQUET } from "../../src/service-banquet.js";
 import { DELIVERY } from "../../src/service-delivery.js";
+import { MISE } from "../../src/service-mise.js";
 import { SUPPLY } from "../../src/service-supply.js";
 import { TABLES } from "../../src/service-tables.js";
 import { board } from "../board.js";
@@ -13,7 +14,7 @@ import { el, select } from "../dom.js";
  */
 /** Unattended cooking's defaults in the editor (Sami, 23/10): a ready soup burns after 6 turns, a burnt stove takes 5 to clean. */
 const UNATTENDED = Object.freeze({ burn: 6, clean: 5 });
-const ROLES = ["coupe", "cuisson", "salade", "passe"];
+const ROLES = ["coupe", "cuisson", "salade", "passe", "aboyeur"];
 
 export const kitchenPanel = ({ state }) =>
   el(
@@ -30,7 +31,7 @@ const field = (label, name, value) => el("label", {}, label, el("input", { name,
 function fieldsOf(setup) {
   // What the options would be if ticked: the kitchen's own, or the defaults.
   const [cooking, tables, supply] = [{ ...UNATTENDED, ...setup.unattended }, { ...TABLES, ...setup.tables }, { ...SUPPLY, ...setup.supply }];
-  const roles = el("input", { name: "roles", value: (setup.roles ?? []).map((role) => role || "-").join(" "), placeholder: "coupe cuisson", title: "Un mot par robot, dans l'ordre du plan : coupe, cuisson, salade, passe (sert ce qui est prêt), ou - pour un robot qui fait tout" });
+  const roles = el("input", { name: "roles", value: (setup.roles ?? []).map((role) => role || "-").join(" "), placeholder: "coupe cuisson", title: "Un mot par robot, dans l'ordre du plan : coupe, cuisson, salade, passe (sert ce qui est prêt), aboyeur (au passe, il annonce les plats des tables et réclame celui qui manque ; les autres robots font ce qu'il annonce), ou - pour un robot qui fait tout" });
   return el(
     "div",
     { class: "fields" },
@@ -49,6 +50,7 @@ function fieldsOf(setup) {
     field("Oignons pour le service", "onions", supply.o),
     field("Tomates pour le service", "tomatoes", supply.t),
     el("label", { class: "check" }, el("input", { name: "delivery", type: "checkbox", checked: Boolean(setup.delivery) }), `La livraison : un coursier par commande, annoncé ${DELIVERY.prep} tours après elle, à ${DELIVERY.spread} tours près ; il attend ${DELIVERY.wait} tours`),
+    el("label", { class: "check" }, el("input", { name: "mise", type: "checkbox", checked: Boolean(setup.miseEnPlace) }), `La mise en place : un robot sans commande coupe d'avance les oignons d'une soupe et les pose sur un comptoir (${MISE.ahead} au plus)`),
     el("label", { class: "check" }, el("input", { name: "banquet", type: "checkbox", checked: Boolean(setup.banquet) }), `Un banquet : ${BANQUET.covers} couverts environ, l'entrée vers le tour ${BANQUET.courses[0].at}, le plat vers le tour ${BANQUET.courses[1].at}, ${BANQUET.pass} tours au chaud au plus`),
   );
 }
@@ -69,5 +71,6 @@ export function kitchenFrom(form, setup) {
   const supply = data.get("supply") ? { o: number("onions"), t: number("tomatoes") } : null;
   const banquet = data.get("banquet") ? BANQUET : null;
   const delivery = data.get("delivery") ? DELIVERY : null;
-  return { ...setup, label: "Cuisine modifiée", text: String(data.get("text")).trimEnd(), every: number("every"), patience: number("patience"), lastOrder: number("lastOrder"), service: number("service"), pace: number("pace"), roles, unattended, tables, supply, banquet, delivery };
+  const miseEnPlace = data.get("mise") ? MISE : null;
+  return { ...setup, label: "Cuisine modifiée", text: String(data.get("text")).trimEnd(), every: number("every"), patience: number("patience"), lastOrder: number("lastOrder"), service: number("service"), pace: number("pace"), roles, unattended, tables, supply, banquet, delivery, miseEnPlace };
 }

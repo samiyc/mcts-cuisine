@@ -1,5 +1,5 @@
 import { paired } from "mcts-commun/measure.js";
-import { RECIPES } from "./kitchens.js";
+import { fires, latestStart, tooEarly, workOf } from "./service-firing.js";
 import { passOf } from "./service-tables.js";
 import { runService } from "./simulate.js";
 
@@ -12,38 +12,6 @@ import { runService } from "./simulate.js";
  * order`: `open` the orders nobody has taken, `reach(order)` the floor distance to its ingredient's crate.
  */
 const first = (open, before) => open.reduce((best, order) => (before(order, best) ? order : best));
-/** The work left on an order: cut onions waiting on a counter have only their cooking left, a dish ready to serve (on a stove or a counter) nothing. */
-function workOf(order) {
-  const { cut, cook } = RECIPES[order.recipe];
-  if (order.status === "ready" || (order.status === "prepped" && (order.cooked || cook === 0))) return 0;
-  return order.status === "prepped" ? cook : cut + cook;
-}
-
-/** The turns of work left on `order` in `state`: a pot's cooking, a cook's steps still to do, or the dish's work. */
-function leftOf(state, order) {
-  if (order.status === "cooking") return state.pots.get(order.stove).ready - state.t + 1;
-  const cook = order.status === "taken" ? state.cooks.find((one) => one.order === order.id) : null;
-  if (!cook?.steps) return workOf(order);
-  return cook.steps.slice(cook.step).reduce((sum, step) => sum + step.turns, 0);
-}
-
-/** How much longer than its own work a dish may wait for its table-mates before it is fired (a hypothesis). */
-const HOLD = 4;
-const DONE = new Set(["passed", "served", "refused", "gone"]);
-
-/**
- * « Faire marcher » (step 1 of the trades' roadmap): a dish is fired when its table-mates still to finish need no more
- * than its own work and `HOLD` turns: it then reaches the pass with them. A soup ready on a stove is always taken off.
- * Counting the free hands as well (who will make the mates, and when), and calling first for a dish whose mates wait
- * at the pass (the aboyeur's « réclame »), were measured on 26/10 and changed nothing (+0.1 dish in time on average,
- * and about 0; docs/metiers.md): the simpler rule stays.
- */
-function fires(state, order) {
-  if (!order.table || order.status === "ready") return true;
-  const mates = state.upcoming.filter((one) => one.table === order.table && one !== order && !DONE.has(one.status));
-  return mates.every((mate) => leftOf(state, mate) <= workOf(order) + HOLD);
-}
-
 /** The older table first; in a table, the longer dish first; then the older order. */
 function tableFirst(a, b) {
   const [tableA, tableB] = [a.table ?? a.id, b.table ?? b.id];
@@ -51,13 +19,6 @@ function tableFirst(a, b) {
   if (workOf(a) !== workOf(b)) return workOf(a) > workOf(b);
   return a.arrival < b.arrival;
 }
-
-/** The turns a dish is assumed to take beyond its work: walking, a station to wait for (a hypothesis). */
-const MARGIN = 10;
-/** The turn a dish must start by to go out on time: its send turn (a banquet's) or its deadline, less its work and the margin. */
-const latestStart = (order) => (order.sendAt ?? order.deadline) - workOf(order) - MARGIN;
-/** Started now, would a banquet's dish wait warm longer than the pass allows? A soup ready on its stove is always taken off. */
-const tooEarly = (state, order) => order.sendAt !== undefined && order.status !== "ready" && state.t < latestStart(order) - (passOf(state.setup)?.pass ?? Infinity);
 
 /** @type {Readonly<Record<string, Rule>>} */
 export const RULES = Object.freeze({
@@ -107,7 +68,7 @@ export const HUMAN_LABELS = Object.freeze({ nearest: "prend le plus proche", urg
 
 const mean = (values) => values.reduce((sum, value) => sum + value, 0) / values.length;
 // The indicators of step 0 (26/10, docs/recherche/indicateurs.md) after the first ones: means over the services, maxima included.
-const MEASURES = ["orders", "onTime", "late", "missed", "meanServe", "waits", "burnt", "p90Serve", "maxServe", "maxLate", "peakOpen", "servedByHuman", "useBoard", "useStove", "usePass", "useCounter", "waitBoard", "waitStove", "waitPass", "waitCounter", "idleBoard", "idleStove", "idlePass", "idleCounter", "tables", "tablesOnTime", "died", "maxPass", "refused", "maxSendLate", "gone", "meanCourierWait", "maxCourierWait", "maxDishWait"];
+const MEASURES = ["orders", "onTime", "late", "missed", "meanServe", "waits", "burnt", "p90Serve", "maxServe", "maxLate", "peakOpen", "servedByHuman", "useBoard", "useStove", "usePass", "useCounter", "waitBoard", "waitStove", "waitPass", "waitCounter", "idleBoard", "idleStove", "idlePass", "idleCounter", "tables", "tablesOnTime", "died", "maxPass", "refused", "maxSendLate", "gone", "meanCourierWait", "maxCourierWait", "maxDishWait", "ahead", "aheadUsed", "aheadLeft"];
 
 /**
  * The robots' rules on the same `services` services of `setup`, with the human `humanName` (or none): each

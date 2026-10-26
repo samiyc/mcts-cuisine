@@ -1,6 +1,7 @@
 import { RECIPES } from "./kitchens.js";
 import { FREE, keyOf, orderOf } from "./service-basics.js";
 import { drop } from "./service-legs.js";
+import { goOn } from "./service-mise.js";
 import { refuseIfOut } from "./service-supply.js";
 import { passOf, toPass } from "./service-tables.js";
 
@@ -120,6 +121,7 @@ function adopt(state, stock, order) {
   Object.assign(order, { status: stock.status, cook: stock.cook, counter: stock.counter ?? null, stove: stock.stove ?? null, cooked: stock.cooked ?? false });
   renumber(state, stock.id, order.id);
   state.upcoming.splice(state.upcoming.indexOf(stock), 1);
+  if (stock.mise) goOn(state, order);
   state.log.push({ t: state.t, type: "adopted", order: order.id });
 }
 

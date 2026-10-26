@@ -363,3 +363,58 @@ voisins attendent déjà au passe, celui qui attend depuis le plus longtemps (`s
 cuisines et les cinq cuisiniers, 30 services : de −0,3 à +0,6 plat à temps, autour de zéro en moyenne. Comme pour les
 mains comptées, une règle simple de plus ne fait pas avancer les tables ; ce qui les fait avancer, c'est la recherche
 qui sait attendre. L'aboyeur reste à faire en rôle (un robot au passe qui annonce et réclame), pas en règle.
+
+## L'aboyeur et la mise en place (26/10, le soir, fin de l'étape 1)
+
+Sami (26/10, le soir) : « passe à l'implémentation de l'aboyeur et la tâche qui a été reportée » (la mise en place).
+Deux réglages, éteints par défaut : les services sans eux sont inchangés (les empreintes).
+
+**L'aboyeur** (`src/service-aboyeur.js`) : un rôle de robot, `aboyeur`, comme `passe`. Il tient le passe, sert ce qui
+est prêt, et ne le quitte jamais. Tant qu'il est là :
+- les autres robots ne prennent que **les plats qu'il a fait marcher** (« ça marche » : le plat rejoindra le passe avec
+  sa table, d'après la règle de la table ; au banquet et pour un coursier, pas trop tôt) ;
+- et d'abord **ceux qu'il réclame** : ceux dont les voisins attendent déjà au passe, celui qui attend depuis le plus
+  longtemps (`order.called`, l'événement `called` du journal) ;
+- l'humain n'obéit pas : les cuisiniers simulés choisissent comme avant.
+
+Les « faire marcher » de la règle de la table et du rétroplanning ont quitté `src/rules.js` pour
+`src/service-firing.js`, que lisent les règles et l'aboyeur (sans rien changer, les empreintes).
+
+Mesuré (30 services, le cuisinier « le plus urgent », par paires ; le même robot en `passe` puis en `aboyeur`) :
+
+| Service | la plus ancienne | le plus rapide | la table | le rétroplanning |
+|---|---|---|---|---|
+| le grand détour, tables | −0,47 | +0,13 | **+0,43** (0,03 à 0,84) | −0,33 |
+| le grand détour, banquet | −0,73 | −0,73 | **−2,87** (−3,99 à −1,74) | −0,37 |
+| postes, tables | −0,03 | −0,13 | −0,17 | −0,43 |
+
+- **L'aboyeur ne fait presque rien gagner** : il impose aux autres la manière de faire marcher de la règle de la
+  table, qui ne bat pas les autres règles ; au banquet, il retient des plats que les règles auraient lancés à temps.
+  C'est la même leçon que la réclame en règle : ce qui fait avancer les tables, c'est la recherche qui sait attendre.
+- **Il lui faut des comptoirs** : dans la grande brigade, sans comptoir, personne ne lui apporte de plat ; il annonce
+  et réclame, mais ne sert rien, et la cuisine perd un robot (5,1 → 3,6 plats à temps avec la règle de la table, −1,47 de −2,78 à −0,15).
+
+**La mise en place** (`setup.miseEnPlace`, `src/service-mise.js`) : un robot libre, sans commande à prendre, prépare
+d'avance : il prend un ingrédient, le coupe et le pose sur un comptoir, deux préparations en attente au plus ; la
+commande suivante de ce plat la reprend là où elle est (dans les mains du robot, s'il ne l'a pas encore posée : il la
+cuit et la sert alors lui-même). Le robot du passe et l'aboyeur ne préparent pas. Il faut un comptoir : la petite
+cuisine, la cuisine en couloir et la grande brigade n'en ont pas.
+
+Mesuré par paires (30 services, le plat le plus rapide, le cuisinier « le plus urgent »), selon ce qu'on prépare :
+
+| Cuisine | tout, 2 au plus | tout, 1 au plus | les salades | **les soupes** |
+|---|---|---|---|---|
+| passe-plats | −0,07 | +0,10 | 0 (le robot qui coupe ne fait que les soupes) | −0,07 |
+| postes | +0,10 | −0,17 | 0 | +0,10 |
+| coupée en deux | −2,00 | −1,23 | −2,60 | **+1,37 (0,66 à 2,07)** |
+| le grand détour | −1,83 | −2,00 | −2,23 | −1,00 (−2,12 à 0,12) |
+
+- **Préparer des salades fait du tort** : une salade posée d'avance prend un comptoir, et dans la cuisine coupée en deux
+  et le grand détour, les comptoirs sont les relais entre les postes ; elle les bouche.
+- **Couper des oignons d'avance aide là où l'on coupe d'un côté et cuit de l'autre** : dans la cuisine coupée en deux,
+  +1,4 plat à temps ; le robot du côté des planches n'attend plus les commandes pour couper. Ailleurs, rien, ou un
+  robot occupé quand la commande arrive.
+- **Par défaut, la mise en place ne prépare donc que les soupes** (`MISE`, deux au plus). La recherche avec la mise en
+  place : en cours (ses mondes la jouent comme le service).
+
+Dans l'onglet Cuisine (le rôle `aboyeur`, « La mise en place »), et `npm run compare -- --aboyeur --mise-en-place`.
