@@ -220,13 +220,25 @@ function endOf(state, measures) {
   const human = state.cooks.some((cook) => cook.kind === "human") ? [`le cuisinier en a servi ${measures.servedByHuman}`] : [];
   const rush = measures.peakOpen === undefined ? [] : [`coup de feu : ${measures.peakOpen} bons ouverts au tour ${measures.peakAt}`];
   const busiest = neck ? [`poste le plus occupé : ${neck.use.word} (${Math.round(100 * neck.use.share)} % des tours)`] : [];
-  const tables = measures.tables === undefined ? [] : [`${measures.tablesOnTime} tables sur ${measures.tables} parties à temps`, `${measures.died} plats morts au passe`];
-  const refused = measures.refused === undefined ? [] : [`${measures.refused} commandes refusées (rupture)`];
   const idle = neck?.idle.turns ? [`réservé sans travailler : ${neck.idle.word}, ${neck.idle.turns} tours`] : [];
   const nameOf = (cook) => (cook.kind === "human" ? "le cuisinier" : `robot ${cook.id}`);
   const dishes = state.cooks.map((cook, i) => `${nameOf(cook)} ${measures.servedByCook[i]}`);
   const byCook = ["plats par cuisinier : " + dishes.join(", ")];
-  return [`bon le plus long : ${measures.maxServe} tours`, ...rush, ...tables, ...refused, ...human, ...byCook, ...busiest, ...idle, `${measures.missed} pas servies`, `${Math.round(measures.meanServe)} tours en moyenne de la commande à la table`];
+  return [`bon le plus long : ${measures.maxServe} tours`, ...rush, ...optionTexts(state, measures), ...human, ...byCook, ...busiest, ...idle, `${measures.missed} pas servies`, `${Math.round(measures.meanServe)} tours en moyenne de la commande à la table`];
+}
+
+/** What the options counted, in words: the tables or the couriers, the 86, the plates, the human's pauses and errors, the breakdowns. */
+function optionTexts(state, measures) {
+  const delivery = Boolean(state.setup.delivery);
+  const texts = [
+    { shown: measures.tables !== undefined && !delivery, text: () => `${measures.tablesOnTime} tables sur ${measures.tables} parties à temps, ${measures.died} plats morts au passe` },
+    { shown: delivery, text: () => `${measures.gone} commandes parties sans leur plat, ${measures.died} plats froids` },
+    { shown: measures.refused !== undefined, text: () => `${measures.refused} commandes refusées (rupture)` },
+    { shown: measures.platesWashed !== undefined, text: () => `${measures.platesWashed} assiettes lavées, ${measures.waitPlate} tours à attendre une assiette` },
+    { shown: measures.pausedTurns !== undefined, text: () => `le cuisinier : ${measures.pausedTurns} tours de pause, ${measures.remade} plats à refaire` },
+    { shown: measures.breakdowns !== undefined, text: () => `${measures.breakdowns} pannes de robot (${measures.brokenTurns} tours)` },
+  ];
+  return texts.filter((one) => one.shown).map((one) => one.text());
 }
 
 /** The service in one line. */
