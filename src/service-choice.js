@@ -1,7 +1,7 @@
 import { distancesFrom } from "./kitchen.js";
 import { RECIPES } from "./kitchens.js";
 import { PILE, fitsRole, keyOf, kindDistance, placeOf, servable, sideDistance, stepsFrom, stoveFree } from "./service-basics.js";
-import { stepAside, watch } from "./service-legs.js";
+import { paceOf, stepAside, watch } from "./service-legs.js";
 import { useSupply } from "./service-supply.js";
 
 /**
@@ -16,12 +16,12 @@ const dishOnItsWay = (state, cook) => state.pots.size > 0 || state.shelf.size > 
  * A soup ready on a stove: only if the cook gets there before it burns; the keyboard chef's own, left to him
  * until it is about to burn (Sami, 23/10: a robot set off for it and arrived too late).
  */
-function inTime(state, cook, order, reach) {
+function inTime(state, cook, order, walk) {
   if (order.status !== "ready" || !state.setup.unattended) return true;
   const pot = state.pots.get(order.stove);
   const left = pot.ready + state.setup.unattended.burn - state.t;
   const owner = state.cooks.find((one) => one.id === pot.owner);
-  return reach(order) + 1 <= left && (!owner?.manual || owner === cook || left <= reach(order) + 3);
+  return walk(order) + 1 <= left && (!owner?.manual || owner === cook || left <= walk(order) + 3);
 }
 
 /**
@@ -38,8 +38,10 @@ export function choiceOf(state, cook) {
   const reach = (order) => Math.min(...state.kitchen.stations.filter((station) => (placeOf(order) ? keyOf(station) === placeOf(order) : station.kind === RECIPES[order.recipe].ingredient)).map(distanceTo));
   // Only what this cook can reach (a kitchen cut in two); a dish on a counter, only if it can also reach what it
   // needs next (taking up the dish it has just left for someone else would loop).
+  // The turns to get there: the cells over the pace (service-legs.js).
+  const walk = (order) => Math.ceil(reach(order) / paceOf(state));
   const nextKind = (order) => (servable(order) ? "S" : "P");
-  const all = state.upcoming.filter((order) => offered(order) && reach(order) < Infinity && (order.status !== "prepped" || (order.relayedBy !== cook.id && kindDistance(state, distances, nextKind(order)) < Infinity)) && inTime(state, cook, order, reach));
+  const all = state.upcoming.filter((order) => offered(order) && reach(order) < Infinity && (order.status !== "prepped" || (order.relayedBy !== cook.id && kindDistance(state, distances, nextKind(order)) < Infinity)) && inTime(state, cook, order, walk));
   // Cut onions piling up on the counters (two or more): the stove is behind, any robot gives a hand.
   const pile = all.filter((order) => order.status === "prepped");
   const mine = all.filter((order) => fitsRole(cook.role, order) || (pile.length >= PILE && order.status === "prepped"));
@@ -48,7 +50,7 @@ export function choiceOf(state, cook) {
   const open = mine.length > 0 || watching ? mine : all;
   // A cook whose pot is on keeps an eye on it: a soup to take off, or an order it cuts before its own is ready.
   const own = [...state.pots.values()].find((pot) => pot.owner === cook.id && state.t < pot.ready);
-  if (own) return { cook, open: open.filter((order) => order.status === "ready" || (order.status === "open" && reach(order) + 1 + RECIPES[order.recipe].cut + 2 <= own.ready - state.t)), reach };
+  if (own) return { cook, open: open.filter((order) => order.status === "ready" || (order.status === "open" && walk(order) + 1 + RECIPES[order.recipe].cut + 2 <= own.ready - state.t)), reach };
   return { cook, open, reach };
 }
 

@@ -1,6 +1,6 @@
 import { RECIPES } from "./kitchens.js";
 import { PUT, collectSteps, isWorkStation, keyOf, orderOf, pickupSteps, standsOn, stepsOf } from "./service-basics.js";
-import { drop, holdHere, planLeg, turnsOf, unfit } from "./service-legs.js";
+import { drop, holdHere, paceOf, planLeg, stepAt, turnsOf, unfit } from "./service-legs.js";
 import { isOut, useSupply } from "./service-supply.js";
 
 /**
@@ -27,19 +27,30 @@ function busyText(state, cook) {
 /** The cook played at the keyboard, or null. */
 const manualCook = (state) => state.cooks.find((cook) => cook.manual) ?? null;
 
-/** Why the chef cannot step onto `to` next turn, or null. */
-function blockedAt(state, cook, to) {
-  const { reservations, t } = state;
+/** Why the chef cannot step from `from` onto `to` at the step after `step`, or null. */
+function blockedAt(state, cook, { from, to, step }) {
+  const { reservations } = state;
   if (!state.kitchen.floor(state.kitchen.plan.at(to.x, to.y))) return "un mur ou un poste";
-  if (!reservations.isFree(to.x, to.y, t + 1, cook.id) || reservations.swaps(cook, to, t, cook.id)) return "un robot passe là";
+  if (!reservations.isFree(to.x, to.y, step + 1, cook.id) || reservations.swaps(from, to, step, cook.id)) return "un robot passe là";
   return null;
 }
 
-/** The robots adapt: a planned path through the chef's new cell `to` is planned again, or they stop where they are. */
-function replanAround(state, cook, to) {
+/**
+ * Where the chef steps from (the pace, Sami 26/10: `pace` cells a turn, so as many keys): after the steps he already
+ * took this turn, or, those all taken (or none yet), from where he stands, a new key replacing them.
+ */
+function startOf(state, cook) {
+  const now = stepAt(state);
+  const last = cook.path?.at(-1);
+  if (last && last.t > now && last.t < now + paceOf(state)) return { from: last, step: last.t, path: cook.path.filter((one) => one.t >= now) };
+  return { from: { x: cook.x, y: cook.y }, step: now, path: [{ x: cook.x, y: cook.y, t: now }] };
+}
+
+/** The robots adapt: a planned path through the chef's new cell `to` after step `after` is planned again, or they stop where they are. */
+function replanAround(state, cook, to, after) {
   for (const robot of state.cooks) {
     if (robot === cook || !robot.target) continue;
-    if (!(robot.path ?? []).some((step) => step.t > state.t && standsOn(step, to))) continue;
+    if (!(robot.path ?? []).some((step) => step.t > after && standsOn(step, to))) continue;
     state.replans = (state.replans ?? 0) + 1;
     if (!planLeg(state, robot, robot.target)) robot.path = holdHere(state, robot);
   }
@@ -53,14 +64,15 @@ export function steer(state, dx, dy) {
   const cook = manualCook(state);
   if (!cook) return "pas de chef au clavier";
   if (cook.phase === "working") return busyText(state, cook);
-  const to = { x: cook.x + dx, y: cook.y + dy };
-  const blocked = blockedAt(state, cook, to);
+  const start = startOf(state, cook);
+  const to = { x: start.from.x + dx, y: start.from.y + dy };
+  const blocked = blockedAt(state, cook, { from: start.from, to, step: start.step });
   if (blocked) return blocked;
-  const path = [{ x: cook.x, y: cook.y, t: state.t }, { ...to, t: state.t + 1 }];
+  const path = [...start.path, { ...to, t: start.step + 1 }];
   state.reservations.release(cook.id);
   state.reservations.reserve(cook.id, path, { stay: true });
   Object.assign(cook, { path, target: null });
-  replanAround(state, cook, to);
+  replanAround(state, cook, to, start.step);
   return null;
 }
 

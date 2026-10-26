@@ -36,6 +36,7 @@ function fieldsOf(setup) {
     field("Patience d'un client (tours)", "patience", setup.patience),
     field("Dernière commande (tour)", "lastOrder", setup.lastOrder),
     field("Fin du service (tour)", "service", setup.service),
+    field("Cases parcourues par tour", "pace", setup.pace ?? 1),
     el("label", {}, "Rôles des robots", roles),
     el("label", { class: "check" }, el("input", { name: "unattended", type: "checkbox", checked: Boolean(setup.unattended) }), "La soupe cuit seule"),
     field("Elle brûle, prête, après (tours)", "burn", cooking.burn),
@@ -62,5 +63,5 @@ export function kitchenFrom(form, setup) {
   const unattended = data.get("unattended") ? { burn: number("burn"), clean: number("clean") } : null;
   const tables = data.get("tables") ? { ...TABLES, pass: number("pass") } : null;
   const supply = data.get("supply") ? { o: number("onions"), t: number("tomatoes") } : null;
-  return { ...setup, label: "Cuisine modifiée", text: String(data.get("text")).trimEnd(), every: number("every"), patience: number("patience"), lastOrder: number("lastOrder"), service: number("service"), roles, unattended, tables, supply };
+  return { ...setup, label: "Cuisine modifiée", text: String(data.get("text")).trimEnd(), every: number("every"), patience: number("patience"), lastOrder: number("lastOrder"), service: number("service"), pace: number("pace"), roles, unattended, tables, supply };
 }

@@ -51,7 +51,8 @@ describe("the kitchen (src/kitchen.js, src/simulate.js)", () => {
     assert.equal(kitchen.robots.length, 2);
     assert.deepEqual(kitchen.human, { x: 4, y: 2 });
     const kinds = kitchen.stations.map((station) => station.kind).sort().join("");
-    assert.equal(kinds, "CCPPSot");
+    // Two passes side by side (Sami, 26/10: two cells to serve from, less crowding).
+    assert.equal(kinds, "CCPPSSot");
     assert.ok(kitchen.stations.every((station) => station.access.length > 0));
     assert.throws(() => readKitchen("#o#\n#H#"), /il manque/);
   });
@@ -100,9 +101,10 @@ describe("the kitchen (src/kitchen.js, src/simulate.js)", () => {
     }
     assert.ok(fitsRole("coupe", { status: "open", recipe: "soupe" }) && !fitsRole("coupe", { status: "open", recipe: "salade" }));
     assert.ok(fitsRole("cuisson", { status: "prepped", recipe: "soupe" }) && fitsRole(null, { status: "open", recipe: "salade" }));
-    // Without roles, the counters stay empty.
-    const none = { ...KITCHENS.postes, roles: [] };
-    assert.equal(runService(none, 1, RULES.quickest, HUMANS.urgent).state.log.filter((event) => event.type === "put").length, 0);
+    // Without roles, nobody cuts for someone else: a dish goes on a counter only as a relay (worth it more often at two cells a turn).
+    const none = runService({ ...KITCHENS.postes, roles: [] }, 1, RULES.quickest, HUMANS.urgent).state.log;
+    const relayedNone = (event) => none.some((relay) => relay.type === "relay" && relay.cook === event.cook && relay.order === event.order);
+    assert.equal(none.filter((event) => event.type === "put" && !relayedNone(event)).length, 0);
   });
 
   it("lets the soup cook alone: the pot is put on, taken off ready, or burns, the stove then cleaned", () => {
@@ -186,9 +188,10 @@ describe("the kitchen (src/kitchen.js, src/simulate.js)", () => {
   it("has a cook far from a station give its place to one that would be done before it got there, and the human relay too", () => {
     let gave = 0;
     for (let seed = 1; seed <= 10; seed += 1) {
-      const { state } = runService(KITCHENS.petite, seed, RULES.quickest, HUMANS.urgent);
+      // The brigade (five cooks): at two cells a turn, a far cook seldom gets there after the other is done elsewhere (26/10).
+      const { state } = runService(KITCHENS.brigade, seed, RULES.quickest, HUMANS.urgent);
       // Not in the last turns: the service may end before the one given the place does anything.
-      for (const event of state.log.filter((one) => one.type === "gaveWay" && one.t < KITCHENS.petite.service - 5)) {
+      for (const event of state.log.filter((one) => one.type === "gaveWay" && one.t < KITCHENS.brigade.service - 5)) {
         gave += 1;
         // The one given the place set off at once for it.
         assert.ok(state.log.some((one) => one.t >= event.t && one.cook === event.to), `service ${seed}`);

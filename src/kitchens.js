@@ -19,24 +19,33 @@ export const RECIPES = Object.freeze({
 /** Unattended cooking, on in every kitchen (Sami, 23/10/2026): a ready soup burns after 6 turns, a burnt stove takes 5 to clean. */
 export const UNATTENDED = Object.freeze({ burn: 6, clean: 5 });
 
+/**
+ * The pace, in every kitchen (Sami, 26/10/2026: walk faster, as long as nobody overlaps; service-legs.js): two cells a
+ * turn. At one, a cell walked was worth a turn of cutting and the walking bound the whole kitchen (docs/modele.md);
+ * at three or four, nearly every dish goes out in time and nothing is left to tell the rules apart.
+ */
+export const PACE = 2;
+
 export const KITCHENS = Object.freeze({
   petite: Object.freeze({
     label: "Petite cuisine (2 robots et vous)",
-    text: ["##o##t##S##", "#.........#", "#.R.H..R..#", "C.........P", "C.........P", "###########"].join("\n"),
+    text: ["##o##t#SS##", "#.........#", "#.R.H..R..#", "C.........P", "C.........P", "###########"].join("\n"),
     every: 9,
     patience: 60,
     service: 200,
     lastOrder: 160,
     unattended: UNATTENDED,
+    pace: PACE,
   }),
   couloir: Object.freeze({
     label: "Cuisine en couloir (1 robot et vous)",
-    text: ["#o#t#####S#", "#.R.....H.#", "###.###.###", "C.........P", "###########"].join("\n"),
+    text: ["#o#t####SS#", "#.R.....H.#", "###.###.###", "C.........P", "###########"].join("\n"),
     every: 14,
     patience: 70,
     service: 200,
     lastOrder: 160,
     unattended: UNATTENDED,
+    pace: PACE,
   }),
   brigade: Object.freeze({
     label: "Grande brigade (4 robots et vous)",
@@ -46,44 +55,49 @@ export const KITCHENS = Object.freeze({
     service: 200,
     lastOrder: 160,
     unattended: UNATTENDED,
+    pace: PACE,
   }),
   comptoirs: Object.freeze({
     label: "Passe-plats (2 robots et vous, deux comptoirs : un coupe, l'autre cuit)",
-    text: ["#o#t#######", "C.H.......#", "C...._....S", "P...._..R.#", "P.......R.#", "###########"].join("\n"),
+    text: ["#o#t#######", "C.H.......S", "C...._....S", "P...._..R.#", "P.......R.#", "###########"].join("\n"),
     every: 12,
     patience: 60,
     service: 200,
     lastOrder: 160,
     unattended: UNATTENDED,
+    pace: PACE,
     roles: Object.freeze(["coupe", "cuisson"]),
   }),
   postes: Object.freeze({
     label: "Des postes (Sami : un robot coupe, l'autre cuit, trois comptoirs entre eux)",
-    text: ["##o##t##S##", "#.........#", "C.R..H..R.P", "C.........P", "###_____###"].join("\n"),
+    text: ["##o##t#SS##", "#.........#", "C.R..H..R.P", "C.........P", "###_____###"].join("\n"),
     every: 9,
     patience: 60,
     service: 200,
     lastOrder: 160,
     unattended: UNATTENDED,
+    pace: PACE,
     roles: Object.freeze(["coupe", "cuisson"]),
   }),
   separee: Object.freeze({
     label: "Coupée en deux (Sami : les oignons et les planches d'un côté, le feu et le passe de l'autre)",
-    text: ["##o##t##S##", "#..._.....#", "C.R._.H.R.P", "C..._.....P", "######CC###"].join("\n"),
+    text: ["##o##t#SS##", "#..._.....#", "C.R._.H.R.P", "C..._.....P", "######CC###"].join("\n"),
     every: 9,
     patience: 60,
     service: 200,
     lastOrder: 160,
     unattended: UNATTENDED,
+    pace: PACE,
   }),
   detour: Object.freeze({
     label: "Le grand détour (Sami : loin du feu au passe ; le robot 2 au passe, les comptoirs en relais)",
-    text: ["##o#t#######", "#..........#", "C.H...#___.#", "C..R.._....#", "#....._..R.#", "#__PP###S###"].join("\n"),
+    text: ["##o#t#######", "#..........#", "C.H...#___.#", "C..R.._....#", "#....._..R.#", "#__PP##SS###"].join("\n"),
     every: 9,
     patience: 60,
     service: 200,
     lastOrder: 160,
     unattended: UNATTENDED,
+    pace: PACE,
     roles: Object.freeze([null, "passe"]),
   }),
 });

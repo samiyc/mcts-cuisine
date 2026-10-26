@@ -1,6 +1,6 @@
 import { distancesFrom } from "./kitchen.js";
 import { PUT, isWorkStation, keyOf, kindDistance, orderOf, sideDistance } from "./service-basics.js";
-import { holdHere, planLeg, stationFor, unfitKind, waitFor } from "./service-legs.js";
+import { holdHere, paceOf, planLeg, stationFor, stepAt, unfitKind, waitFor } from "./service-legs.js";
 import { countWait } from "./service-measures.js";
 
 /**
@@ -33,7 +33,7 @@ const takersOf = (state, cook, step, forced) => state.cooks.filter((other) => ot
  * when `other` takes it up; null when `other` cannot, or when it is not worth it unless forced.
  */
 function latencyBy(relay, other, { counter, there, ahead }) {
-  const come = sideDistance(relay.maps.get(other), counter) + (other.order ? 4 : 0);
+  const come = sideDistance(relay.maps.get(other), counter) / relay.pace + (other.order ? 4 : 0);
   if (come === Infinity || ahead === Infinity) return null;
   const latency = Math.max(there + 1, come) + 1 + ahead;
   if (!relay.forced && (there + 1 >= relay.own || latency > relay.own + 2)) return null;
@@ -42,9 +42,9 @@ function latencyBy(relay, other, { counter, there, ahead }) {
 
 /** The best of `best` and of `counter` taken up by one of the robots: the soonest the dish gets to its next station. */
 function throughCounter(state, counter, relay, best) {
-  const there = sideDistance(relay.mine, counter);
+  const there = sideDistance(relay.mine, counter) / relay.pace;
   if (there === Infinity) return best;
-  const ahead = Math.min(...counter.access.map((cell) => kindDistance(state, distancesFrom(state.kitchen, cell), relay.step.kind)));
+  const ahead = Math.min(...counter.access.map((cell) => kindDistance(state, distancesFrom(state.kitchen, cell), relay.step.kind))) / relay.pace;
   for (const other of relay.others) {
     const latency = latencyBy(relay, other, { counter, there, ahead });
     if (latency !== null && (!best || latency < best.latency)) best = { counter, latency };
@@ -71,13 +71,15 @@ function relayFor(state, cook) {
   const step = cook.steps[cook.step];
   if (!relayable(state, cook, step)) return null;
   const mine = distancesFrom(state.kitchen, cook);
-  const own = kindDistance(state, mine, step.kind);
+  // In turns: the cells walked over the pace (service-legs.js).
+  const pace = paceOf(state);
+  const own = kindDistance(state, mine, step.kind) / pace;
   const forced = own === Infinity;
   // `setup.relay === false` keeps only the forced relays (a measure of what the others are worth).
   if (!forced && (cook.manual || state.setup.relay === false)) return null;
   const others = takersOf(state, cook, step, forced);
   if (others.length === 0) return null;
-  return bestCounter(state, { step, mine, own, forced, others, maps: new Map(others.map((other) => [other, distancesFrom(state.kitchen, other)])) });
+  return bestCounter(state, { step, mine, own, forced, others, pace, maps: new Map(others.map((other) => [other, distancesFrom(state.kitchen, other)])) });
 }
 
 /** Is `other` walking to a station it has claimed, and not played at the keyboard? */
@@ -87,8 +89,9 @@ const onItsWay = (other) => other.phase === "moving" && Boolean(other.target) &&
 function yieldsTo(state, other, { cook, step, distances }) {
   if (other === cook || !onItsWay(other) || unfitKind(other.station, step)) return false;
   const mine = distances.get(keyOf(other.target));
-  const theirs = (other.path?.at(-1)?.t ?? state.t) - state.t;
-  return mine !== undefined && mine + step.turns + 1 < theirs;
+  // In steps of walking (the pace, service-legs.js): a turn of work is `pace` steps.
+  const theirs = (other.path?.at(-1)?.t ?? stepAt(state)) - stepAt(state);
+  return mine !== undefined && mine + (step.turns + 1) * paceOf(state) < theirs;
 }
 
 /**

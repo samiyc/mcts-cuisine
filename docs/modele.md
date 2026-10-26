@@ -456,3 +456,46 @@ brigade). Aucune règle ne choisit encore **à qui donner les derniers oignons**
 plutôt qu'une qui sera en retard. C'est une décision pour la recherche.
 
 Les deux réglages sont dans l'onglet Cuisine, et `npm run compare -- --tables --rupture [n]`.
+
+## Marcher plus vite, deux cases de passe (26/10, Sami)
+
+Sami : d'accord pour **marcher plus vite**, du moment qu'on évite les superpositions ; **deux cases de passe** pour
+limiter la congestion.
+
+- **L'allure** (`setup.pace`, `src/service-legs.js`) : un tour compte `pace` pas, un pas une case. Les chemins sont
+  réservés pas à pas dans le moteur de mcts-commun : personne ne partage une case ni ne se croise, à aucun pas (un test
+  le vérifie pas à pas sur les sept cuisines, à 2 et 3 cases par tour). Le travail (couper, cuire, servir) reste en
+  tours ; les seuils qui comparaient des cases à des tours (arriver avant que la soupe brûle, les relais, rendre sa
+  place, le poste le plus proche) divisent les cases par l'allure. Le chef au clavier fait autant de pas qu'un robot :
+  ses touches remplissent un tour (`pace` pas, ou un E). À `pace` 1, tout est identique à avant (les empreintes).
+- **Les deux passes** : un second `S` contre le premier dans les six plans qui n'en avaient qu'un (la grande brigade en
+  avait déjà deux), devant une case de sol libre. Les replays gardés rejouent leur plan d'origine.
+- **Par défaut : 2 cases par tour** dans toutes les cuisines (`PACE`, `src/kitchens.js`), réglable dans l'onglet
+  Cuisine. Les empreintes des règles, des variantes et de la recherche changent ; celle du replay de Sami non.
+
+Mesures (30 services, le cuisinier « le plus urgent », avec les deux passes) : plats à temps avec le plat le plus
+rapide, et tables à temps avec la règle de la table :
+
+| Cuisine | pas 1 | pas 2 | pas 3 | pas 4 | attente au passe (pas 1 → 2) | tables à temps, pas 1 → 2 → 4 |
+|---|---|---|---|---|---|---|
+| petite | 12,6 / 19,9 | 16,9 | 18,4 | 19,0 | 0,7 → 0,0 | 0,8 → 1,5 → 3,0 sur 8,3 |
+| en couloir | 5,7 / 13,3 | 8,6 | 10,3 | 10,3 | 18,1 → 25,5 | 0,4 → 0,2 → 0,5 sur 5,8 |
+| grande brigade | 16,2 / 34,3 | 25,0 | 29,0 | 31,2 | 29,6 → 12,3 | 0,8 → 2,2 → 5,9 sur 14,3 |
+| passe-plats | 7,1 / 15,3 | 11,3 | 13,4 | 13,4 | 0,9 → 1,5 | 0,5 → 1,1 → 1,5 sur 6,5 |
+| postes | 8,9 / 19,9 | 13,6 | 14,9 | 17,0 | 0,3 → 0,7 | 0,7 → 0,8 → 1,6 sur 8,3 |
+| coupée en deux | 10,4 / 19,9 | 12,0 | 13,1 | 13,4 | 0 → 0 | 0,6 → 1,1 → 1,5 sur 8,3 |
+| le grand détour | 7,5 / 19,9 | 15,4 | 17,2 | 18,2 | 0 → 0 | 0,9 → 3,3 → 4,2 sur 8,3 |
+
+- **La seconde case de passe** fait disparaître l'attente au passe dans la petite cuisine (27,9 tours par service →
+  0,7), mais ne sert pas un plat de plus au pas 1 : la marche bornait tout. Dans la cuisine en couloir, l'attente reste
+  (les deux passes sont au fond d'une impasse) ; dans la grande brigade, cinq cuisiniers pour deux passes, elle baisse
+  quand on marche plus vite.
+- **Marcher plus vite libère la cuisine** : au pas 2, la petite cuisine sert 85 % des plats à temps, la grande brigade
+  73 % (au lieu de 63 % et 47 %). Au pas 3 ou 4, presque tout part à temps : il ne resterait rien à départager entre
+  les règles et la recherche. D'où **2** par défaut.
+- **Les tables restent ratées à toute allure**, et il meurt même plus de plats au passe quand on marche vite (les plats
+  rapides arrivent plus tôt et attendent leurs voisins). Le problème des tables est le nombre de mains, pas la marche :
+  voir [`recherche/oublis.md`](recherche/oublis.md).
+
+Toutes les mesures d'avant ce jour (la recherche, les mesures de nuit) étaient au pas 1 avec un passe : elles sont à
+refaire.

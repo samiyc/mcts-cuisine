@@ -4,7 +4,7 @@ import { HUMANS, RULES, compareRules, summaryOf } from "../src/rules.js";
 import { searchRule } from "../src/search.js";
 import { beginTurn, createService, drawOrders, interact, isOver, measuresOf, runService, steer, stepService } from "../src/simulate.js";
 import { firstTab, showTab, wireFold, wireTabs } from "./chrome.js";
-import { wireChefKeys } from "./keys.js";
+import { turnKeys, wireChefKeys } from "./keys.js";
 import { kitchenFrom, kitchenPanel, kitchenView } from "./tabs/kitchen.js";
 import { download, replayClicked, replayFile, replays, replaysPanel, replaysView } from "./tabs/replays.js";
 import { servicePanel, serviceView } from "./tabs/service.js";
@@ -30,7 +30,7 @@ const state = { tab: firstTab(TAB_NAMES), kitchenId: "petite", setup: { ...KITCH
 const humanRule = () => HUMANS[state.human] ?? null;
 /** The chef at the keyboard (Sami, 23/10): his next move, kept until the next turn, and what his last one did. */
 const manual = () => state.human === "clavier";
-const keyboard = { pending: null, message: "" };
+const keyboard = { pending: [], message: "" };
 const ruleOf = (name) => (name === "search" ? searchRule() : RULES[name]);
 const breathe = () => new Promise((resolve) => setTimeout(resolve, 0));
 const ctx = { state, keyboard, replays, manual, COMPARED, COMPARED_WITH_SEARCH };
@@ -62,7 +62,7 @@ function restart() {
   Object.assign(replays, { inputs: [], playing: null, startedAt: new Date().toISOString() });
   Object.assign(state, { run: state.run + 1, busy: "" });
   state.service = createService(state.setup, drawOrders(state.seed, state.setup), { human: humanRule() ? state.human : null, seed: state.seed, manual: manual() });
-  Object.assign(keyboard, { pending: null, message: manual() ? "Jouer, puis Z Q S D pour bouger le chef, E pour prendre, travailler, poser, servir." : "" });
+  Object.assign(keyboard, { pending: [], message: manual() ? "Jouer, puis Z Q S D pour bouger le chef, E pour prendre, travailler, poser, servir." : "" });
 }
 function stop() {
   clearInterval(state.timer);
@@ -82,18 +82,21 @@ function replayKeys() {
     if (said) keyboard.message = said;
   }
 }
-/** The key pressed, recorded with its turn; the answer to this key only (an old one, « le chef coupe… », left on screen looked like a freeze). */
+/**
+ * The keys pressed for this turn (keys.js `turnKeys`: up to `pace` steps, or an E), each recorded with its turn; the
+ * answer to the last one only (an old one, « le chef coupe… », left on screen looked like a freeze).
+ */
 function pressPending() {
-  const key = keyboard.pending;
-  keyboard.pending = null;
-  replays.inputs.push({ t: state.service.t, key });
-  keyboard.message = (key === "e" ? interact(state.service) : steer(state.service, ...MOVES[key])) ?? "";
+  for (const key of turnKeys(keyboard, state.setup.pace ?? 1)) {
+    replays.inputs.push({ t: state.service.t, key });
+    keyboard.message = (key === "e" ? interact(state.service) : steer(state.service, ...MOVES[key])) ?? "";
+  }
 }
 /** One turn: the turn starts (gestures ended, soups ready), the chef's pending key, then everyone. */
 function step() {
   startTurn();
   if (replays.playing) replayKeys();
-  else if (manual() && keyboard.pending) pressPending();
+  else if (manual() && keyboard.pending.length > 0) pressPending();
   stepService(state.service, ruleOf(state.rule), humanRule());
   if (isOver(state.service) || state.service.t % KEEP_EVERY === 0) keepReplay();
 }

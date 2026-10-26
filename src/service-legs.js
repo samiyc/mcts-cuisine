@@ -5,12 +5,21 @@ import { FREE, isWorkStation, keyOf, standsOn } from "./service-basics.js";
 /**
  * The cooks' legs (split from simulate.js, 26/10/2026): the paths reserved in space and time, the station each step
  * goes to, where a cook waits and how it gives way, and the move of a turn.
+ *
+ * **The pace** (Sami, 26/10: walk faster, as long as nobody overlaps): `setup.pace` cells a turn, 1 by default. The
+ * paths are reserved step by step (a step, a cell), a turn being `pace` steps: no two cooks share a cell or swap at
+ * any step. The work (cutting, cooking) is still counted in turns.
  */
 const LEG_HORIZON = 80;
 
+/** The cells a cook walks in a turn. */
+export const paceOf = (state) => state.setup.pace ?? 1;
+/** The step the turn `t` starts at, on the reservations' clock. */
+export const stepAt = (state, t = state.t) => t * paceOf(state);
+
 /** Plans `cook`'s leg to `target` and reserves it, its last cell kept; false when no path is found. */
 export function planLeg(state, cook, target) {
-  const path = astar(state.kitchen.plan, cook, target, { passable: state.kitchen.floor, reservations: state.reservations, unit: cook.id, start: state.t, horizon: LEG_HORIZON, park: true });
+  const path = astar(state.kitchen.plan, cook, target, { passable: state.kitchen.floor, reservations: state.reservations, unit: cook.id, start: stepAt(state), horizon: LEG_HORIZON * paceOf(state), park: true });
   if (!path) return false;
   state.reservations.release(cook.id);
   state.reservations.reserve(cook.id, path, { stay: true });
@@ -20,7 +29,7 @@ export function planLeg(state, cook, target) {
 
 /** `cook` holds the cell it stands on from now: its reservations released, its path that one cell. */
 export function holdHere(state, cook) {
-  const here = [{ x: cook.x, y: cook.y, t: state.t }];
+  const here = [{ x: cook.x, y: cook.y, t: stepAt(state) }];
   state.reservations.release(cook.id);
   state.reservations.reserve(cook.id, here, { stay: true });
   return here;
@@ -56,7 +65,7 @@ function nearerSide(state, station, { distances, taken }, best) {
   const extra = state.dirty.has(keyOf(station)) ? state.setup.unattended.clean : 0;
   for (const cell of station.access) {
     const steps = distances.get(keyOf(cell));
-    const cost = steps + extra;
+    const cost = steps / paceOf(state) + extra;
     if (steps !== undefined && !taken.has(keyOf(cell)) && (!best || cost < best.cost)) best = { station, cell, steps, cost };
   }
   return best;
@@ -163,7 +172,7 @@ export function drop(state, cook) {
 /** Has `cook`'s leg ended short of its target, the station still ahead? */
 function heldShort(state, cook) {
   if (cook.manual || cook.phase !== "moving" || !cook.target) return false;
-  return (cook.path?.at(-1)?.t ?? 0) <= state.t && !standsOn(cook, cook.target);
+  return (cook.path?.at(-1)?.t ?? 0) <= stepAt(state) && !standsOn(cook, cook.target);
 }
 
 /**
@@ -184,30 +193,39 @@ export function letGo(state) {
 /** The relay's counter `cook`'s step goes to, if it is one. */
 const relayOf = (cook) => cook.steps?.[cook.step]?.at;
 
-const positionAt = (path, t) => path.find((step) => step.t === t) ?? path.at(-1);
+export const positionAt = (path, step) => path.find((one) => one.t === step) ?? path.at(-1);
 
-/** `cook` one cell along its path: a move counted, or a wait when it is on its way and stays. */
-function stepAlong(state, cook) {
-  const next = positionAt(cook.path, state.t);
+/** `cook` one cell along its path at `step`: a move counted; true when it stood still on its way. */
+function stepAlong(cook, step) {
+  const next = positionAt(cook.path, step);
+  const held = standsOn(cook, next) && cook.phase === "moving";
   if (!standsOn(cook, next)) cook.moves += 1;
-  else if (cook.phase === "moving") cook.waits += 1;
   Object.assign(cook, { x: next.x, y: next.y });
+  return held;
 }
 
 /** At the leg's end only: a path may pass the target, step off for someone, and come back (a robot worked while still walking, away from its board). */
-function arrive(state, cook) {
-  if (!cook.target || !standsOn(cook, cook.target) || (cook.path?.at(-1)?.t ?? 0) > state.t) return;
+function arrive(state, cook, step) {
+  if (!cook.target || !standsOn(cook, cook.target) || (cook.path?.at(-1)?.t ?? 0) > step) return;
   cook.target = null;
   if (cook.phase !== "moving") return;
   const turns = turnsOf(state, cook.steps[cook.step], cook.station);
   Object.assign(cook, { phase: "working", until: state.t + turns, span: turns });
 }
 
-/** One turn: every cook to its leg's next cell; those who reach their station start working. */
+/**
+ * One turn: `pace` steps, every cook to its leg's next cell at each; those who reach their station start working (at
+ * the turn's end, their gesture counted in turns). A cook held on its way during the turn has waited a turn.
+ */
 export function move(state) {
+  const first = stepAt(state) + 1;
   state.t += 1;
-  for (const cook of state.cooks) {
-    if (cook.path) stepAlong(state, cook);
-    arrive(state, cook);
+  const held = new Set();
+  for (let step = first; step <= stepAt(state); step += 1) {
+    for (const cook of state.cooks) {
+      if (cook.path && stepAlong(cook, step)) held.add(cook);
+      arrive(state, cook, step);
+    }
   }
+  for (const cook of held) cook.waits += 1;
 }

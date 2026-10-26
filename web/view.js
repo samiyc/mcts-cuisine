@@ -104,7 +104,7 @@ export function cooksOf(state) {
       ready: Boolean(step) && READY_STEPS.has(step.type),
       stage: carrying ? stageOf(order, step) : null,
       label: `${nameOf(cook)} : ${doingOf(cook, order, step)}`,
-      ahead: cook.target ? (cook.path ?? []).filter((one) => one.t >= state.t) : [],
+      ahead: cook.target ? (cook.path ?? []).filter((one) => one.t >= state.t * (state.setup.pace ?? 1)) : [],
     };
   });
 }
