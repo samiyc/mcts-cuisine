@@ -9,6 +9,8 @@ import { countTurn, createTally, measuresOf } from "./service-measures.js";
 import { prepareAhead } from "./service-mise.js";
 import { clonePlates, platesBack, platesOf, washUp } from "./service-plates.js";
 import { boardsOf, cloneBoards, withAllergens } from "./service-hygiene.js";
+import { personOf, personTurn } from "./service-human.js";
+import { breakdownTurn, breakdownsOf, isBroken } from "./service-breakdowns.js";
 import { startStep } from "./service-relays.js";
 import { drawBanquet } from "./service-banquet.js";
 import { deliveryOrders } from "./service-delivery.js";
@@ -122,7 +124,7 @@ export function createService(setup, orders, { human = "urgent", seed = 1, manua
   const reservations = createReservations();
   // Every cook holds its place from the start: nobody plans through a cook standing still.
   for (const one of cooks) reservations.reserve(one.id, [{ x: one.x, y: one.y, t: 0 }], { stay: true });
-  return { kitchen, setup, human, rng: createRng(seed + 7_919), t: 0, cooks, upcoming: orders.map((order) => ({ ...order, status: "upcoming", cook: null, servedAt: null })), claims: new Map(), shelf: new Map(), pots: new Map(), dirty: new Set(), burnt: 0, reservations, log: [], cursor: null, tally: createTally(), supply: supplyOf(setup), plates: platesOf(setup), boards: boardsOf(setup) };
+  return { kitchen, setup, human, rng: createRng(seed + 7_919), t: 0, cooks, upcoming: orders.map((order) => ({ ...order, status: "upcoming", cook: null, servedAt: null })), claims: new Map(), shelf: new Map(), pots: new Map(), dirty: new Set(), burnt: 0, reservations, log: [], cursor: null, tally: createTally(), supply: supplyOf(setup), plates: platesOf(setup), boards: boardsOf(setup), person: personOf(setup, seed), breakdowns: breakdownsOf(setup, cooks, seed) };
 }
 
 /** The orders `cook` may take now, as they would be offered to it (the replays' analysis, src/replay.js). */
@@ -144,6 +146,9 @@ function open(state, order) {
 
 /** The start of a turn, up to the robots' choices: work ended, orders come in, the human takes his (he does not wait for the robots). */
 export function beginTurn(state, human) {
+  // The human's pauses, the robots' breakdowns (service-human.js, service-breakdowns.js).
+  personTurn(state);
+  breakdownTurn(state);
   finishWork(state);
   platesBack(state);
   if (state.setup.unattended) watchPots(state);
@@ -167,7 +172,7 @@ export function beginTurn(state, human) {
 export function nextChoice(state) {
   for (; state.cursor < state.cooks.length; state.cursor += 1) {
     const cook = state.cooks[state.cursor];
-    if (cook.kind !== "robot" || cook.phase !== "idle") continue;
+    if (cook.kind !== "robot" || cook.phase !== "idle" || isBroken(state, cook)) continue;
     // No clean plate left, or a robot of the dish room: the washing first (service-plates.js).
     if (washUp(state, cook, false)) continue;
     const choice = choiceOf(state, cook);
@@ -195,7 +200,7 @@ export function choose(state, choice, id) {
 /** The end of a turn, after the choices: cooks set off for their step's station, and everyone moves. */
 export function endTurn(state) {
   letGo(state);
-  for (const cook of state.cooks) if (cook.phase === "next" && !cook.manual) startStep(state, cook);
+  for (const cook of state.cooks) if (cook.phase === "next" && !cook.manual && !isBroken(state, cook)) startStep(state, cook);
   move(state);
   state.cursor = null;
 }
@@ -250,6 +255,8 @@ export function cloneService(state) {
     supply: state.supply && { ...state.supply },
     plates: clonePlates(state.plates),
     boards: cloneBoards(state.boards),
+    person: state.person && { ...state.person, pauses: [...state.person.pauses], rng: state.person.rng.clone() },
+    breakdowns: state.breakdowns && { ...state.breakdowns, next: [...state.breakdowns.next] },
   };
 }
 

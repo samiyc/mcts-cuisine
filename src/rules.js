@@ -68,7 +68,7 @@ export const HUMAN_LABELS = Object.freeze({ nearest: "prend le plus proche", urg
 
 const mean = (values) => values.reduce((sum, value) => sum + value, 0) / values.length;
 // The indicators of step 0 (26/10, docs/recherche/indicateurs.md) after the first ones: means over the services, maxima included.
-const MEASURES = ["orders", "onTime", "late", "missed", "meanServe", "waits", "burnt", "p90Serve", "maxServe", "maxLate", "peakOpen", "servedByHuman", "useBoard", "useStove", "usePass", "useCounter", "waitBoard", "waitStove", "waitPass", "waitCounter", "idleBoard", "idleStove", "idlePass", "idleCounter", "usePack", "waitPack", "idlePack", "tables", "tablesOnTime", "died", "maxPass", "refused", "maxSendLate", "gone", "meanCourierWait", "maxCourierWait", "maxDishWait", "ahead", "aheadUsed", "aheadLeft", "platesWashed", "waitPlate", "fewestPlates", "allergenOrders", "boardsCleaned"];
+const MEASURES = ["orders", "onTime", "late", "missed", "meanServe", "waits", "burnt", "p90Serve", "maxServe", "maxLate", "peakOpen", "servedByHuman", "useBoard", "useStove", "usePass", "useCounter", "waitBoard", "waitStove", "waitPass", "waitCounter", "idleBoard", "idleStove", "idlePass", "idleCounter", "usePack", "waitPack", "idlePack", "tables", "tablesOnTime", "died", "maxPass", "refused", "maxSendLate", "gone", "meanCourierWait", "maxCourierWait", "maxDishWait", "ahead", "aheadUsed", "aheadLeft", "platesWashed", "waitPlate", "fewestPlates", "allergenOrders", "boardsCleaned", "pausedTurns", "remade", "breakdowns", "brokenTurns"];
 
 /**
  * The robots' rules on the same `services` services of `setup`, with the human `humanName` (or none): each

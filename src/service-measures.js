@@ -3,6 +3,8 @@ import { deliveryMeasures } from "./service-delivery.js";
 import { miseMeasures } from "./service-mise.js";
 import { plateMeasures } from "./service-plates.js";
 import { hygieneMeasures } from "./service-hygiene.js";
+import { personMeasures } from "./service-human.js";
+import { breakdownMeasures } from "./service-breakdowns.js";
 import { supplyMeasures } from "./service-supply.js";
 import { tableMeasures } from "./service-tables.js";
 
@@ -143,5 +145,7 @@ export function measuresOf(state) {
     ...miseMeasures(state),
     ...plateMeasures(state),
     ...hygieneMeasures(state),
+    ...personMeasures(state),
+    ...breakdownMeasures(state),
   };
 }

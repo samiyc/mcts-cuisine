@@ -3,6 +3,7 @@ import { FREE, keyOf, orderOf } from "./service-basics.js";
 import { drop } from "./service-legs.js";
 import { goOn } from "./service-mise.js";
 import { plateGone, washed } from "./service-plates.js";
+import { wrongDish } from "./service-human.js";
 import { handFollowers, releaseFollowers } from "./service-batch.js";
 import { refuseIfOut } from "./service-supply.js";
 import { passOf, toPass } from "./service-tables.js";
@@ -111,6 +112,8 @@ function finish(state, cook) {
 /** The dish done: served, or, with tables (service-tables.js), at the pass to wait for its table. */
 function handOver(state, cook, order) {
   plateGone(state, cook);
+  // The human's wrong dish, to make again (service-human.js).
+  if (wrongDish(state, cook, order)) return;
   if (passOf(state.setup) && order.table) {
     handFollowers(state, order, (follower) => toPass(state, cook, follower));
     return toPass(state, cook, order);

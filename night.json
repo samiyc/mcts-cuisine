@@ -567,6 +567,48 @@
       "estimate": "3 h",
       "priority": 2,
       "limit": 480
+    },
+    {
+      "id": "cuis-limites-petite-urgent",
+      "command": "npm run compare -- --kitchen petite --services 30 --search --fatigue --pauses --erreurs --humain urgent",
+      "estimate": "1 h",
+      "priority": 2,
+      "limit": 240
+    },
+    {
+      "id": "cuis-pannes-petite-urgent",
+      "command": "npm run compare -- --kitchen petite --services 30 --search --pannes --humain urgent",
+      "estimate": "1 h",
+      "priority": 2,
+      "limit": 240
+    },
+    {
+      "id": "cuis-limites-brigade-urgent",
+      "command": "npm run compare -- --kitchen brigade --services 30 --search --fatigue --pauses --erreurs --humain urgent",
+      "estimate": "3 h",
+      "priority": 2,
+      "limit": 480
+    },
+    {
+      "id": "cuis-pannes-brigade-urgent",
+      "command": "npm run compare -- --kitchen brigade --services 30 --search --pannes --humain urgent",
+      "estimate": "3 h",
+      "priority": 2,
+      "limit": 480
+    },
+    {
+      "id": "cuis-limites-detour-urgent",
+      "command": "npm run compare -- --kitchen detour --services 30 --search --fatigue --pauses --erreurs --humain urgent",
+      "estimate": "1 h",
+      "priority": 2,
+      "limit": 240
+    },
+    {
+      "id": "cuis-pannes-detour-urgent",
+      "command": "npm run compare -- --kitchen detour --services 30 --search --pannes --humain urgent",
+      "estimate": "1 h",
+      "priority": 2,
+      "limit": 240
     }
   ]
 }

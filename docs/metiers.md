@@ -558,3 +558,30 @@ Mesuré par paires (30 services, le plat le plus rapide, le cuisinier « le plus
   le cuisinier prend celle qui n'a pas coupé d'oignons : moins d'un nettoyage par service. Dans une cuisine à une
   seule planche, ou avec plusieurs allergènes, ce serait autre chose : une variante à faire si Sami le veut.
 - **Le ménage** toutes les 6 coupes coûte au plus 0,2 plat à temps. Il ne pèse que si on le rend fréquent.
+
+## Les pauses, la fatigue, les erreurs ; les pannes des robots (26/10, le soir)
+
+Sami (26/10, le soir) : les pauses, la fatigue et les erreurs pour **l'humain**, et **des pannes pour les robots**.
+Quatre réglages, chacun éteint par défaut (`src/service-human.js`, `src/service-breakdowns.js`) ; le chef au clavier
+n'en a aucun (c'est lui). Les chiffres sont des hypothèses ([`recherche/production.md`](recherche/production.md),
+[questions au spécialiste](recherche/questions-specialiste.md), 21-24) :
+- **la fatigue** : après le tour 100, les gestes du cuisinier simulé durent 10 % de plus ;
+- **les pauses** : une pause de 10 tours (5 minutes) par service, à un tour tiré entre 40 et 160 ; il finit son plat,
+  s'écarte et s'arrête. La pause légale (20 minutes dès 6 heures) tombe hors d'un service de 1 h 40 ;
+- **les erreurs** : 2 % de ses plats sont faux (4 % une fois fatigué), la commande est à refaire ;
+- **les pannes** : un robot s'arrête 10 tours, une fois tous les 1 000 tours en moyenne (1 % du temps, le « 99 % de
+  disponibilité » d'un fabricant) ; son geste attend, il reste où il est, son poste reste à lui, sa marmite cuit.
+- **La recherche ne sait pas quand viendront la pause ni la panne** : ses mondes les tirent à nouveau.
+
+Mesuré par paires (30 services, le plat le plus rapide, le cuisinier « le plus urgent ») :
+
+| Cuisine | sans | fatigue | pause | erreurs | les trois | pannes | pannes ×5 |
+|---|---|---|---|---|---|---|---|
+| petite | 16,9 | 16,9 (0) | 16,5 (−0,33) | 16,7 (−0,20) | **16,1 (−0,77)** | 16,7 (−0,13) | 15,9 (−1,00) |
+| grande brigade | 25,0 | 24,4 (−0,60) | 24,5 (−0,43) | 24,8 (−0,13) | **24,3 (−0,70)** | 24,6 (−0,40) | 22,8 (−2,20) |
+| le grand détour | 15,4 | 14,9 (−0,50) | 14,7 (−0,67) | 15,4 (0) | **14,5 (−0,83)** | 15,3 (−0,03) | 15,1 (−0,23) |
+
+- **Un humain fatigué, qui fait sa pause et se trompe parfois, coûte un plat à temps environ** ; dans le grand détour,
+  il ne sert presque jamais lui-même (le robot du passe le fait), ses erreurs n'y comptent pas.
+- **Les pannes au rythme d'un fabricant coûtent peu** ; cinq fois plus fréquentes, deux plats dans la grande brigade.
+- Ce que la recherche y gagne, en imaginant la pause et la panne : dans la file.

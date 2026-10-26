@@ -5,6 +5,8 @@ import { HUMANS, RULES, humansOf } from "./rules.js";
 import { redrawCouriers, withCourier } from "./service-delivery.js";
 import { drawTables, firstAfter, passOf } from "./service-tables.js";
 import { allergic } from "./service-hygiene.js";
+import { redrawPerson } from "./service-human.js";
+import { redrawBreakdowns } from "./service-breakdowns.js";
 
 /** An order nothing more can be won on: refused (the 86), or gone with its courier. */
 const LOST = new Set(["refused", "gone"]);
@@ -63,8 +65,11 @@ export function drawWorld(state, rng, horizon = SEARCH_SETTINGS.horizon, human =
   for (const cook of world.cooks) cook.manual = false;
   const come = world.upcoming.filter((order) => order.arrival <= state.t || order.stock);
   world.upcoming = [...come, ...drawComing(state.setup, state.t, come, rng)];
-  // The couriers not yet come: when they will come, nobody knows (service-delivery.js).
+  // The couriers not yet come: when they will come, nobody knows (service-delivery.js); nor the human's pauses, nor the
+  // robots' breakdowns to come (service-human.js, service-breakdowns.js).
   redrawCouriers(world, rng);
+  world.person = redrawPerson(state, rng);
+  world.breakdowns = redrawBreakdowns(state, rng);
   // The humans this service may have: the one who follows his table only where there are tables.
   const names = humansOf(state.setup);
   const drawn = HUMANS[names[rng.int(names.length)]];

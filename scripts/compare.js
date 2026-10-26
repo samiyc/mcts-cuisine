@@ -7,11 +7,13 @@ import { BANQUET } from "../src/service-banquet.js";
 import { DELIVERY } from "../src/service-delivery.js";
 import { MISE } from "../src/service-mise.js";
 import { HYGIENE } from "../src/service-hygiene.js";
+import { ERRORS, FATIGUE, PAUSES } from "../src/service-human.js";
+import { BREAKDOWNS } from "../src/service-breakdowns.js";
 import { SUPPLY } from "../src/service-supply.js";
 import { TABLES } from "../src/service-tables.js";
 
 /**
- * `npm run compare -- [--kitchen petite|couloir|brigade] [--services 100] [--search [budget]] [--tables] [--rupture [n]] [--banquet] [--livraison] [--serie [k]] [--couverts n] [--chaud m] [--mise-en-place] [--aboyeur] [--hygiene] [--humain urgent]`: the
+ * `npm run compare -- [--kitchen petite|couloir|brigade] [--services 100] [--search [budget]] [--tables] [--rupture [n]] [--banquet] [--livraison] [--serie [k]] [--couverts n] [--chaud m] [--mise-en-place] [--aboyeur] [--hygiene] [--fatigue] [--pauses] [--erreurs] [--pannes] [--humain urgent]`: the
  * robots' rules on the same drawn services, with each simulated human the service may have (src/rules.js, `humansOf`)
  * and with none, or only `--humain` (a name of HUMANS, or none); every kitchen when none is named.
  * `--search` adds the search (src/search.js, ~1 to 3 s a service). Since step 0 of the trades' roadmap (26/10), each
@@ -53,6 +55,9 @@ const banquetOf = () => ({ ...BANQUET, ...(serie ? { batch: serie } : {}), ...(n
 const aboyeur = args.includes("--aboyeur");
 // `--hygiene`: guests allergic to onions, boards cleaned before their salads (service-hygiene.js).
 const hygiene = args.includes("--hygiene");
+// `--fatigue`, `--pauses`, `--erreurs`: the human's limits (service-human.js); `--pannes`: the robots' breakdowns (service-breakdowns.js).
+const LIMITS = { "--fatigue": { fatigue: FATIGUE }, "--pauses": { pauses: PAUSES }, "--erreurs": { errors: ERRORS }, "--pannes": { breakdowns: BREAKDOWNS } };
+const limits = Object.assign({}, ...Object.entries(LIMITS).filter(([flag]) => args.includes(flag)).map(([, value]) => value));
 function withAboyeur(setup) {
   const robots = readKitchen(setup.text).robots.length;
   return { ...setup, roles: Array.from({ length: robots }, (_, i) => (i === robots - 1 ? "aboyeur" : (setup.roles?.[i] ?? null))) };
@@ -66,7 +71,7 @@ function bottleneckText(row) {
 }
 const HEAD = "L'humain              | Règle des robots         | commandes | à temps | en retard | manquées | gain à temps (IC 95 %) | bon p90 | bon max | pic | goulot";
 for (const id of named) {
-  const setup = { ...KITCHENS[id], ...(tables ? { tables: TABLES } : {}), ...(rupture ? { supply: { o: rupture, t: rupture } } : {}), ...(banquet ? { banquet: banquetOf() } : {}), ...(delivery ? { delivery: { ...DELIVERY, ...KITCHENS[id].delivery } } : {}), ...(mise ? { miseEnPlace: MISE } : {}), ...(hygiene ? { hygiene: HYGIENE } : {}) };
+  const setup = { ...KITCHENS[id], ...(tables ? { tables: TABLES } : {}), ...(rupture ? { supply: { o: rupture, t: rupture } } : {}), ...(banquet ? { banquet: banquetOf() } : {}), ...(delivery ? { delivery: { ...DELIVERY, ...KITCHENS[id].delivery } } : {}), ...(mise ? { miseEnPlace: MISE } : {}), ...(hygiene ? { hygiene: HYGIENE } : {}), ...limits };
   if (aboyeur) Object.assign(setup, withAboyeur(setup));
   if (!KITCHENS[id]) throw new Error(`cuisine inconnue ; au choix : ${Object.keys(KITCHENS).join(", ")}`);
   console.log(`\n${setup.label} : ${services} services`);

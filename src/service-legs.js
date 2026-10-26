@@ -2,6 +2,7 @@ import { astar } from "mcts-commun/grid.js";
 import { distancesFrom } from "./kitchen.js";
 import { FREE, isWorkStation, keyOf, standsOn } from "./service-basics.js";
 import { boardCleaning, useBoard } from "./service-hygiene.js";
+import { slower } from "./service-human.js";
 
 /**
  * The cooks' legs (split from simulate.js, 26/10/2026): the paths reserved in space and time, the station each step
@@ -222,7 +223,7 @@ function arrive(state, cook, step) {
 /** `cook` at his station starts his gesture: its turns, a board remembered (service-hygiene.js). */
 function startWorking(state, cook) {
   const doing = cook.steps[cook.step];
-  const turns = turnsOf(state, doing, cook.station, cook);
+  const turns = slower(state, cook, turnsOf(state, doing, cook.station, cook));
   if (doing.type === "cut") useBoard(state, cook.station, cook);
   Object.assign(cook, { phase: "working", until: state.t + turns, span: turns });
 }

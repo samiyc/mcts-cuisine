@@ -34,13 +34,23 @@
         <h2>Les versions</h2>
 
       <article class="version">
+        <h3><span class="tag">0.23</span> La fatigue, les pauses, les erreurs ; les pannes <span class="date">26/10</span></h3>
+        <ul>
+          <li>Le cuisinier simulé peut se fatiguer (ses gestes plus longs en fin de service), faire une pause (il finit son plat d'abord) et se tromper de plat (à refaire) ; les robots peuvent tomber en panne quelques tours. Chaque réglage est éteint par défaut, dans l'onglet Cuisine.</li>
+          <li>La recherche ne sait pas quand viendront la pause ou la panne : elle les imagine dans ses mondes.</li>
+          <li>Mesuré : un humain fatigué, en pause et qui se trompe coûte environ un plat à temps ; les pannes, au rythme annoncé par un fabricant, peu ; cinq fois plus fréquentes, deux plats dans la grande brigade.</li>
+        </ul>
+        <p class="commits"></p>
+      </article>
+
+      <article class="version">
         <h3><span class="tag">0.22</span> Le ménage et les allergènes <span class="date">26/10</span></h3>
         <ul>
           <li>Les planches se souviennent du dernier ingrédient coupé ; une salade sur dix est pour un allergique à l'oignon : sur une planche qui a coupé des oignons, il faut d'abord la nettoyer. Le ménage nettoie aussi une planche toutes les N coupes.</li>
           <li>Mesuré : presque rien ne change avec deux planches, le cuisinier prend la propre ; le ménage fréquent coûte un peu.</li>
           <li>Le réglage « L'hygiène » dans l'onglet Cuisine ; npm run compare -- --hygiene.</li>
         </ul>
-        <p class="commits"></p>
+        <p class="commits"><code>a7198bc</code></p>
       </article>
 
       <article class="version">

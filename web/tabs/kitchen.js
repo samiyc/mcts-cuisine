@@ -4,6 +4,8 @@ import { DELIVERY } from "../../src/service-delivery.js";
 import { MISE } from "../../src/service-mise.js";
 import { PLATES } from "../../src/service-plates.js";
 import { HYGIENE } from "../../src/service-hygiene.js";
+import { ERRORS, FATIGUE, PAUSES } from "../../src/service-human.js";
+import { BREAKDOWNS } from "../../src/service-breakdowns.js";
 import { SUPPLY } from "../../src/service-supply.js";
 import { TABLES } from "../../src/service-tables.js";
 import { board } from "../board.js";
@@ -84,7 +86,15 @@ function laterFields(setup) {
   ];
 }
 
-const fieldsOf = (setup) => el("div", { class: "fields" }, ...serviceFields(setup), ...optionFields(setup));
+/** The limits of the human and the robots (26/10, the evening), each a box to tick. */
+const limitFields = (setup) => [
+  check("fatigue", setup.fatigue, `La fatigue : après le tour ${FATIGUE.after}, les gestes du cuisinier simulé durent ${Math.round(100 * FATIGUE.slower)} % de plus`),
+  check("pauses", setup.pauses, `Les pauses : ${PAUSES.count} pause de ${PAUSES.length} tours par service, il finit son plat d'abord`),
+  check("errors", setup.errors, `Les erreurs : ${Math.round(100 * ERRORS.rate)} % de ses plats à refaire, ${Math.round(100 * ERRORS.tired)} % fatigué`),
+  check("breakdowns", setup.breakdowns, `Les pannes : un robot s'arrête ${BREAKDOWNS.repair} tours, une fois tous les ${BREAKDOWNS.every} tours en moyenne`),
+];
+
+const fieldsOf = (setup) => el("div", { class: "fields" }, ...serviceFields(setup), ...optionFields(setup), ...limitFields(setup));
 
 export function kitchenView({ state }) {
   const { setup } = state;
@@ -101,6 +111,10 @@ const OPTIONS = {
   delivery: (_number, data) => ({ ...DELIVERY, packing: Math.max(0, Number(data.get("packing")) || 0) }),
   miseEnPlace: () => MISE,
   plates: (number) => ({ ...PLATES, stock: number("stock") }),
+  fatigue: () => FATIGUE,
+  pauses: () => PAUSES,
+  errors: () => ERRORS,
+  breakdowns: () => BREAKDOWNS,
   hygiene: (_number, data) => ({ ...HYGIENE, every: Math.max(0, Number(data.get("boardEvery")) || 0) }),
 };
 

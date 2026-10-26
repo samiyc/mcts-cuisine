@@ -47,7 +47,7 @@ point dit où il se rangera.
   table qui compte, et un plat mort au passe n'y pèse pas. Les mesures de nuit du 26/10 (`docs/metiers.md`) : elle
   fait avancer les tables dans la petite cuisine et la grande brigade, mais la règle de la table la bat dans le grand
   détour ; avec la rupture, elle gagne peu. Rangé : une évaluation par table, à mesurer.
-- **La plonge, les allergènes, la fatigue, les menus en plusieurs temps** : prévus « plus tard » dans la
+- **Les menus en plusieurs temps** (entrée, plat, dessert pour une même table) : prévus dans la
   [feuille de route](feuille-de-route.md), étape 4.
 
 ## Fait depuis
@@ -72,3 +72,4 @@ Les oublis réglés quittent cette liste et vont dans [modele.md](../modele.md) 
   paniers pleins plutôt qu'une assiette à la fois.
 - **Les allergènes et le ménage** (26/10, le soir) : les planches qui se souviennent, une salade sur dix « sans oignon »
   (`docs/metiers.md`). Reste : une cuisine à une planche, plusieurs allergènes, le code couleur des planches.
+- **Les pauses, la fatigue, les erreurs de l'humain, les pannes des robots** (26/10, le soir) : `docs/metiers.md`.
