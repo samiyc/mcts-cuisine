@@ -22,7 +22,7 @@ export const kitchenPanel = ({ state }) =>
     { class: "panel" },
     el("h2", {}, "La cuisine"),
     el("label", {}, "Partir de", select("kitchen", Object.entries(KITCHENS).map(([id, kitchen]) => [id, kitchen.label]), state.kitchenId)),
-    el("p", { class: "hint" }, "Le plan en texte : « . » le sol, « R » un robot, « H » le cuisinier, « # » un mur, « _ » un comptoir (un plat y attend qu'un autre le reprenne), « o » et « t » les caisses d'oignons et de tomates, « C » une planche, « P » un fourneau, « S » le passe."),
+    el("p", { class: "hint" }, "Le plan en texte : « . » le sol, « R » un robot, « H » le cuisinier, « # » un mur, « _ » un comptoir (un plat y attend qu'un autre le reprenne), « o » et « t » les caisses d'oignons et de tomates, « C » une planche, « P » un fourneau, « S » le passe, « E » un poste d'emballage (la livraison)."),
     el("p", { class: "hint" }, "La soupe peut cuire seule : on pose la marmite 🥘 et on repart ; prête 🍲, elle attend qu'on vienne la retirer, le chiffre dit dans combien de tours elle brûle. Brûlée, le plat est perdu, la commande est à refaire, et le fourneau doit être nettoyé 🧽 avant de resservir."),
   );
 
@@ -50,6 +50,7 @@ function fieldsOf(setup) {
     field("Oignons pour le service", "onions", supply.o),
     field("Tomates pour le service", "tomatoes", supply.t),
     el("label", { class: "check" }, el("input", { name: "delivery", type: "checkbox", checked: Boolean(setup.delivery) }), `La livraison : un coursier par commande, annoncé ${DELIVERY.prep} tours après elle, à ${DELIVERY.spread} tours près ; il attend ${DELIVERY.wait} tours`),
+    el("label", {}, "Emballer un plat (tours ; 0 : sans emballage ; il faut un poste « E » dans le plan)", el("input", { name: "packing", type: "number", min: "0", value: String(setup.delivery?.packing ?? 0) })),
     el("label", { class: "check" }, el("input", { name: "mise", type: "checkbox", checked: Boolean(setup.miseEnPlace) }), `La mise en place : un robot sans commande coupe d'avance les oignons d'une soupe et les pose sur un comptoir (${MISE.ahead} au plus)`),
     el("label", { class: "check" }, el("input", { name: "banquet", type: "checkbox", checked: Boolean(setup.banquet) }), `Un banquet : ${BANQUET.covers} couverts environ, l'entrée vers le tour ${BANQUET.courses[0].at}, le plat vers le tour ${BANQUET.courses[1].at}, ${BANQUET.pass} tours au chaud au plus`),
     field("Plats d'un envoi faits ensemble (coupe en série ; 1 : un par un)", "batch", setup.banquet?.batch ?? BANQUET.batch),
@@ -71,7 +72,7 @@ export function kitchenFrom(form, setup) {
   const tables = data.get("tables") ? { ...TABLES, pass: number("pass") } : null;
   const supply = data.get("supply") ? { o: number("onions"), t: number("tomatoes") } : null;
   const banquet = data.get("banquet") ? { ...BANQUET, batch: number("batch") } : null;
-  const delivery = data.get("delivery") ? DELIVERY : null;
+  const delivery = data.get("delivery") ? { ...DELIVERY, packing: Math.max(0, Number(data.get("packing")) || 0) } : null;
   const miseEnPlace = data.get("mise") ? MISE : null;
   return { ...setup, label: "Cuisine modifiée", text: String(data.get("text")).trimEnd(), every: number("every"), patience: number("patience"), lastOrder: number("lastOrder"), service: number("service"), pace: number("pace"), roles, unattended, tables, supply, banquet, delivery, miseEnPlace };
 }

@@ -17,8 +17,8 @@ import { tableMeasures } from "./service-tables.js";
  */
 
 /** The station kinds whose use is measured, by the name a measure gives them. */
-const KINDS = Object.freeze({ C: "Board", P: "Stove", S: "Pass", _: "Counter" });
-const WORDS = Object.freeze({ Board: "planche", Stove: "fourneau", Pass: "passe", Counter: "comptoir" });
+const KINDS = Object.freeze({ C: "Board", P: "Stove", S: "Pass", _: "Counter", E: "Pack" });
+const WORDS = Object.freeze({ Board: "planche", Stove: "fourneau", Pass: "passe", Counter: "comptoir", Pack: "emballage" });
 /** The turns of a slice of the service's curve. */
 export const SLICE = 25;
 

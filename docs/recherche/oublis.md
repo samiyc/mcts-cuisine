@@ -28,8 +28,7 @@ point dit où il se rangera.
   suit sa table » suit aussi le plan de production (il ne lance pas un plat qui mourrait au chaud) : à mesurer au
   banquet. Rangé : étape 2.
 
-- **La livraison sans emballage ni enseignes** : le poste d'emballage (une lettre de plus dans les plans, une étape de
-  plus à chaque plat) et les deux enseignes sous un toit ([livraison.md](livraison.md)) ne sont pas faits ; une règle
+- **La livraison sans enseignes** : les deux enseignes sous un toit ([livraison.md](livraison.md)) ne sont pas faites ; une règle
   qui tiendrait compte de l'incertitude des coursiers non plus (le rétroplanning ne lit que l'heure annoncée). Rangé :
   étape 3.
 - **Les deux tirages du banquet et de la livraison sont des hypothèses** (6 couverts, 60 tours au chaud ; un coursier
@@ -67,3 +66,5 @@ Les oublis réglés quittent cette liste et vont dans [modele.md](../modele.md) 
 - **L'aboyeur et la mise en place** (26/10, le soir) : faits, éteints par défaut, mesurés (`docs/metiers.md`).
 - **Un plat par voyage** (26/10, le soir) : la coupe en série ; à 8 couverts et 30 tours au chaud, le banquet part enfin
   (`docs/metiers.md`, « La coupe en série »). Reste : quand lancer un lot, et de quelle taille (la recherche, dans la file).
+- **Le poste d'emballage** (26/10, le soir) : la lettre `E`, la dark kitchen (`docs/metiers.md`). Ce qu'il évite (les
+  erreurs de commande) n'est pas modélisé.

@@ -6,7 +6,7 @@ import { parsePlan } from "mcts-commun/grid.js";
  * simulate.js.
  */
 const FLOOR = new Set([".", "R", "H"]);
-export const STATIONS = Object.freeze({ o: "caisse d'oignons", t: "caisse de tomates", C: "planche", P: "fourneau", S: "passe", _: "comptoir" });
+export const STATIONS = Object.freeze({ o: "caisse d'oignons", t: "caisse de tomates", C: "planche", P: "fourneau", S: "passe", _: "comptoir", E: "poste d'emballage" });
 /** The stations every kitchen needs (a counter is optional). */
 const REQUIRED = ["o", "t", "C", "P", "S"];
 const SIDES = [

@@ -13,6 +13,8 @@ import { drop } from "./service-legs.js";
  * (docs/recherche/oublis.md).
  */
 export const DELIVERY = Object.freeze({ prep: 30, spread: 8, wait: 10, pass: 15 });
+/** Packing a dish, in turns, in a kitchen with a packing station (a hypothesis: about a minute, docs/recherche/production.md). */
+export const PACKING = 2;
 
 /** When a courier announced at `announced` really comes, drawn by `rng`. */
 const courierOf = (delivery, rng, announced) => announced - delivery.spread + rng.int(2 * delivery.spread + 1);
@@ -77,4 +79,21 @@ export function deliveryMeasures(state) {
   const dishWaits = sent.map((order) => order.servedAt - (passed.get(order.id) ?? order.servedAt));
   const mean = (values) => (values.length ? values.reduce((sum, one) => sum + one, 0) / values.length : 0);
   return { gone: state.upcoming.filter((order) => order.status === "gone").length, meanCourierWait: mean(courierWaits), maxCourierWait: Math.max(0, ...courierWaits), maxDishWait: Math.max(0, ...dishWaits) };
+}
+
+/**
+ * The packing station (Sami, 26/10/2026, the evening, step 3; docs/recherche/production.md): with
+ * `setup.delivery.packing` turns and a station `E` in the plan, a delivered dish is packed there before it goes to the
+ * pass. Before its serving step, the cook gets a packing step, once (`order.packed`).
+ */
+export function packFirst(state, cook) {
+  const turns = state.setup.delivery?.packing;
+  if (!turns || cook.steps?.[cook.step]?.type !== "serve" || !needsPacking(state, cook)) return;
+  cook.steps = [...cook.steps.slice(0, cook.step), { type: "pack", kind: "E", turns }, ...cook.steps.slice(cook.step)];
+}
+
+/** Is `cook`'s dish a delivered one not yet packed, in a kitchen with a packing station? */
+function needsPacking(state, cook) {
+  const order = state.upcoming.find((one) => one.id === cook.order);
+  return Boolean(order) && !order.packed && order.courierAt !== undefined && state.kitchen.stations.some((station) => station.kind === "E");
 }

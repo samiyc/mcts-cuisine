@@ -6,7 +6,8 @@
  * - `_` a counter: cut onions wait there for a stove, one batch a counter (23/10/2026), when robots have roles;
  * - `o`, `t` the onion and tomato crates; `C` a cutting board; `P` a stove; `S` the pass, where dishes are
  *   served. A cook works at one of them from a floor cell beside it; a board or a stove serves one cook at a
- *   time.
+ *   time;
+ * - `E` a packing station (26/10, the evening): a delivered dish is packed there before the pass.
  * Each kitchen comes with its service: how often orders come, how long a guest waits, how long the service;
  * and, maybe, the robots' roles (`roles`, in the order the robots appear: `coupe`, `cuisson`, `salade`, or
  * `passe`, which only serves what is ready, or empty for a robot that makes whole dishes).
@@ -99,5 +100,18 @@ export const KITCHENS = Object.freeze({
     unattended: UNATTENDED,
     pace: PACE,
     roles: Object.freeze([null, "passe"]),
+  }),
+  // The kitchens added on 26/10 in the evening (Sami: new stations in new kitchens, the seven above unchanged).
+  dark: Object.freeze({
+    label: "Dark kitchen (2 robots et vous : la livraison, un poste d'emballage avant le passe)",
+    text: ["##o##t#EESS#", "#..........#", "#.R.H...R..#", "C..........P", "C..........P", "############"].join("\n"),
+    every: 9,
+    patience: 60,
+    service: 200,
+    lastOrder: 160,
+    unattended: UNATTENDED,
+    pace: PACE,
+    // DELIVERY of service-delivery.js (written out: kitchens.js imports nothing), and PACKING turns to pack a dish.
+    delivery: Object.freeze({ prep: 30, spread: 8, wait: 10, pass: 15, packing: 2 }),
   }),
 });

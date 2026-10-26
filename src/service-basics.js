@@ -5,8 +5,8 @@ import { RECIPES } from "./kitchens.js";
  * steps from where it stands, which role an order belongs to, and the floor distances to a station.
  */
 export const keyOf = (cell) => `${cell.x},${cell.y}`;
-/** A station only one cook works at a time: a board, a stove, a counter. */
-export const isWorkStation = (kind) => kind === "C" || kind === "P" || kind === "_";
+/** A station only one cook works at a time: a board, a stove, a counter, a packing station. */
+export const isWorkStation = (kind) => kind === "C" || kind === "P" || kind === "_" || kind === "E";
 /** Cut onions waiting on the counters from which any robot helps cook them. */
 export const PILE = 2;
 /** Putting cut onions down on a counter. */

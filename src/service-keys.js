@@ -1,4 +1,5 @@
 import { RECIPES } from "./kitchens.js";
+import { packFirst } from "./service-delivery.js";
 import { PUT, collectSteps, isWorkStation, keyOf, orderOf, pickupSteps, standsOn, stepsOf } from "./service-basics.js";
 import { drop, holdHere, paceOf, planLeg, stepAt, turnsOf, unfit } from "./service-legs.js";
 import { isOut, useSupply } from "./service-supply.js";
@@ -10,7 +11,7 @@ import { isOut, useSupply } from "./service-supply.js";
 
 /** What the chef is doing, in words. */
 const GESTURES = Object.freeze({ fetch: "prend l'ingrédient", cut: "coupe", cook: "pose la marmite", put: "pose le plat", pickup: "reprend le plat", collect: "retire la soupe du feu", serve: "sert", clean: "récure le fourneau" });
-const NAMES = Object.freeze({ o: "la caisse d'oignons", t: "la caisse de tomates", C: "une planche", P: "un fourneau", S: "le passe", _: "un comptoir" });
+const NAMES = Object.freeze({ o: "la caisse d'oignons", t: "la caisse de tomates", C: "une planche", P: "un fourneau", S: "le passe", _: "un comptoir", E: "le poste d'emballage" });
 
 /**
  * The chef busy with a gesture: what it is and how long it still lasts (Sami, 23/10: « le chef travaille » stayed on
@@ -176,6 +177,7 @@ const cleaningFirst = (state, step, station) => step.type === "cook" && Boolean(
 
 /** The chef, a dish in hand, at the stations beside him: its next step, if one of them is the station it needs. */
 function workOn(state, cook, here) {
+  packFirst(state, cook);
   const step = cook.steps[cook.step];
   const put = putDownHere(state, cook, here, step);
   if (put) return put;

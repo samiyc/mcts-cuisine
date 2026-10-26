@@ -478,3 +478,30 @@ par envoi entier) :
   au passe-plats, un lot entier attend au chaud et meurt (2,1 contre 11,7 par lots de 3 à 6 couverts) : la taille du
   lot et l'heure de son départ se décident ensemble. C'est un choix pour la recherche (mesures dans la file).
 - Le chiffre clé, **un tour (30 s) par portion de plus**, est une hypothèse ([questions au spécialiste](recherche/questions-specialiste.md), 10).
+
+## Le poste d'emballage, la dark kitchen (26/10, le soir, étape 3)
+
+**Le poste** (une lettre `E` dans le plan, un poste de travail comme une planche) : avec `setup.delivery.packing`
+tours, un plat livré passe par le poste d'emballage avant le passe ; le pas `pack` s'ajoute avant l'envoi, une fois
+(`order.packed`), pour les robots comme pour le chef au clavier. Sans poste `E` dans le plan, rien ne change.
+
+**La dark kitchen** (`KITCHENS.dark`, Sami : de nouvelles stations dans de nouvelles cuisines, les sept d'avant
+inchangées) : la petite cuisine, la livraison cochée, deux postes d'emballage avant le passe, **2 tours** (une minute)
+pour emballer un plat, une hypothèse ([`recherche/production.md`](recherche/production.md)). L'empreinte des règles
+ne parcourt plus que les sept cuisines d'avant (une liste fixe) ; les cuisines ajoutées ont la leur (`added`).
+
+Mesuré par paires (30 services, le cuisinier « le plus urgent » ; plats à temps, commandes parties sans leur plat ;
+l'écart avec la même cuisine sans emballage) :
+
+| Emballer un plat | la plus ancienne | le plus rapide | le rétroplanning |
+|---|---|---|---|
+| 0 tour | 11,9 ; 7,8 partis | 12,6 ; 7,1 | 11,6 ; 8,1 |
+| 1 tour | 10,7 ; 9,0 (−1,23) | 11,5 ; 8,2 (−1,10) | 10,1 ; 9,5 (−1,43) |
+| **2 tours** | 10,0 ; 9,6 (−1,87) | **11,3 ; 8,4** (−1,27) | 9,5 ; 10,1 (−2,10) |
+| 4 tours | 8,9 ; 10,7 (−3,00) | 10,5 ; 9,2 (−2,03) | 8,4 ; 11,2 (−3,17) |
+
+- **L'emballage coûte un plat à temps par tour d'emballage, à peu près** : un coursier n'attend que 10 tours, chaque
+  tour avant le passe en fait partir un de plus sans son plat. Le plat le plus rapide y perd le moins.
+- Ce que l'emballage évite (les erreurs de commande, 2 à 12 % selon les sources) n'est pas modélisé : un plat emballé
+  et un plat non emballé partent pareil. Ce sera le pendant des erreurs de l'humain (étape G).
+- La recherche dans la dark kitchen : dans la file.

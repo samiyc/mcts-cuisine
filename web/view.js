@@ -7,8 +7,8 @@ import { bottleneckOf } from "../src/service-measures.js";
  * draw, the cooks with what they do, the orders with their age and patience left, the service in one line.
  * The DOM layer (app.js) only draws it.
  */
-const STEP_LABELS = Object.freeze({ fetch: "prend l'ingrédient", cut: "coupe", cook: "fait cuire", serve: "sert", put: "pose les oignons coupés sur un comptoir", pickup: "reprend des oignons coupés", collect: "retire la soupe du feu", clean: "récure le fourneau brûlé" });
-const READY_STEPS = new Set(["serve"]);
+const STEP_LABELS = Object.freeze({ fetch: "prend l'ingrédient", cut: "coupe", cook: "fait cuire", serve: "sert", put: "pose les oignons coupés sur un comptoir", pickup: "reprend des oignons coupés", collect: "retire la soupe du feu", clean: "récure le fourneau brûlé", pack: "emballe le plat" });
+const READY_STEPS = new Set(["serve", "pack"]);
 /**
  * What a dish looks like at its stage (Sami, 23/10): `whole` the ingredient as fetched, `cut` once cut but not
  * yet a dish (onions to cook), `ready` the dish (a salad cut, a soup cooked).

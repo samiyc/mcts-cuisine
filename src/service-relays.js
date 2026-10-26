@@ -1,5 +1,6 @@
 import { distancesFrom } from "./kitchen.js";
 import { PUT, isWorkStation, keyOf, kindDistance, orderOf, sideDistance } from "./service-basics.js";
+import { packFirst } from "./service-delivery.js";
 import { holdHere, paceOf, planLeg, stationFor, stepAt, unfitKind, waitFor } from "./service-legs.js";
 import { countWait } from "./service-measures.js";
 
@@ -123,6 +124,7 @@ function takeRelay(state, cook) {
 
 /** Sends `cook` to its current step's station; waits a turn, near it, when none is free or no path is found. */
 export function startStep(state, cook) {
+  packFirst(state, cook);
   if (handsOver(state, cook)) cook.steps = [...cook.steps.slice(0, cook.step), PUT];
   takeRelay(state, cook);
   const step = cook.steps[cook.step];

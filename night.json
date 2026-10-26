@@ -532,6 +532,27 @@
       "estimate": "4 h",
       "priority": 2,
       "limit": 600
+    },
+    {
+      "id": "cuis-dark-urgent",
+      "command": "npm run compare -- --kitchen dark --services 30 --search --humain urgent",
+      "estimate": "1 h",
+      "priority": 2,
+      "limit": 240
+    },
+    {
+      "id": "cuis-dark-table",
+      "command": "npm run compare -- --kitchen dark --services 30 --search --humain table",
+      "estimate": "1 h",
+      "priority": 2,
+      "limit": 240
+    },
+    {
+      "id": "cuis-dark-none",
+      "command": "npm run compare -- --kitchen dark --services 30 --search --humain none",
+      "estimate": "1 h",
+      "priority": 2,
+      "limit": 240
     }
   ]
 }

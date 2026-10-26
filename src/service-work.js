@@ -80,6 +80,10 @@ const ENDS = Object.freeze({
     Object.assign(order, { stove: null, cooked: true });
     return false;
   },
+  pack: (_state, _cook, order) => {
+    order.packed = true;
+    return false;
+  },
   pickup: (state, _cook, order, counter) => {
     state.shelf.delete(counter);
     order.counter = null;

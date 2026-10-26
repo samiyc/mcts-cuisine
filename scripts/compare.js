@@ -63,7 +63,7 @@ function bottleneckText(row) {
 }
 const HEAD = "L'humain              | Règle des robots         | commandes | à temps | en retard | manquées | gain à temps (IC 95 %) | bon p90 | bon max | pic | goulot";
 for (const id of named) {
-  const setup = { ...KITCHENS[id], ...(tables ? { tables: TABLES } : {}), ...(rupture ? { supply: { o: rupture, t: rupture } } : {}), ...(banquet ? { banquet: banquetOf() } : {}), ...(delivery ? { delivery: DELIVERY } : {}), ...(mise ? { miseEnPlace: MISE } : {}) };
+  const setup = { ...KITCHENS[id], ...(tables ? { tables: TABLES } : {}), ...(rupture ? { supply: { o: rupture, t: rupture } } : {}), ...(banquet ? { banquet: banquetOf() } : {}), ...(delivery ? { delivery: { ...DELIVERY, ...KITCHENS[id].delivery } } : {}), ...(mise ? { miseEnPlace: MISE } : {}) };
   if (aboyeur) Object.assign(setup, withAboyeur(setup));
   if (!KITCHENS[id]) throw new Error(`cuisine inconnue ; au choix : ${Object.keys(KITCHENS).join(", ")}`);
   console.log(`\n${setup.label} : ${services} services`);
