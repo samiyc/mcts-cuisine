@@ -1,5 +1,5 @@
 import { RECIPES } from "./kitchens.js";
-import { FREE } from "./service-basics.js";
+import { AGAIN, FREE } from "./service-basics.js";
 import { couriersLeave } from "./service-delivery.js";
 import { refuseIfOut } from "./service-supply.js";
 
@@ -74,7 +74,7 @@ function sendTables(state) {
 function dieAtPass(state) {
   for (const order of state.upcoming) {
     if (order.status !== "passed" || state.t - order.passedAt <= passOf(state.setup).pass) continue;
-    Object.assign(order, { status: "open", passedAt: null, died: (order.died ?? 0) + 1 });
+    Object.assign(order, { ...AGAIN, passedAt: null, died: (order.died ?? 0) + 1 });
     refuseIfOut(state, order);
     state.died = (state.died ?? 0) + 1;
     state.log.push({ t: state.t, type: "died", order: order.id });

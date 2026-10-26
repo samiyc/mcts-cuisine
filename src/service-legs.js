@@ -155,11 +155,17 @@ export function waitFor(state, cook, step) {
 }
 
 /**
+ * Is `pot`'s soup another cook's to take off? Its watcher then stops watching: standing in front of the stove, it
+ * was in his way (Sami, 26/10: the split kitchen's top stove has a single side, and the soup burnt there).
+ */
+const takenByOther = (state, cook, pot) => state.cooks.some((other) => other !== cook && other.order === pot.order);
+
+/**
  * A free cook watching a pot (its own, or any for a `cuisson` robot) waits in front of the stove whose soup is
  * ready first, to take it off at once; false when it watches none or cannot get there.
  */
 export function watch(state, cook) {
-  const pots = [...state.pots].filter(([, pot]) => pot.owner === cook.id || cook.role === "cuisson").sort((a, b) => a[1].ready - b[1].ready);
+  const pots = [...state.pots].filter(([, pot]) => (pot.owner === cook.id || cook.role === "cuisson") && !takenByOther(state, cook, pot)).sort((a, b) => a[1].ready - b[1].ready);
   if (pots.length === 0) return false;
   const stove = state.kitchen.stations.find((station) => keyOf(station) === pots[0][0]);
   if (stove.access.some((cell) => standsOn(cook, cell))) return true;

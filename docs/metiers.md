@@ -585,3 +585,41 @@ Mesuré par paires (30 services, le plat le plus rapide, le cuisinier « le plus
   il ne sert presque jamais lui-même (le robot du passe le fait), ses erreurs n'y comptent pas.
 - **Les pannes au rythme d'un fabricant coûtent peu** ; cinq fois plus fréquentes, deux plats dans la grande brigade.
 - Ce que la recherche y gagne, en imaginant la pause et la panne : dans la file.
+
+## Le robot qui barrait le fourneau ; le relais oublié (26/10, la nuit, correction)
+
+Sami (26/10, une capture de la cuisine coupée en deux, la recherche, le cuisinier « le plus urgent ») : le fourneau
+du haut finit par brûler, et le robot 1 ne passe plus ses oignons par le comptoir. Deux défauts, chacun assez pour
+bloquer un service, et pas seulement avec la recherche :
+- **le robot qui surveille sa marmite restait devant le fourneau** quand le cuisinier venait la retirer à sa place
+  (`watch`, `src/service-legs.js`). Le fourneau du haut n'a qu'une case d'accès : le cuisinier attendait à côté, la
+  soupe brûlait. Désormais, une marmite qu'un autre est venu prendre n'est plus surveillée : le robot s'écarte ;
+- **une soupe rouverte gardait la marque de son relais** (`order.relayed`) : brûlée après être passée par un
+  comptoir, elle ne pouvait plus y repasser, et le robot des planches, ses oignons coupés en main, attendait un
+  fourneau hors de sa portée jusqu'à la fin du service (165 tours au service 19, avec les règles). Une commande à
+  refaire (brûlée, morte au passe, plat faux) repart désormais sans cette marque (`AGAIN`, `src/service-basics.js`).
+
+Avant et après, 9 services, la plus ancienne commande, le cuisinier « le plus urgent » (plats à temps, et soupes
+brûlées sur les 9 services) :
+
+| Cuisine | avant | après |
+|---|---|---|
+| petite | 18,1 (14) | 18,8 (1) |
+| en couloir | 8,2 (3) | 8,7 (0) |
+| grande brigade | 23,7 (13) | 24,9 (3) |
+| passe-plats | 11,3 (14) | 12,9 (5) |
+| postes | 14,9 (14) | 17,1 (0) |
+| coupée en deux | 12,2 (9) | **16,3 (0)** |
+| le grand détour | 14,6 (8) | 15,3 (2) |
+| dark kitchen | 10,1 (7) | 11,1 (2) |
+| brigade avec plonge | 22,0 (21) | 22,8 (14) |
+
+- **La plupart des soupes brûlées venaient de là** : le robot qui veillait sa marmite gênait celui qui venait la
+  prendre. Les règles y gagnent jusqu'à quatre plats ; **les mesures du soir sont refaites** dans la file (le tag
+  `2026-10-26-correctif`), les chiffres plus haut sont d'avant la correction.
+- Le test des croisements comparait le début et la fin d'un tour : à deux cases par tour, deux cuisiniers qui font le
+  tour d'un carré de quatre cases, chacun par son côté, finissaient l'un à la place de l'autre sans s'être croisés. Il
+  regarde désormais pas à pas (`tests/service.test.js`).
+- Reste, vu au passage : avec la règle du plat le plus rapide, les trois comptoirs de la cuisine coupée peuvent se
+  remplir d'oignons coupés pendant que les autres enchaînent les salades ; le robot des planches attend alors qu'un
+  comptoir se libère (45 tours au service 8). Ce n'est pas un blocage, c'est la règle ; la recherche les cuit.

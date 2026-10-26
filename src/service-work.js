@@ -1,5 +1,5 @@
 import { RECIPES } from "./kitchens.js";
-import { FREE, keyOf, orderOf } from "./service-basics.js";
+import { AGAIN, FREE, keyOf, orderOf } from "./service-basics.js";
 import { drop } from "./service-legs.js";
 import { goOn } from "./service-mise.js";
 import { plateGone, washed } from "./service-plates.js";
@@ -41,7 +41,7 @@ function burn(state, stove, order) {
   releaseFollowers(state, order);
   // A soup made ahead is simply lost; an order's is to make again.
   if (order.stock) state.upcoming.splice(state.upcoming.indexOf(order), 1);
-  Object.assign(order, { status: "open", cook: null, stove: null, burnt: (order.burnt ?? 0) + 1 });
+  Object.assign(order, { ...AGAIN, stove: null, burnt: (order.burnt ?? 0) + 1 });
   refuseIfOut(state, order);
   state.log.push({ t: state.t, type: "burnt", order: order.id });
 }

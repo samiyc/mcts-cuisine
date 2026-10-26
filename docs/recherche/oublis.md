@@ -73,3 +73,7 @@ Les oublis réglés quittent cette liste et vont dans [modele.md](../modele.md) 
 - **Les allergènes et le ménage** (26/10, le soir) : les planches qui se souviennent, une salade sur dix « sans oignon »
   (`docs/metiers.md`). Reste : une cuisine à une planche, plusieurs allergènes, le code couleur des planches.
 - **Les pauses, la fatigue, les erreurs de l'humain, les pannes des robots** (26/10, le soir) : `docs/metiers.md`.
+- **Le robot qui barrait le fourneau, le relais oublié** (26/10, la nuit, trouvé par Sami dans la cuisine coupée en
+  deux) : un robot qui surveillait sa marmite restait devant le fourneau quand un autre venait la retirer ; une soupe
+  rouverte gardait la marque de son relais et ne pouvait plus repasser par un comptoir. Corrigés ; toutes les
+  cuisines y gagnent, les mesures du soir sont refaites (`docs/metiers.md`, « Le robot qui barrait le fourneau »).

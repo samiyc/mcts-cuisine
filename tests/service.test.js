@@ -3,15 +3,25 @@ import assert from "node:assert/strict";
 import { readKitchen } from "../src/kitchen.js";
 import { KITCHENS } from "../src/kitchens.js";
 import { HUMANS, RULES, compareRules } from "../src/rules.js";
+import { paceOf, positionAt, stepAt } from "../src/service-legs.js";
 import { createService, drawOrders, fitsRole, interact, isOver, measuresOf, runService, steer, stepService, stepsOf } from "../src/simulate.js";
 
-/** No two cooks swapped cells during the turn (`before`: the cooks as they were). */
+/**
+ * No two cooks swapped cells at any step of the turn (`before`: the cooks as they were). Step by step: at two cells a
+ * turn, two cooks may go round a square of four cells, each by its own side, and end in each other's cell (26/10).
+ */
 function assertNoSwap(state, before, seed) {
-  const was = (cook) => before.find((one) => one.id === cook.id);
-  for (const a of state.cooks) {
-    for (const b of state.cooks) {
-      const swapped = a.id < b.id && a.x === was(b).x && a.y === was(b).y && b.x === was(a).x && b.y === was(a).y;
-      assert.ok(!swapped, `service ${seed}, tour ${state.t} : ${a.id} et ${b.id} se croisent`);
+  const last = stepAt(state);
+  const first = last - paceOf(state);
+  const along = (cook, step) => (cook.path ? positionAt(cook.path, step) : cook);
+  const at = (cook, step) => (step === first ? before.find((one) => one.id === cook.id) : along(cook, step));
+  const same = (one, other) => one.x === other.x && one.y === other.y;
+  for (let step = first + 1; step <= last; step += 1) {
+    for (const a of state.cooks) {
+      for (const b of state.cooks) {
+        const swapped = a.id < b.id && same(at(a, step), at(b, step - 1)) && same(at(b, step), at(a, step - 1));
+        assert.ok(!swapped, `service ${seed}, tour ${state.t} : ${a.id} et ${b.id} se croisent`);
+      }
     }
   }
 }

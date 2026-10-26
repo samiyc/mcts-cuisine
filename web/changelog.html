@@ -34,6 +34,16 @@
         <h2>Les versions</h2>
 
       <article class="version">
+        <h3><span class="tag">0.24</span> Le robot qui barrait le fourneau <span class="date">26/10</span></h3>
+        <ul>
+          <li>Corrigé (trouvé par Sami dans la cuisine coupée en deux) : un robot qui surveillait sa marmite restait devant le fourneau quand le cuisinier venait la retirer ; sur un fourneau à une seule case d'accès, la soupe brûlait.</li>
+          <li>Corrigé : une soupe brûlée après être passée par un comptoir ne pouvait plus y repasser ; le robot des planches attendait, ses oignons en main, un fourneau hors de sa portée jusqu'à la fin du service.</li>
+          <li>Toutes les cuisines y gagnent : la plupart des soupes brûlées venaient de là ; la coupée en deux passe de 12,2 à 16,3 plats à temps avec la plus ancienne commande. Les mesures du soir sont refaites dans la file.</li>
+        </ul>
+        <p class="commits"></p>
+      </article>
+
+      <article class="version">
         <h3><span class="tag">0.23</span> La fatigue, les pauses, les erreurs ; les pannes <span class="date">26/10</span></h3>
         <ul>
           <li>Le cuisinier simulé peut se fatiguer (ses gestes plus longs en fin de service), faire une pause (il finit son plat d'abord) et se tromper de plat (à refaire) ; les robots peuvent tomber en panne quelques tours. Chaque réglage est éteint par défaut, dans l'onglet Cuisine.</li>

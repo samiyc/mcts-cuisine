@@ -1,5 +1,5 @@
 import { createRng } from "mcts-commun/random.js";
-import { FREE } from "./service-basics.js";
+import { AGAIN, FREE } from "./service-basics.js";
 import { stepAside } from "./service-legs.js";
 
 /**
@@ -68,7 +68,7 @@ export function wrongDish(state, cook, order) {
   const { errors } = state.setup;
   if (!errors || !state.person || cook.kind !== "human" || cook.manual) return false;
   if (state.person.rng.next() >= (tired(state) ? errors.tired : errors.rate)) return false;
-  Object.assign(order, { status: "open", cook: null, wrong: (order.wrong ?? 0) + 1 });
+  Object.assign(order, { ...AGAIN, wrong: (order.wrong ?? 0) + 1 });
   Object.assign(cook, FREE);
   state.person.wrong += 1;
   state.log.push({ t: state.t, type: "wrong", cook: cook.id, order: order.id });

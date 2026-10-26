@@ -15,6 +15,12 @@ export const PUT = Object.freeze({ type: "put", kind: "_", turns: 1 });
 export const servable = (order) => Boolean(order.cooked) || RECIPES[order.recipe].cook === 0;
 /** A cook back to free, its hands empty. */
 export const FREE = Object.freeze({ order: null, steps: null, step: 0, phase: "idle" });
+/**
+ * An order to make again (burnt, dead at the pass, a wrong dish): open, nobody's, and free to go through a counter
+ * again (Sami, 26/10: a soup burnt after a relay kept its mark, and the cutting robot of the split kitchen, its
+ * onions cut, could no longer hand them over: it waited for a stove out of its reach to the end of the service).
+ */
+export const AGAIN = Object.freeze({ status: "open", cook: null, relayed: false });
 
 /** The steps of a dish: `{ type, kind, turns }`, kind a station's letter. */
 export function stepsOf(recipe) {

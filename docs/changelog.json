@@ -65,6 +65,17 @@
   ],
   "versions": [
     {
+      "version": "0.24",
+      "title": "Le robot qui barrait le fourneau",
+      "date": "26/10",
+      "items": [
+        "Corrigé (trouvé par Sami dans la cuisine coupée en deux) : un robot qui surveillait sa marmite restait devant le fourneau quand le cuisinier venait la retirer ; sur un fourneau à une seule case d'accès, la soupe brûlait.",
+        "Corrigé : une soupe brûlée après être passée par un comptoir ne pouvait plus y repasser ; le robot des planches attendait, ses oignons en main, un fourneau hors de sa portée jusqu'à la fin du service.",
+        "Toutes les cuisines y gagnent : la plupart des soupes brûlées venaient de là ; la coupée en deux passe de 12,2 à 16,3 plats à temps avec la plus ancienne commande. Les mesures du soir sont refaites dans la file."
+      ],
+      "commits": []
+    },
+    {
       "version": "0.23",
       "title": "La fatigue, les pauses, les erreurs ; les pannes",
       "date": "26/10",
