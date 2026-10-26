@@ -654,6 +654,28 @@ elle +0,1. Deux raisons, corrigées le soir même (`src/search.js`) :
 Et sa liste courte commence par le choix de la règle de ses mondes (la table, le rétroplanning) : ce que la règle
 ferait, elle peut toujours le faire. Sans tables, banquet ni livraison, rien ne change (les empreintes).
 
+**Remesuré** (30 services, mêmes services ; le cuisinier « le plus urgent » ; plats à temps, envois à l'heure sur 2) :
+
+| Banquet | la plus ancienne | la meilleure règle | la recherche, avant | la recherche, maintenant |
+|---|---|---|---|---|
+| petite | 5,0 ; 0,8 | 5,0 (toutes) | 5,0 ; 0,8 | **9,2 ; 1,6** (+4,20, de 2,96 à 5,44) |
+| passe-plats | 1,6 ; 0,3 | 4,9 ; 0,8 (le rétroplanning) | 1,7 ; 0,3 | **7,5 ; 1,3** (+5,93) |
+| postes | 3,4 ; 0,6 | 4,7 ; 0,8 (le rétroplanning) | 3,8 ; 0,7 | **9,0 ; 1,6** (+5,60) |
+
+| Livraison | la meilleure règle | la recherche, avant | maintenant | commandes parties (maintenant) |
+|---|---|---|---|---|
+| petite | 13,3 (le plus rapide) | 14,1 | **14,3** | 5,4 |
+| passe-plats | 8,9 (le plus rapide) | 8,8 | **9,7** | 5,4 |
+| postes | 11,7 (la plus ancienne) | 12,1 | **12,4** | 7,3 |
+| le grand détour | 11,2 (le plus rapide) | 12,5 | **13,1** | 6,7 |
+
+- **Au banquet, la recherche est maintenant de loin la meilleure** : deux fois plus de plats à temps que la meilleure
+  règle, le retard maximal d'un envoi divisé par deux (26 à 43 tours au lieu de 66 à 72). Savoir attendre et voir
+  jusqu'à l'envoi, c'est tout le rétroplanning, mais en imaginant aussi ce que fera le cuisinier.
+- **À la livraison**, elle gagne un peu plus qu'avant, et maintenant aussi dans le passe-plats.
+- La grande brigade et le grand détour au banquet, la grande brigade à la livraison : encore en cours (des mondes
+  jusqu'au dernier envoi coûtent cher).
+
 ## L'humain qui suit sa table, les mains comptées (26/10, le soir, suite de l'étape 1)
 
 Sami (26/10) : d'accord pour finir l'étape 1 par un humain « qui suit sa table » et une règle qui compte les mains.
