@@ -359,6 +359,8 @@ Chaque bug a été retrouvé dans un replay de Sami, puis corrigé et vérifié 
 
 Les étapes communes aux trois dépôts sont dans la [feuille de route](https://github.com/samiyc/lopin/blob/main/docs/ismcts-ailleurs/feuille-de-route.md) § 6 (Sami, 23/10 au soir) : l'ordonnanceur en commun pour les mesures de nuit, les replays avec un humain pour analyser les écarts, la vitrine. Le journal des versions est dans la page (`web/changelog.html`).
 
+Les étapes du métier (Sami, 26/10) sont dans [`recherche/feuille-de-route.md`](recherche/feuille-de-route.md) : les indicateurs des restaurants, la brigade (les tables, le passe, la rupture, la mise en place), le traiteur et la livraison, d'après les recherches de [`recherche/`](recherche/README.md).
+
 1. **Les mesures de nuit** — prêtes (23/10) : `night.json` à la racine du dépôt, à ajouter à la file de la machine par `mcts-backlog --add-file` (mcts-commun), puis à lancer par `mcts-backlog` ; : la recherche contre les règles sur des centaines de services, avec chaque humain
    simulé.
 2. **Les replays du chef au clavier** — faits le 23/10 (les replays, les anomalies, les écarts de ses choix) ; reste :

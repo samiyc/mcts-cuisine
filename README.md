@@ -22,6 +22,9 @@ deux cuisines de Sami : coupée en deux, et le grand détour.
 après l'entrepôt, dont elle reprend le moteur de grille (`grid` de `mcts-commun`) et ajoute les
 enchaînements.
 
+Le 26/10, les recherches sur les métiers de la cuisine (restaurants, traiteurs, livraison) et leur feuille de
+route : [`docs/recherche/`](docs/recherche/README.md).
+
 ## Le problème
 
 - **Les commandes arrivent** pendant le service, chacune avec son délai.
