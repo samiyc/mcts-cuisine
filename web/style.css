@@ -48,9 +48,8 @@
     color-scheme: dark;
   }
 }
-.controls input { width: 6em; }
-.layout { display: grid; grid-template-columns: minmax(0, 1fr) 280px; gap: 16px; align-items: start; }
-@media (max-width: 760px) { .layout { grid-template-columns: 1fr; } }
+.service-layout { display: grid; grid-template-columns: minmax(0, 1fr) 280px; gap: 16px; align-items: start; }
+@media (max-width: 1100px) { .service-layout { grid-template-columns: 1fr; } }
 .board-wrap { background: var(--panel); border: 1px solid var(--line); border-radius: 6px; padding: 8px; overflow-x: auto; }
 .board { width: 100%; height: auto; display: block; max-height: 70vh; }
 .cell.floor { fill: var(--floor); }
@@ -68,8 +67,8 @@
 .trail { fill: none; stroke: var(--c); stroke-width: 2.5; stroke-opacity: 0.5; stroke-dasharray: 4 3; }
 .trail.human { --c: var(--human); }
 .c1 { --c: var(--c1); } .c2 { --c: var(--c2); } .c3 { --c: var(--c3); } .c4 { --c: var(--c4); } .c5 { --c: var(--c5); }
-aside { background: var(--panel); border: 1px solid var(--line); border-radius: 6px; padding: 4px 12px 8px; max-height: 70vh; overflow-y: auto; }
-aside h2 { margin-top: 8px; }
+.orders-panel { background: var(--panel); border: 1px solid var(--line); border-radius: 6px; padding: 4px 12px 8px; max-height: 70vh; overflow-y: auto; }
+.orders-panel h2 { margin-top: 8px; }
 .orders { margin: 0; padding: 0; list-style: none; font-size: 0.86rem; }
 .order { display: flex; gap: 8px; align-items: flex-start; margin: 6px 0; padding: 4px 6px; border-left: 4px solid var(--dish-colour); border-radius: 4px; background: color-mix(in srgb, var(--dish-colour) 8%, transparent); }
 .order.soupe, .legend-item.soupe { --dish-colour: var(--soupe); }
@@ -90,7 +89,6 @@ aside h2 { margin-top: 8px; }
 .legend-item { border-left: 4px solid var(--dish-colour); padding-left: 4px; }
 .editor textarea { width: 100%; font: 14px/1.25 ui-monospace, Consolas, monospace; }
 .fields input { width: 8em; }
-.compare { margin-top: 16px; }
 .summary.chef { border-color: var(--accent, #2f6f8f); }
 .pot-left { font-size: 10px; font-weight: 700; text-anchor: end; fill: var(--ink, #222); pointer-events: none; }
 .pot-left.urgent, .symbol.urgent { fill: var(--late); }
@@ -104,6 +102,35 @@ aside h2 { margin-top: 8px; }
 .symbol.dish.cut-mark { font-size: 13px; }
 .gaps h3 { font-size: 0.98rem; margin: 12px 0 4px; }
 .gaps tr.late td { color: var(--late); }
+
+/*
+ * The page in tabs (Sami, 26/10, lopin's layout, as mcts-urgences' style.css has it): the tabs in the band at the top,
+ * the settings of the tab open in a panel on the left that folds, the tab's view beside it; one column on a narrow
+ * screen.
+ */
+.topbar { margin-bottom: 14px; padding-bottom: 10px; }
+.tabs { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 10px; }
+.tabs button { background: rgb(255 255 255 / 0.12); color: var(--masthead-ink); border: 1px solid rgb(255 255 255 / 0.3); border-radius: 999px; padding: 5px 14px; font-weight: 600; }
+.tabs button:hover { background: rgb(255 255 255 / 0.26); border-color: rgb(255 255 255 / 0.5); }
+.tabs button[aria-selected="true"] { background: #ffffff; color: var(--accent); border-color: #ffffff; }
+main.layout { max-width: 1480px; display: grid; grid-template-columns: 290px minmax(0, 1fr); gap: 18px; align-items: start; }
+main.layout > * + * { margin-top: 0; }
+.sidebar { display: grid; gap: 12px; position: sticky; top: 12px; min-width: 0; max-height: calc(100vh - 24px); overflow-y: auto; }
+.sidebar .panel { display: grid; gap: 10px; padding: 12px 14px; background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius); box-shadow: var(--shadow); }
+.sidebar .panel h2 { margin: 0; font-size: 0.95rem; }
+.sidebar label { display: grid; gap: 3px; font-size: 0.78rem; font-weight: 600; color: var(--ink-2); }
+.sidebar select, .sidebar input:not([type="range"]) { width: 100%; }
+.sidebar .row-buttons { display: flex; flex-wrap: wrap; gap: 6px; }
+.view { min-width: 0; display: grid; grid-template-columns: minmax(0, 1fr); gap: 14px; }
+.view > h2 { margin-bottom: 0; }
+.sidebar-fold { position: fixed; left: 16px; bottom: 12px; z-index: 10; width: 44px; padding: 4px 0; font-size: 1.1rem; line-height: 1; }
+main.layout.folded { grid-template-columns: minmax(0, 1fr); }
+main.layout.folded .sidebar { display: none; }
+@media (max-width: 760px) {
+  main.layout { grid-template-columns: minmax(0, 1fr); }
+  .sidebar { position: static; max-height: none; }
+  .masthead .links { float: none; margin: 0 0 8px; }
+}
 
 /* The emblem before the title. */
 .masthead h1::before { content: "🍳"; font-size: 1.6rem; filter: drop-shadow(0 1px 2px rgb(0 0 0 / 0.3)); }

@@ -11,12 +11,22 @@
     </script>
   </head>
   <body>
-    <header class="masthead">
+    <header class="masthead topbar">
       <p class="links"><a href="changelog.html">Journal des versions, et ce que gagne la recherche</a></p>
       <h1>Cuisine en équipe</h1>
       <p>Des robots et un cuisinier préparent les commandes qui arrivent : prendre l'ingrédient, le couper sur une planche, le cuire au fourneau, le servir au passe. Une planche ou un fourneau ne sert qu'à un à la fois. Sur un comptoir, un plat attend qu'un autre le reprenne : à cuire, ou à servir. Le cuisinier est simulé (le plus proche, le plus urgent, au hasard), ou c'est vous, au clavier ; les robots ne le commandent pas.</p>
+      <nav class="tabs" role="tablist" aria-label="Simulation">
+        <button type="button" role="tab" data-tab="service" aria-selected="true" title="Un service dans la cuisine choisie, tour par tour, le cuisinier simulé ou au clavier">Service</button>
+        <button type="button" role="tab" data-tab="cuisine" aria-selected="false" title="Le plan de la cuisine en texte, son service, les rôles des robots">Cuisine</button>
+        <button type="button" role="tab" data-tab="replays" aria-selected="false" title="Les services joués au clavier, à rejouer ou à analyser">Replays</button>
+        <button type="button" role="tab" data-tab="stats" aria-selected="false" title="Les règles des robots et la recherche sur les mêmes services">Stats</button>
+      </nav>
     </header>
-    <main id="app"></main>
+    <main class="layout" id="layout">
+      <aside class="sidebar" id="sidebar" aria-label="Réglages"></aside>
+      <section class="view" id="app" aria-live="off"></section>
+    </main>
+    <button type="button" id="fold" class="quiet sidebar-fold" aria-expanded="true" title="Replier le panneau">«</button>
     <script type="module" src="app.js"></script>
   </body>
 </html>
