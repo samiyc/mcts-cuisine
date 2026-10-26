@@ -45,5 +45,15 @@ export function statsView({ state }) {
     el("h3", {}, "Les indicateurs du métier (moyennes par service, en tours)"),
     el("p", { class: "hint" }, "Le bon : de la commande au passe. Le coup de feu : le plus de bons ouverts à la fois. Le poste le plus occupé : la part des tours où le plus chargé de sa sorte travaille ; l'attente : les tours passés à attendre qu'un poste de cette sorte se libère (docs/recherche/indicateurs.md)."),
     table(["Les robots prennent", "bon moyen", "bon p90", "bon max", "retard max", "coup de feu", "poste le plus occupé", "le plus attendu"], entries.map(([name, row]) => indicatorsRow(state, name, row))),
+    ...(entries[0][1].tables === undefined ? [] : tablesPart(state, entries)),
   ];
 }
+
+/** The tables (step 1 of the trades' roadmap): those sent in time, the dishes dead at the pass, the longest wait there. */
+const tablesPart = (state, entries) => [
+  el("h3", {}, "Les tables"),
+  table(
+    ["Les robots prennent", "tables", "parties à temps", "plats morts au passe", "attente max au passe"],
+    entries.map(([name, row]) => el("tr", { class: name === state.rule ? "current" : null }, el("td", {}, RULE_LABELS[name]), num(fixed(row.tables)), num(fixed(row.tablesOnTime)), num(fixed(row.died)), num(fixed(row.maxPass)))),
+  ),
+];

@@ -2,6 +2,7 @@ import { search } from "mcts-commun/mcts.js";
 import { createRng } from "mcts-commun/random.js";
 import { RECIPES } from "./kitchens.js";
 import { HUMANS, RULES } from "./rules.js";
+import { drawTables, firstAfter } from "./service-tables.js";
 import { advance, choose, cloneService } from "./simulate.js";
 
 /**
@@ -20,8 +21,13 @@ import { advance, choose, cloneService } from "./simulate.js";
  */
 export const SEARCH_SETTINGS = Object.freeze({ budget: 64, depth: 2, explore: 0.3, width: 4, spread: 3, horizon: 60, seed: 1 });
 
-/** The orders still to come, drawn again from turn `t` at the service's pace (setup's `every`), ids after `lastId`. */
-function drawComing(setup, t, lastId, rng) {
+/**
+ * The orders still to come, drawn again from turn `t` at the service's pace (setup's `every`), ids after those `come`;
+ * by tables when the service has them (service-tables.js), table numbers after theirs.
+ */
+function drawComing(setup, t, come, rng) {
+  const lastId = Math.max(0, ...come.map((order) => order.id));
+  if (setup.tables) return drawTables(setup, rng, { start: firstAfter(setup, rng, t), lastId, lastTable: Math.max(0, ...come.map((order) => order.table ?? 0)) }).map((order) => ({ ...order, status: "upcoming", cook: null, servedAt: null }));
   const names = Object.keys(RECIPES);
   const coming = [];
   const gap = () => Math.max(1, Math.round(-setup.every * Math.log(1 - rng.next())));
@@ -37,7 +43,7 @@ export function drawWorld(state, rng, horizon = SEARCH_SETTINGS.horizon, human =
   // The chef at the keyboard is played, in the worlds, by a model of a human like any other.
   for (const cook of world.cooks) cook.manual = false;
   const come = world.upcoming.filter((order) => order.arrival <= state.t || order.stock);
-  world.upcoming = [...come, ...drawComing(state.setup, state.t, Math.max(0, ...come.map((order) => order.id)), rng)];
+  world.upcoming = [...come, ...drawComing(state.setup, state.t, come, rng)];
   const names = Object.keys(HUMANS);
   const drawn = HUMANS[names[rng.int(names.length)]];
   // A human in the kitchen (simulated, or the chef at the keyboard, who has no model: state.human is null then)
@@ -60,10 +66,13 @@ export function valueOf(world) {
   return value;
 }
 
-/** The quickest-dish rule to the horizon. */
+/** The rule the worlds are played with: the quickest dish, or with tables the table's (the quickest would leave the long dishes behind). */
+const rolloutRule = (world) => (world.setup.tables ? RULES.table(world.choice.open, { state: world }) : RULES.quickest(world.choice.open));
+
+/** The quickest-dish rule (or the table's) to the horizon. */
 function rollOut(world) {
   while (world.choice) {
-    choose(world, world.choice, RULES.quickest(world.choice.open).id);
+    choose(world, world.choice, rolloutRule(world)?.id);
     world.choice = advance(world, world.humanRule, world.until);
   }
   return world;

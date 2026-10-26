@@ -14,7 +14,7 @@ import { measuresOf, runService } from "../src/simulate.js";
  * does updates its hash here, and its commit says so, with the measures before and after.
  */
 const EXPECTED = {
-  rules: "1becb0ed915723a0",
+  rules: "887f3191af66c320",
   variants: "f91ad514a423f418",
   replay: "c6f50c74d38b62b9",
   search: "9900be66b6822257",

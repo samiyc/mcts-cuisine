@@ -6,6 +6,7 @@ import { ask, choiceOf, take } from "./service-choice.js";
 import { letGo, move, stepAside, watch } from "./service-legs.js";
 import { countTurn, createTally, measuresOf } from "./service-measures.js";
 import { startStep } from "./service-relays.js";
+import { drawTables, watchPass } from "./service-tables.js";
 import { adoptStock, finishWork, watchPots } from "./service-work.js";
 
 /** @typedef {import("./types.js").Measures} Measures */
@@ -76,6 +77,7 @@ export { measuresOf } from "./service-measures.js";
 /** The service's orders, drawn from a seed: `{ id, recipe, arrival, deadline }`, by arrival. */
 export function drawOrders(seed, setup) {
   const rng = createRng(seed);
+  if (setup.tables) return drawTables(setup, rng, { start: 1 + rng.int(3) });
   const orders = [];
   const names = Object.keys(RECIPES);
   for (let at = 1 + rng.int(3); at <= setup.lastOrder; at += Math.max(1, Math.round(-setup.every * Math.log(1 - rng.next())))) {
@@ -115,6 +117,7 @@ export function assign(state, cook, id) {
 export function beginTurn(state, human) {
   finishWork(state);
   if (state.setup.unattended) watchPots(state);
+  watchPass(state);
   for (const order of state.upcoming) if (order.status === "upcoming" && order.arrival <= state.t) order.status = "open";
   adoptStock(state);
   countTurn(state);

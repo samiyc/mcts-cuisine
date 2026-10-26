@@ -1,4 +1,5 @@
 import { KITCHENS } from "../../src/kitchens.js";
+import { TABLES } from "../../src/service-tables.js";
 import { board } from "../board.js";
 import { el, select } from "../dom.js";
 
@@ -36,6 +37,8 @@ function fieldsOf(setup) {
     el("label", { class: "check" }, el("input", { name: "unattended", type: "checkbox", checked: Boolean(setup.unattended) }), "La soupe cuit seule"),
     field("Elle brûle, prête, après (tours)", "burn", setup.unattended?.burn ?? UNATTENDED.burn),
     field("Nettoyer un fourneau brûlé (tours)", "clean", setup.unattended?.clean ?? UNATTENDED.clean),
+    el("label", { class: "check" }, el("input", { name: "tables", type: "checkbox", checked: Boolean(setup.tables) }), `Des tables (${TABLES.min} à ${TABLES.max} plats, servis ensemble)`),
+    field("Un plat attend sa table au passe (tours)", "pass", setup.tables?.pass ?? TABLES.pass),
   );
 }
 
@@ -51,5 +54,6 @@ export function kitchenFrom(form, setup) {
   const number = (name) => Math.max(1, Number(data.get(name)) || 1);
   const roles = String(data.get("roles")).split(/\s+/).filter(Boolean).map((role) => (ROLES.includes(role) ? role : null));
   const unattended = data.get("unattended") ? { burn: number("burn"), clean: number("clean") } : null;
-  return { ...setup, label: "Cuisine modifiée", text: String(data.get("text")).trimEnd(), every: number("every"), patience: number("patience"), lastOrder: number("lastOrder"), service: number("service"), roles, unattended };
+  const tables = data.get("tables") ? { ...TABLES, pass: number("pass") } : null;
+  return { ...setup, label: "Cuisine modifiée", text: String(data.get("text")).trimEnd(), every: number("every"), patience: number("patience"), lastOrder: number("lastOrder"), service: number("service"), roles, unattended, tables };
 }

@@ -87,7 +87,8 @@ function levelOf(patience) {
 /** An order: its dish's emoji and colour, its age, a patience bar (full when it comes, empty at its deadline), where it stands. */
 function orderItem(order) {
   const bar = order.patience === null ? null : el("span", { class: `patience ${levelOf(order.patience)}`, role: "meter", "aria-label": "patience restante", "aria-valuemin": "0", "aria-valuemax": "100", "aria-valuenow": String(Math.round(100 * order.patience)) }, el("span", { style: `width:${(100 * order.patience).toFixed(1)}%` }));
-  const head = el("span", { class: "order-head" }, el("strong", {}, `${order.id}. ${order.dish}`), el("span", { class: "age" }, `il y a ${order.age} tours`));
+  const table = order.table === null ? "" : ` · table ${order.table}`;
+  const head = el("span", { class: "order-head" }, el("strong", {}, `${order.id}. ${order.dish}${table}`), el("span", { class: "age" }, `il y a ${order.age} tours`));
   return el("li", { class: `order ${order.recipe}${order.served ? " served" : ""}${order.late ? " late" : ""}` }, el("span", { class: "dish", "aria-hidden": "true" }, order.emoji), el("span", { class: "order-body" }, head, bar, el("span", { class: "order-status" }, order.status)));
 }
 

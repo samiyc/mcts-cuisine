@@ -18,14 +18,52 @@ function workOf(order) {
   return order.status === "prepped" ? cook : cut + cook;
 }
 
+/** The turns of work left on `order` in `state`: a pot's cooking, a cook's steps still to do, or the dish's work. */
+function leftOf(state, order) {
+  if (order.status === "cooking") return state.pots.get(order.stove).ready - state.t + 1;
+  const cook = order.status === "taken" ? state.cooks.find((one) => one.order === order.id) : null;
+  if (!cook?.steps) return workOf(order);
+  return cook.steps.slice(cook.step).reduce((sum, step) => sum + step.turns, 0);
+}
+
+/** How much longer than its own work a dish may wait for its table-mates before it is fired (a hypothesis). */
+const HOLD = 4;
+const DONE = new Set(["passed", "served", "refused"]);
+
+/**
+ * « Faire marcher » (step 1 of the trades' roadmap): a dish is fired when its table-mates still to finish need no more
+ * than its own work and `HOLD` turns: it then reaches the pass with them. A soup ready on a stove is always taken off.
+ */
+function fires(state, order) {
+  if (!order.table || order.status === "ready") return true;
+  const mates = state.upcoming.filter((one) => one.table === order.table && one !== order && !DONE.has(one.status));
+  return mates.every((mate) => leftOf(state, mate) <= workOf(order) + HOLD);
+}
+
+/** The older table first; in a table, the longer dish first; then the older order. */
+function tableFirst(a, b) {
+  const [tableA, tableB] = [a.table ?? a.id, b.table ?? b.id];
+  if (tableA !== tableB) return tableA < tableB;
+  if (workOf(a) !== workOf(b)) return workOf(a) > workOf(b);
+  return a.arrival < b.arrival;
+}
+
 /** @type {Readonly<Record<string, Rule>>} */
 export const RULES = Object.freeze({
   /** The order that came first. */
   oldest: (open) => first(open, (a, b) => a.arrival < b.arrival),
   /** The quickest dish first, the older between equals: more dishes out, the long ones wait. */
   quickest: (open) => first(open, (a, b) => workOf(a) < workOf(b) || (workOf(a) === workOf(b) && a.arrival < b.arrival)),
+  /**
+   * The table (Sami, 26/10, the brigade's way): the oldest table, its longest dish first, each dish fired when it will
+   * reach the pass with the others; none taken when every dish open waits for its mates. Without tables, the oldest.
+   */
+  table: (open, context) => {
+    const fired = open.filter((order) => fires(context.state, order));
+    return fired.length ? first(fired, tableFirst) : undefined;
+  },
 });
-export const RULE_LABELS = Object.freeze({ oldest: "la plus ancienne", quickest: "le plat le plus rapide", search: "recherche (ISMCTS)" });
+export const RULE_LABELS = Object.freeze({ oldest: "la plus ancienne", quickest: "le plat le plus rapide", table: "la table (faire marcher)", search: "recherche (ISMCTS)" });
 
 /** Three simulated humans (docs: the human's model is the heart of the project; start with three). */
 /** @type {Readonly<Record<string, Rule>>} */
@@ -38,7 +76,7 @@ export const HUMAN_LABELS = Object.freeze({ nearest: "prend le plus proche", urg
 
 const mean = (values) => values.reduce((sum, value) => sum + value, 0) / values.length;
 // The indicators of step 0 (26/10, docs/recherche/indicateurs.md) after the first ones: means over the services, maxima included.
-const MEASURES = ["orders", "onTime", "late", "missed", "meanServe", "waits", "burnt", "p90Serve", "maxServe", "maxLate", "peakOpen", "servedByHuman", "useBoard", "useStove", "usePass", "useCounter", "waitBoard", "waitStove", "waitPass", "waitCounter"];
+const MEASURES = ["orders", "onTime", "late", "missed", "meanServe", "waits", "burnt", "p90Serve", "maxServe", "maxLate", "peakOpen", "servedByHuman", "useBoard", "useStove", "usePass", "useCounter", "waitBoard", "waitStove", "waitPass", "waitCounter", "tables", "tablesOnTime", "died", "maxPass"];
 
 /**
  * The robots' rules on the same `services` services of `setup`, with the human `humanName` (or none): each

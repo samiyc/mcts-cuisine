@@ -1,4 +1,5 @@
 import { keyOf } from "./service-basics.js";
+import { tableMeasures } from "./service-tables.js";
 
 /**
  * The measures of a service (Sami, 26/10/2026, step 0 of docs/recherche/feuille-de-route.md: the restaurants'
@@ -53,6 +54,9 @@ export function countWait(state, kind) {
   if (state.tally) state.tally.waitsFor[kind] = (state.tally.waitsFor[kind] ?? 0) + 1;
 }
 
+/** A dish handed over by its cook: served, or put at the pass to wait for its table. */
+const HANDED = new Set(["served", "passed"]);
+
 /** The value at rank `share` of the sorted `values` (nearest rank), 0 when there are none. */
 const rank = (values, share) => (values.length ? values[Math.ceil(share * values.length) - 1] : 0);
 
@@ -94,8 +98,9 @@ export function measuresOf(state) {
     maxLate: Math.max(0, ...served.map((order) => order.servedAt - order.deadline)),
     moves: state.cooks.reduce((sum, cook) => sum + cook.moves, 0),
     waits: state.cooks.reduce((sum, cook) => sum + cook.waits, 0),
-    servedByHuman: human ? state.log.filter((event) => event.type === "served" && event.cook === human.id).length : 0,
+    servedByHuman: human ? state.log.filter((event) => HANDED.has(event.type) && event.cook === human.id).length : 0,
     ...(state.setup.unattended ? { burnt: state.burnt } : {}),
     ...tallyMeasures(state),
+    ...tableMeasures(state),
   };
 }

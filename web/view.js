@@ -166,6 +166,7 @@ function statusOf(state, order) {
   if (order.status === "served") return servedText(order);
   if (order.status === "taken") return `${takerOf(state, order)}, ${time}`;
   if (order.status === "prepped") return `oignons coupés sur un comptoir, ${time}`;
+  if (order.status === "passed") return `au passe depuis ${state.t - order.passedAt} tours, attend sa table, ${time}`;
   return stoveText(state, order, time);
 }
 
@@ -181,6 +182,7 @@ export function ordersOf(state) {
       const patience = order.deadline - order.arrival;
       return {
         id: order.id,
+        table: order.table ?? null,
         dish: RECIPES[order.recipe].label,
         emoji: RECIPES[order.recipe].emoji,
         recipe: order.recipe,
@@ -203,7 +205,8 @@ function endOf(state, measures) {
   const human = state.cooks.some((cook) => cook.kind === "human") ? [`le cuisinier en a servi ${measures.servedByHuman}`] : [];
   const rush = measures.peakOpen === undefined ? [] : [`coup de feu : ${measures.peakOpen} bons ouverts au tour ${measures.peakAt}`];
   const busiest = neck ? [`poste le plus occupé : ${neck.use.word} (${Math.round(100 * neck.use.share)} % des tours)`] : [];
-  return [`bon le plus long : ${measures.maxServe} tours`, ...rush, ...human, ...busiest, `${measures.missed} pas servies`, `${Math.round(measures.meanServe)} tours en moyenne de la commande à la table`];
+  const tables = measures.tables === undefined ? [] : [`${measures.tablesOnTime} tables sur ${measures.tables} parties à temps`, `${measures.died} plats morts au passe`];
+  return [`bon le plus long : ${measures.maxServe} tours`, ...rush, ...tables, ...human, ...busiest, `${measures.missed} pas servies`, `${Math.round(measures.meanServe)} tours en moyenne de la commande à la table`];
 }
 
 /** The service in one line. */

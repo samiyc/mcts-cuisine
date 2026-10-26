@@ -255,7 +255,7 @@ describe("the kitchen (src/kitchen.js, src/simulate.js)", () => {
 
   it("compares the robots' rules by pairs on the same services", () => {
     const result = compareRules(KITCHENS.petite, { services: 20, humanName: "urgent" });
-    assert.deepEqual(Object.keys(result), ["oldest", "quickest"]);
+    assert.deepEqual(Object.keys(result), ["oldest", "quickest", "table"]);
     assert.equal(result.oldest.gain.mean, 0);
     assert.equal(result.quickest.gain.n, 20);
   });
