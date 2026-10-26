@@ -269,6 +269,10 @@ ferait, elle peut toujours le faire. Sans tables, banquet ni livraison, rien ne 
 - **À la livraison**, elle gagne un peu plus qu'avant, et maintenant aussi dans le passe-plats.
 - La grande brigade et le grand détour au banquet, la grande brigade à la livraison : encore en cours (des mondes
   jusqu'au dernier envoi coûtent cher).
+- **Avec le cuisinier qui suit le plan** (il ne lance pas un plat qui mourrait au chaud, 30 services) : les règles vont
+  mieux, le rétroplanning surtout (petite 6,3 au lieu de 4,7 avec « le plus urgent » ; passe-plats 5,5 au lieu de 4,9 ;
+  postes 6,1 au lieu de 4,7) ; la recherche reste où elle était (9,1 ; 7,6 ; 9,0). Un humain qui suit le plan aide les
+  robots qui ne savent pas l'imaginer ; la recherche, elle, l'imaginait déjà.
 
 ## L'humain qui suit sa table, les mains comptées (26/10, le soir, suite de l'étape 1)
 
@@ -324,7 +328,16 @@ règle, la recherche des mesures de nuit, la recherche qui attend) :
   « le plus proche », où c'est égal.
 - **Le meilleur service des tables** : la recherche qui attend avec le cuisinier qui suit sa table, 3,5 tables sur 8,3
   à temps. Les tables restent difficiles : il en part moins de la moitié à temps.
-- Le grand détour et la grande brigade : en cours.
+
+Ailleurs (30 services ; plats à temps, tables à temps, plats morts au passe) :
+
+| Service | la meilleure règle | la recherche, la nuit | la recherche qui attend |
+|---|---|---|---|
+| grande brigade, « le plus urgent » | 5,1 ; 2,2 / 14,3 ; 17,5 (la table) | 6,9 ; 3,1 ; 22,8 | **10,4 ; 4,4 ; 14,0** (+6,00, de 3,97 à 8,03) |
+| le grand détour, sans humain | 1,4 ; 0,6 / 8,3 ; 5,7 (la plus ancienne) | 2,3 ; 1,0 ; 9,5 | **4,0 ; 1,8 ; 1,4** |
+
+- **Dans la grande brigade, la recherche qui attend fait plus que doubler la meilleure règle** : cinq cuisiniers, c'est
+  là qu'il y a le plus à coordonner. Le grand détour avec un humain : en cours.
 
 ## Les trois derniers indicateurs de l'étape 0 (26/10, le soir)
 
@@ -414,7 +427,9 @@ Mesuré par paires (30 services, le plat le plus rapide, le cuisinier « le plus
 - **Couper des oignons d'avance aide là où l'on coupe d'un côté et cuit de l'autre** : dans la cuisine coupée en deux,
   +1,4 plat à temps ; le robot du côté des planches n'attend plus les commandes pour couper. Ailleurs, rien, ou un
   robot occupé quand la commande arrive.
-- **Par défaut, la mise en place ne prépare donc que les soupes** (`MISE`, deux au plus). La recherche avec la mise en
-  place : en cours (ses mondes la jouent comme le service).
+- **Par défaut, la mise en place ne prépare donc que les soupes** (`MISE`, deux au plus).
+- **Avec la recherche** (la cuisine coupée en deux, 30 services, le cuisinier « le plus urgent ») : 14,6 plats à temps
+  sans mise en place, **15,8** avec, le meilleur score de cette cuisine ; la plus ancienne commande passe de 12,9 à
+  14,4. Les mondes de la recherche jouent la mise en place comme le service.
 
 Dans l'onglet Cuisine (le rôle `aboyeur`, « La mise en place »), et `npm run compare -- --aboyeur --mise-en-place`.
