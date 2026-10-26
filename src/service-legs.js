@@ -166,6 +166,9 @@ export function watch(state, cook) {
 /** A cook whose dish is gone: free, standing where it is. */
 export function drop(state, cook) {
   const here = holdHere(state, cook);
+  // The plate he held for it is clean again (service-plates.js).
+  if (cook.plate && state.plates) Object.assign(state.plates, { clean: state.plates.clean + 1 });
+  cook.plate = false;
   Object.assign(cook, { ...FREE, station: null, target: null, path: here, until: null });
 }
 

@@ -7,7 +7,8 @@
  * - `o`, `t` the onion and tomato crates; `C` a cutting board; `P` a stove; `S` the pass, where dishes are
  *   served. A cook works at one of them from a floor cell beside it; a board or a stove serves one cook at a
  *   time;
- * - `E` a packing station (26/10, the evening): a delivered dish is packed there before the pass.
+ * - `E` a packing station (26/10, the evening): a delivered dish is packed there before the pass;
+ * - `L` a sink, the dish room (26/10, the evening): dirty plates are washed there.
  * Each kitchen comes with its service: how often orders come, how long a guest waits, how long the service;
  * and, maybe, the robots' roles (`roles`, in the order the robots appear: `coupe`, `cuisson`, `salade`, or
  * `passe`, which only serves what is ready, or empty for a robot that makes whole dishes).
@@ -113,5 +114,17 @@ export const KITCHENS = Object.freeze({
     pace: PACE,
     // DELIVERY of service-delivery.js (written out: kitchens.js imports nothing), and PACKING turns to pack a dish.
     delivery: Object.freeze({ prep: 30, spread: 8, wait: 10, pass: 15, packing: 2 }),
+  }),
+  plonge: Object.freeze({
+    label: "Brigade avec plonge (4 robots et vous : des assiettes comptées, un évier)",
+    text: ["##o#o##t#t##S#S##", "#...............#", "#.R...R.H.R...R.#", "C...............P", "C...............P", "#...............#", "#####L#C#P#######"].join("\n"),
+    every: 5,
+    patience: 55,
+    service: 200,
+    lastOrder: 160,
+    unattended: UNATTENDED,
+    pace: PACE,
+    // PLATES of service-plates.js, written out: 15 plates, back dirty 50 turns after the dish, washed 6 at a time in 3 turns.
+    plates: Object.freeze({ stock: 15, back: 50, rack: 6, wash: 3 }),
   }),
 });

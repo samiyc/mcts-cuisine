@@ -1,6 +1,7 @@
 import { keyOf } from "./service-basics.js";
 import { deliveryMeasures } from "./service-delivery.js";
 import { miseMeasures } from "./service-mise.js";
+import { plateMeasures } from "./service-plates.js";
 import { supplyMeasures } from "./service-supply.js";
 import { tableMeasures } from "./service-tables.js";
 
@@ -139,5 +140,6 @@ export function measuresOf(state) {
     ...supplyMeasures(state),
     ...deliveryMeasures(state),
     ...miseMeasures(state),
+    ...plateMeasures(state),
   };
 }

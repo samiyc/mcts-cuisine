@@ -5,8 +5,8 @@ import { RECIPES } from "./kitchens.js";
  * steps from where it stands, which role an order belongs to, and the floor distances to a station.
  */
 export const keyOf = (cell) => `${cell.x},${cell.y}`;
-/** A station only one cook works at a time: a board, a stove, a counter, a packing station. */
-export const isWorkStation = (kind) => kind === "C" || kind === "P" || kind === "_" || kind === "E";
+/** A station only one cook works at a time: a board, a stove, a counter, a packing station, a sink. */
+export const isWorkStation = (kind) => kind === "C" || kind === "P" || kind === "_" || kind === "E" || kind === "L";
 /** Cut onions waiting on the counters from which any robot helps cook them. */
 export const PILE = 2;
 /** Putting cut onions down on a counter. */
@@ -48,6 +48,7 @@ const ROLE_FITS = Object.freeze({
   salade: (order, cooked) => order.status === "open" && !cooked,
   passe: () => false,
   aboyeur: () => false,
+  plonge: () => false,
 });
 
 /** Does order `order` (open, prepped on a counter, ready on a stove) belong to role `role`? Any order for no role; a ready soup for everyone, before it burns. */

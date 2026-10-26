@@ -1,5 +1,6 @@
 import { RECIPES } from "./kitchens.js";
 import { packFirst } from "./service-delivery.js";
+import { plateFor } from "./service-plates.js";
 import { PUT, collectSteps, isWorkStation, keyOf, orderOf, pickupSteps, standsOn, stepsOf } from "./service-basics.js";
 import { drop, holdHere, paceOf, planLeg, stepAt, turnsOf, unfit } from "./service-legs.js";
 import { isOut, useSupply } from "./service-supply.js";
@@ -11,7 +12,7 @@ import { isOut, useSupply } from "./service-supply.js";
 
 /** What the chef is doing, in words. */
 const GESTURES = Object.freeze({ fetch: "prend l'ingrédient", cut: "coupe", cook: "pose la marmite", put: "pose le plat", pickup: "reprend le plat", collect: "retire la soupe du feu", serve: "sert", clean: "récure le fourneau" });
-const NAMES = Object.freeze({ o: "la caisse d'oignons", t: "la caisse de tomates", C: "une planche", P: "un fourneau", S: "le passe", _: "un comptoir", E: "le poste d'emballage" });
+const NAMES = Object.freeze({ o: "la caisse d'oignons", t: "la caisse de tomates", C: "une planche", P: "un fourneau", S: "le passe", _: "un comptoir", E: "le poste d'emballage", L: "la plonge" });
 
 /**
  * The chef busy with a gesture: what it is and how long it still lasts (Sami, 23/10: « le chef travaille » stayed on
@@ -91,6 +92,15 @@ function takeAt(state, cook, { order, steps, station }) {
   startWork(state, cook, station);
 }
 
+/** At the sink: a rack of dirty plates washed (service-plates.js). */
+function washAt(state, cook, station) {
+  const rack = Math.min(state.setup.plates.rack, state.plates.dirty);
+  state.plates.dirty -= rack;
+  Object.assign(cook, { steps: [{ type: "wash", kind: "L", turns: state.setup.plates.wash }], step: 0, rack });
+  startWork(state, cook, station);
+  return `le chef lave ${rack} assiettes (${cook.span} tours)`;
+}
+
 function cleanAt(state, cook, station) {
   Object.assign(cook, { steps: [{ type: "clean", kind: "P", turns: state.setup.unattended?.clean ?? 1 }], step: 0 });
   startWork(state, cook, station);
@@ -150,6 +160,7 @@ const TAKE_UPS = [
   { at: (_state, _key, kind) => kind === "o" || kind === "t", act: fetchAt },
   { at: (state, key, kind) => kind === "_" && state.shelf.has(key), act: pickUpAt },
   { at: (state, key, kind) => kind === "P" && state.pots.has(key), act: collectAt },
+  { at: (state, _key, kind) => kind === "L" && state.plates?.dirty > 0, act: washAt },
 ];
 
 /** The chef, his hands empty, at the stations beside him. */
@@ -158,7 +169,7 @@ function takeUp(state, cook, here) {
     const found = TAKE_UPS.find((one) => one.at(state, keyOf(station), station.kind));
     if (found) return found.act(state, cook, station);
   }
-  return "les mains vides : prenez un ingrédient à sa caisse, des oignons coupés sur un comptoir ou une soupe prête sur le feu";
+  return "les mains vides : prenez un ingrédient à sa caisse, des oignons coupés sur un comptoir, une soupe prête sur le feu, ou faites la plonge";
 }
 
 /** Anything cut, cooked or not, may wait on a counter for someone else, or for an order: what the chef says, or null when no counter takes it. */
@@ -175,13 +186,21 @@ function putDownHere(state, cook, here, step) {
 /** Will the chef clean `station`, a burnt stove, before putting his pot on? */
 const cleaningFirst = (state, step, station) => step.type === "cook" && Boolean(state.setup.unattended) && state.dirty.has(keyOf(station));
 
+/** Why the chef cannot serve yet, or null: a batch made ahead has no order; no clean plate at the pass (service-plates.js). */
+function servingBlocked(state, cook, here) {
+  if (orderOf(state, cook).stock) return "pas encore de commande pour ce plat : posez-le sur un comptoir, ou attendez qu'elle arrive";
+  if (here.some((one) => one.kind === "S") && !plateFor(state, cook)) return "plus d'assiette propre : il faut faire la plonge";
+  return null;
+}
+
 /** The chef, a dish in hand, at the stations beside him: its next step, if one of them is the station it needs. */
 function workOn(state, cook, here) {
   packFirst(state, cook);
   const step = cook.steps[cook.step];
   const put = putDownHere(state, cook, here, step);
   if (put) return put;
-  if (step.type === "serve" && orderOf(state, cook).stock) return "pas encore de commande pour ce plat : posez-le sur un comptoir, ou attendez qu'elle arrive";
+  const notYet = step.type === "serve" ? servingBlocked(state, cook, here) : null;
+  if (notYet) return notYet;
   const station = here.find((one) => !unfit(state, one, step));
   if (!station) return here.some((one) => one.kind === step.kind) ? `${NAMES[step.kind]} est occupé` : `il faut ${NAMES[step.kind]}`;
   const cleaning = cleaningFirst(state, step, station);

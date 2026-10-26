@@ -505,3 +505,31 @@ l'écart avec la même cuisine sans emballage) :
 - Ce que l'emballage évite (les erreurs de commande, 2 à 12 % selon les sources) n'est pas modélisé : un plat emballé
   et un plat non emballé partent pareil. Ce sera le pendant des erreurs de l'humain (étape G).
 - La recherche dans la dark kitchen : dans la file.
+
+## La plonge (26/10, le soir)
+
+**Les assiettes comptées** (`setup.plates`, `src/service-plates.js`) : la cuisine a un stock d'assiettes propres ; un
+plat en prend une quand on le sert (son envoi attend s'il n'y en a plus), et l'assiette revient sale **50 tours** plus
+tard, le client ayant mangé. On la lave à l'**évier** (une lettre `L` dans le plan), **6 à la fois en 3 tours** : un
+robot de rôle `plonge`, ou un robot libre sans rien à cuisiner, ou n'importe quel robot libre d'abord quand il ne
+reste plus d'assiette propre ; le chef au clavier aussi, à l'évier. Les chiffres sont des hypothèses tirées des
+lave-vaisselle à capot et de la durée d'un repas ([`recherche/production.md`](recherche/production.md)).
+
+**La brigade avec plonge** (`KITCHENS.plonge`) : la grande brigade, un évier à côté des planches, 15 assiettes.
+
+Mesuré par paires (30 services, le plat le plus rapide, le cuisinier « le plus urgent » ; sans assiettes comptées :
+25,0 plats à temps) :
+
+| Assiettes | les robots lavent quand ils sont libres | un robot plongeur |
+|---|---|---|
+| 8 | 13,6 (−11,37) ; attente d'assiette 306 tours | 15,7 (−9,30) ; 154 |
+| 12 | 22,0 (−2,93) ; 77 | 21,9 (−3,07) ; 7 |
+| **15** | **23,8 (−1,13)** ; 18 | 22,0 (−3,00) ; 0 |
+| 25 | 24,1 (−0,83) ; 0 | 22,0 (−3,00) ; 0 |
+
+- **Un plongeur dédié coûte un cuisinier** : avec lui, plus personne n'attend d'assiette, mais la brigade perd trois
+  plats à temps, ceux qu'il aurait faits. Avec assez d'assiettes, mieux vaut que les robots lavent entre deux plats.
+- **Le stock décide** : sous 12 assiettes pour une brigade de cinq, l'attente d'assiette écrase le service.
+- Laver une seule assiette à la fois (dès qu'il y en a une sale) gaspille le cycle : un vrai plongeur attend un panier
+  plein, sauf quand il manque des assiettes. Une règle à mesurer.
+- La recherche dans cette cuisine : dans la file.

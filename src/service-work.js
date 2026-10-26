@@ -2,6 +2,7 @@ import { RECIPES } from "./kitchens.js";
 import { FREE, keyOf, orderOf } from "./service-basics.js";
 import { drop } from "./service-legs.js";
 import { goOn } from "./service-mise.js";
+import { plateGone, washed } from "./service-plates.js";
 import { handFollowers, releaseFollowers } from "./service-batch.js";
 import { refuseIfOut } from "./service-supply.js";
 import { passOf, toPass } from "./service-tables.js";
@@ -80,6 +81,11 @@ const ENDS = Object.freeze({
     Object.assign(order, { stove: null, cooked: true });
     return false;
   },
+  wash: (state, cook) => {
+    washed(state, cook);
+    Object.assign(cook, FREE);
+    return true;
+  },
   pack: (_state, _cook, order) => {
     order.packed = true;
     return false;
@@ -104,6 +110,7 @@ function finish(state, cook) {
 
 /** The dish done: served, or, with tables (service-tables.js), at the pass to wait for its table. */
 function handOver(state, cook, order) {
+  plateGone(state, cook);
   if (passOf(state.setup) && order.table) {
     handFollowers(state, order, (follower) => toPass(state, cook, follower));
     return toPass(state, cook, order);

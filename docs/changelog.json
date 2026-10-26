@@ -65,6 +65,17 @@
   ],
   "versions": [
     {
+      "version": "0.21",
+      "title": "La plonge",
+      "date": "26/10",
+      "items": [
+        "Les assiettes sont comptées : un plat en prend une propre, elle revient sale cinquante tours plus tard, on la lave à l'évier (la lettre L), six à la fois. Un robot libre lave quand il n'a rien à cuire, ou d'abord quand il ne reste plus d'assiette ; un rôle « plonge » pour un robot qui ne fait que ça.",
+        "Une nouvelle cuisine, la brigade avec plonge. Mesuré : avec 15 assiettes, laver entre deux plats coûte un plat à temps ; un plongeur dédié en coûte trois (un cuisinier de moins) ; sous 12 assiettes, l'attente d'assiette écrase le service.",
+        "Le réglage « La plonge » et le nombre d'assiettes dans l'onglet Cuisine ; le chef au clavier peut faire la plonge."
+      ],
+      "commits": []
+    },
+    {
       "version": "0.20",
       "title": "Le poste d'emballage, la dark kitchen",
       "date": "26/10",
@@ -73,7 +84,9 @@
         "Mesuré : chaque tour d'emballage coûte à peu près un plat à temps, un coursier de plus repart sans son plat ; le plat le plus rapide y perd le moins.",
         "Le poste d'emballage compte dans les indicateurs (son occupation, l'attente, le temps réservé sans travailler) ; le réglage « Emballer un plat » dans l'onglet Cuisine."
       ],
-      "commits": []
+      "commits": [
+        "14b1409"
+      ]
     },
     {
       "version": "0.19",

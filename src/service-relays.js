@@ -1,6 +1,7 @@
 import { distancesFrom } from "./kitchen.js";
 import { PUT, isWorkStation, keyOf, kindDistance, orderOf, sideDistance } from "./service-basics.js";
 import { packFirst } from "./service-delivery.js";
+import { plateFor } from "./service-plates.js";
 import { holdHere, paceOf, planLeg, stationFor, stepAt, unfitKind, waitFor } from "./service-legs.js";
 import { countWait } from "./service-measures.js";
 
@@ -27,7 +28,11 @@ function relayable(state, cook, step) {
  * The robots that may take the dish up from a counter (the human is not commanded): a free robot, or the pass's robot
  * for a dish to serve, even busy (it comes once done); any robot when the relay is forced.
  */
-const takersOf = (state, cook, step, forced) => state.cooks.filter((other) => other !== cook && other.kind === "robot" && (forced || (other.phase === "idle" && !other.order) || ((other.role === "passe" || other.role === "aboyeur") && step.type === "serve")));
+const takersOf = (state, cook, step, forced) => state.cooks.filter((other) => other !== cook && other.kind === "robot" && (forced || freeHand(other) || servesAtThePass(other, step)));
+/** A robot free to take a dish up: idle, its hands empty, not the dish room's. */
+const freeHand = (other) => other.phase === "idle" && !other.order && other.role !== "plonge";
+/** The pass's robot or the aboyeur, for a dish to serve. */
+const servesAtThePass = (other, step) => (other.role === "passe" || other.role === "aboyeur") && step.type === "serve";
 
 /**
  * How soon the dish gets to its next station through `counter` (`there` turns away, the station `ahead` beyond it)
@@ -122,12 +127,25 @@ function takeRelay(state, cook) {
   state.log.push({ t: state.t, type: "relay", cook: cook.id, order: cook.order, counter: relay, need });
 }
 
-/** Sends `cook` to its current step's station; waits a turn, near it, when none is free or no path is found. */
-export function startStep(state, cook) {
+/** No clean plate to serve on: the cook waits with his dish (service-plates.js). */
+function waitsForPlate(state, cook, step) {
+  if (step.type !== "serve" || plateFor(state, cook)) return false;
+  cook.waits += 1;
+  return true;
+}
+
+/** Before setting off: a delivered dish packed first, a cut dish handed over or relayed; the step to start then. */
+function stepToStart(state, cook) {
   packFirst(state, cook);
   if (handsOver(state, cook)) cook.steps = [...cook.steps.slice(0, cook.step), PUT];
   takeRelay(state, cook);
-  const step = cook.steps[cook.step];
+  return cook.steps[cook.step];
+}
+
+/** Sends `cook` to its current step's station; waits a turn, near it, when none is free or no path is found. */
+export function startStep(state, cook) {
+  const step = stepToStart(state, cook);
+  if (waitsForPlate(state, cook, step)) return;
   let choice = stationFor(state, cook, step);
   if (!choice && claimFromAfar(state, cook, step)) choice = stationFor(state, cook, step);
   if (!choice || !planLeg(state, cook, choice.cell)) {

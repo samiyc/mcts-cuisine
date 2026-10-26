@@ -7,7 +7,7 @@ import { bottleneckOf } from "../src/service-measures.js";
  * draw, the cooks with what they do, the orders with their age and patience left, the service in one line.
  * The DOM layer (app.js) only draws it.
  */
-const STEP_LABELS = Object.freeze({ fetch: "prend l'ingrédient", cut: "coupe", cook: "fait cuire", serve: "sert", put: "pose les oignons coupés sur un comptoir", pickup: "reprend des oignons coupés", collect: "retire la soupe du feu", clean: "récure le fourneau brûlé", pack: "emballe le plat" });
+const STEP_LABELS = Object.freeze({ fetch: "prend l'ingrédient", cut: "coupe", cook: "fait cuire", serve: "sert", put: "pose les oignons coupés sur un comptoir", pickup: "reprend des oignons coupés", collect: "retire la soupe du feu", clean: "récure le fourneau brûlé", pack: "emballe le plat", wash: "fait la plonge" });
 const READY_STEPS = new Set(["serve", "pack"]);
 /**
  * What a dish looks like at its stage (Sami, 23/10): `whole` the ingredient as fetched, `cut` once cut but not
@@ -17,7 +17,7 @@ function stageOf(order, step) {
   if (step?.type === "cut") return "whole";
   return order.cooked || RECIPES[order.recipe].cook === 0 || READY_STEPS.has(step?.type) ? "ready" : "cut";
 }
-const ROLE_LABELS = Object.freeze({ coupe: "coupe", cuisson: "cuisson", salade: "salades", passe: "passe", aboyeur: "aboyeur" });
+const ROLE_LABELS = Object.freeze({ coupe: "coupe", cuisson: "cuisson", salade: "salades", passe: "passe", aboyeur: "aboyeur", plonge: "plonge" });
 const plural = (count, word) => `${count} ${word}${count > 1 ? "s" : ""}`;
 
 /** The progress of every busy board or stove, by "x,y": a cook's gesture, or a pot cooking alone. */

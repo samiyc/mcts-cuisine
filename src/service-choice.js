@@ -16,9 +16,10 @@ const dishOnItsWay = (state, cook) => state.pots.size > 0 || state.shelf.size > 
 
 /**
  * A cooking robot watches the stoves while a pot is on, the pass's robot the pass while a dish is on its way: they help
- * elsewhere only when there is nothing to watch. The aboyeur never leaves the pass (service-aboyeur.js).
+ * elsewhere only when there is nothing to watch. The aboyeur never leaves the pass (service-aboyeur.js), the dish room's
+ * robot the sink (service-plates.js).
  */
-const watching = (state, cook) => cook.role === "aboyeur" || (cook.role === "cuisson" && state.pots.size > 0) || (cook.role === "passe" && dishOnItsWay(state, cook));
+const watching = (state, cook) => cook.role === "aboyeur" || cook.role === "plonge" || (cook.role === "cuisson" && state.pots.size > 0) || (cook.role === "passe" && dishOnItsWay(state, cook));
 
 /**
  * A soup ready on a stove: only if the cook gets there before it burns; the keyboard chef's own, left to him

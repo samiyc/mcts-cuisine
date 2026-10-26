@@ -7,6 +7,7 @@ import { callForDishes } from "./service-aboyeur.js";
 import { letGo, move, stepAside, watch } from "./service-legs.js";
 import { countTurn, createTally, measuresOf } from "./service-measures.js";
 import { prepareAhead } from "./service-mise.js";
+import { clonePlates, platesBack, platesOf, washUp } from "./service-plates.js";
 import { startStep } from "./service-relays.js";
 import { drawBanquet } from "./service-banquet.js";
 import { deliveryOrders } from "./service-delivery.js";
@@ -114,7 +115,7 @@ export function createService(setup, orders, { human = "urgent", seed = 1, manua
   const reservations = createReservations();
   // Every cook holds its place from the start: nobody plans through a cook standing still.
   for (const one of cooks) reservations.reserve(one.id, [{ x: one.x, y: one.y, t: 0 }], { stay: true });
-  return { kitchen, setup, human, rng: createRng(seed + 7_919), t: 0, cooks, upcoming: orders.map((order) => ({ ...order, status: "upcoming", cook: null, servedAt: null })), claims: new Map(), shelf: new Map(), pots: new Map(), dirty: new Set(), burnt: 0, reservations, log: [], cursor: null, tally: createTally(), supply: supplyOf(setup) };
+  return { kitchen, setup, human, rng: createRng(seed + 7_919), t: 0, cooks, upcoming: orders.map((order) => ({ ...order, status: "upcoming", cook: null, servedAt: null })), claims: new Map(), shelf: new Map(), pots: new Map(), dirty: new Set(), burnt: 0, reservations, log: [], cursor: null, tally: createTally(), supply: supplyOf(setup), plates: platesOf(setup) };
 }
 
 /** The orders `cook` may take now, as they would be offered to it (the replays' analysis, src/replay.js). */
@@ -137,6 +138,7 @@ function open(state, order) {
 /** The start of a turn, up to the robots' choices: work ended, orders come in, the human takes his (he does not wait for the robots). */
 export function beginTurn(state, human) {
   finishWork(state);
+  platesBack(state);
   if (state.setup.unattended) watchPots(state);
   watchPass(state);
   callForDishes(state);
@@ -159,13 +161,22 @@ export function nextChoice(state) {
   for (; state.cursor < state.cooks.length; state.cursor += 1) {
     const cook = state.cooks[state.cursor];
     if (cook.kind !== "robot" || cook.phase !== "idle") continue;
+    // No clean plate left, or a robot of the dish room: the washing first (service-plates.js).
+    if (washUp(state, cook, false)) continue;
     const choice = choiceOf(state, cook);
     if (choice.open.length > 0) return choice;
-    // Nothing to take: a robot prepares ahead when the kitchen does its mise en place (service-mise.js).
-    if (prepareAhead(state, cook)) continue;
-    if (!state.setup.unattended || !watch(state, cook)) stepAside(state, cook);
+    idleRobot(state, cook);
   }
   return null;
+}
+
+/**
+ * A free robot with nothing to take: it washes up (service-plates.js), prepares ahead when the kitchen does its mise
+ * en place (service-mise.js), watches its pot, or goes back to its place on the way.
+ */
+function idleRobot(state, cook) {
+  if (washUp(state, cook, true) || prepareAhead(state, cook)) return;
+  if (!state.setup.unattended || !watch(state, cook)) stepAside(state, cook);
 }
 
 /** `choice.cook` takes order `id`, and the turn moves to the next robot. */
@@ -230,6 +241,7 @@ export function cloneService(state) {
     // The search's worlds decide, they are not measured.
     tally: null,
     supply: state.supply && { ...state.supply },
+    plates: clonePlates(state.plates),
   };
 }
 

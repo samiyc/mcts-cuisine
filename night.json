@@ -553,6 +553,20 @@
       "estimate": "1 h",
       "priority": 2,
       "limit": 240
+    },
+    {
+      "id": "cuis-plonge-urgent",
+      "command": "npm run compare -- --kitchen plonge --services 30 --search --humain urgent",
+      "estimate": "3 h",
+      "priority": 2,
+      "limit": 480
+    },
+    {
+      "id": "cuis-plonge-none",
+      "command": "npm run compare -- --kitchen plonge --services 30 --search --humain none",
+      "estimate": "3 h",
+      "priority": 2,
+      "limit": 480
     }
   ]
 }

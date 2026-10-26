@@ -68,3 +68,5 @@ Les oublis réglés quittent cette liste et vont dans [modele.md](../modele.md) 
   (`docs/metiers.md`, « La coupe en série »). Reste : quand lancer un lot, et de quelle taille (la recherche, dans la file).
 - **Le poste d'emballage** (26/10, le soir) : la lettre `E`, la dark kitchen (`docs/metiers.md`). Ce qu'il évite (les
   erreurs de commande) n'est pas modélisé.
+- **La plonge** (26/10, le soir) : les assiettes comptées, l'évier `L`, le rôle `plonge` (`docs/metiers.md`). Reste : laver par
+  paniers pleins plutôt qu'une assiette à la fois.

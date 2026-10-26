@@ -18,7 +18,7 @@ const EXPECTED = {
   variants: "7c3bea5bc808ab9e",
   replay: "165960bd12b38780",
   search: "976ec2207dff02a8",
-  added: "fdfa47f31adf4af5",
+  added: "266580b098c6a0fe",
 };
 
 const digest = (value) => createHash("sha256").update(JSON.stringify(value)).digest("hex").slice(0, 16);
@@ -35,7 +35,7 @@ const humanNames = (setup) => [...humansOf(setup), "none"];
 // The seven kitchens of 22-23/10, fixed: a kitchen added later has its own fingerprint (`added`) and changes none of these.
 const SEVEN = ["petite", "couloir", "brigade", "comptoirs", "postes", "separee", "detour"];
 // The kitchens added on 26/10 in the evening (new stations in new kitchens, Sami).
-const ADDED = ["dark"];
+const ADDED = ["dark", "plonge"];
 
 const FINGERPRINTS = {
   // Every kitchen of the seven under every rule, with every simulated human it may have and none, two services each.
