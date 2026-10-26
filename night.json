@@ -1,5 +1,5 @@
 {
-  "about": "Les mesures de nuit de la cuisine (Sami, 23/10/2026) : la recherche contre les règles, 50 services par cuisine et par humain simulé, aux réglages par défaut (cuisson sans surveillance). Une par cuisine, un fil chacune : mcts-backlog --add-file mcts-cuisine/night.json, puis mcts-backlog.",
+  "about": "Les mesures de nuit de la cuisine (Sami, 23/10/2026 ; refaites le 26/10 : deux cases par tour, deux cases de passe) : la recherche contre les règles, aux réglages par défaut, 50 services par cuisine et par humain simulé ; puis les tables (étape 1 de la feuille de route des métiers) et la rupture, 30 services. Un fil chacune : mcts-backlog --add-file mcts-cuisine/night.json, puis mcts-backlog.",
   "jobs": [
     { "id": "cuis-petite", "command": "npm run compare -- --kitchen petite --services 50 --search", "estimate": "15 min" },
     { "id": "cuis-couloir", "command": "npm run compare -- --kitchen couloir --services 50 --search", "estimate": "10 min" },
@@ -7,6 +7,11 @@
     { "id": "cuis-comptoirs", "command": "npm run compare -- --kitchen comptoirs --services 50 --search", "estimate": "15 min" },
     { "id": "cuis-postes", "command": "npm run compare -- --kitchen postes --services 50 --search", "estimate": "15 min" },
     { "id": "cuis-separee", "command": "npm run compare -- --kitchen separee --services 50 --search", "estimate": "20 min" },
-    { "id": "cuis-detour", "command": "npm run compare -- --kitchen detour --services 50 --search", "estimate": "20 min" }
+    { "id": "cuis-detour", "command": "npm run compare -- --kitchen detour --services 50 --search", "estimate": "20 min" },
+    { "id": "cuis-tables-petite", "command": "npm run compare -- --kitchen petite --services 30 --tables --search", "estimate": "15 min" },
+    { "id": "cuis-tables-brigade", "command": "npm run compare -- --kitchen brigade --services 30 --tables --search", "estimate": "1 h", "limit": 150 },
+    { "id": "cuis-tables-detour", "command": "npm run compare -- --kitchen detour --services 30 --tables --search", "estimate": "15 min" },
+    { "id": "cuis-rupture-petite", "command": "npm run compare -- --kitchen petite --services 30 --rupture 8 --search", "estimate": "10 min" },
+    { "id": "cuis-rupture-brigade", "command": "npm run compare -- --kitchen brigade --services 30 --rupture 8 --search", "estimate": "45 min", "limit": 150 }
   ]
 }
