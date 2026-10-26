@@ -23,9 +23,9 @@ for (const id of kitchens) {
   const rows = { oldest: [], ...Object.fromEntries(names.map((text) => [`search ${text}`, []])) };
   const started = Date.now();
   for (let i = 0; i < services; i += 1) {
-    quickest.push(runService(setup, 1 + i, RULES.quickest, human, humanName).measures);
-    rows.oldest.push(runService(setup, 1 + i, RULES.oldest, human, humanName).measures);
-    for (const text of names) rows[`search ${text}`].push(runService(setup, 1 + i, searchRule(optionsOf(text)), human, humanName).measures);
+    quickest.push(runService(setup, 1 + i, RULES.quickest, human).measures);
+    rows.oldest.push(runService(setup, 1 + i, RULES.oldest, human).measures);
+    for (const text of names) rows[`search ${text}`].push(runService(setup, 1 + i, searchRule(optionsOf(text)), human).measures);
   }
   const mean = (measures, key) => measures.reduce((sum, one) => sum + one[key], 0) / measures.length;
   console.log(`\n${setup.label}, humain ${humanName} : ${services} services, ${((Date.now() - started) / 1000).toFixed(0)} s ; plat le plus rapide : ${fixed(mean(quickest, "onTime"))} à temps sur ${fixed(mean(quickest, "orders"))}`);

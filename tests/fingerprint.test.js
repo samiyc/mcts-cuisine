@@ -25,7 +25,7 @@ const digest = (value) => createHash("sha256").update(JSON.stringify(value)).dig
 /** A service's trace: everything it logged, its measures, and where each cook ended with its counters. */
 const traceOf = (state, measures) => ({ log: state.log, measures, cooks: state.cooks.map((cook) => [cook.x, cook.y, cook.moves, cook.waits]) });
 const played = (setup, seed, rule, humanName) => {
-  const { state, measures } = runService(setup, seed, rule, HUMANS[humanName] ?? null, humanName);
+  const { state, measures } = runService(setup, seed, rule, HUMANS[humanName] ?? null);
   return traceOf(state, measures);
 };
 const HUMAN_NAMES = [...Object.keys(HUMANS), "none"];

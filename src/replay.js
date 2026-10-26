@@ -31,48 +31,87 @@ export function pressKey(state, key) {
 /** The robots' rule of a replay, by its name. */
 export const ruleNamed = (name) => (name === "search" ? searchRule() : RULES[name]);
 
+const whoOf = (cook) => (cook.kind === "human" ? "le cuisinier" : `robot ${cook.id}`);
+const beside = (cook, station) => station.access.some((cell) => cell.x === cook.x && cell.y === cook.y);
+
+/** What looks wrong with `cook`: working past the end of its gesture, or away from its station. */
+function cookAnomalies(state, cook) {
+  const found = [];
+  const working = cook.phase === "working";
+  if (working && cook.until !== null && cook.until < state.t) found.push(`${whoOf(cook)} travaille encore, son geste devait finir au tour ${cook.until}`);
+  if (working && cook.station && !beside(cook, cook.station)) found.push(`${whoOf(cook)} travaille au poste (${cook.station.x},${cook.station.y}) sans être à côté, en (${cook.x},${cook.y})`);
+  return found;
+}
+
+/** Who holds a station's claim, in words. */
+function holderOf(cook, id) {
+  if (!cook) return `le cuisinier ${id}, absent`;
+  return cook.kind === "human" ? "le cuisinier" : `le robot ${id}`;
+}
+
+/** Does `cook` work at station `key`, or walk to it? */
+const worksThere = (cook, key) => Boolean(cook.station) && `${cook.station.x},${cook.station.y}` === key && (cook.phase === "working" || cook.phase === "moving");
+
+/** The station `key`, claimed by cook `id`: wrong when that cook neither works there nor goes there, nor relays a dish there. */
+function claimAnomaly(state, key, id) {
+  const cook = state.cooks.find((one) => one.id === id);
+  return cook && (worksThere(cook, key) || cook.steps?.[cook.step]?.at === key) ? null : `le poste (${key}) est pris par ${holderOf(cook, id)}, qui n'y travaille pas`;
+}
+
 /**
- * What looks wrong in \`state\` now: a cook still "working" past the end of its gesture, or away from the station it
+ * What looks wrong in `state` now: a cook still "working" past the end of its gesture, or away from the station it
  * works at; a station claimed by a cook that does not work there nor go there.
  */
 export function anomaliesOf(state) {
-  const found = [];
-  const beside = (cook, station) => station.access.some((cell) => cell.x === cook.x && cell.y === cook.y);
-  for (const cook of state.cooks) {
-    const who = cook.kind === "human" ? "le cuisinier" : `robot ${cook.id}`;
-    if (cook.phase === "working" && cook.until !== null && cook.until < state.t) found.push(`${who} travaille encore, son geste devait finir au tour ${cook.until}`);
-    if (cook.phase === "working" && cook.station && !beside(cook, cook.station)) found.push(`${who} travaille au poste (${cook.station.x},${cook.station.y}) sans être à côté, en (${cook.x},${cook.y})`);
-  }
+  const found = state.cooks.flatMap((cook) => cookAnomalies(state, cook));
   for (const [key, id] of state.claims) {
-    const cook = state.cooks.find((one) => one.id === id);
-    const there = cook && cook.station && `${cook.station.x},${cook.station.y}` === key && (cook.phase === "working" || cook.phase === "moving");
-    const relay = cook && cook.steps?.[cook.step]?.at === key;
-    if (!there && !relay) found.push(`le poste (${key}) est pris par ${cook ? (cook.kind === "human" ? "le cuisinier" : `le robot ${id}`) : `le cuisinier ${id}, absent`}, qui n'y travaille pas`);
+    const anomaly = claimAnomaly(state, key, id);
+    if (anomaly) found.push(anomaly);
   }
   return found;
 }
 
+/** The chef's hands empty before his keys: if they take an order, that was a decision (`onDecision`); the state before them, or null. */
+function decisionBefore(state, run) {
+  if (!run.onDecision || run.inputs[0]?.t !== state.t) return null;
+  return run.chef.order === null ? cloneService(state) : null;
+}
+
+/** The chef's keys of this turn: what he was answered last, or null. */
+function pressKeys(state, run) {
+  let said = null;
+  while (run.inputs.length && run.inputs[0].t === state.t) said = pressKey(state, run.inputs.shift().key) ?? said;
+  return said;
+}
+
+/** One turn of a replay: the turn's start, the chef's keys, the robots. What the chef was answered, or null. */
+function playTurn(state, run) {
+  if (run.first) beginTurn(state, run.human);
+  const before = decisionBefore(state, run);
+  const said = pressKeys(state, run);
+  if (before && run.chef.order > 0) run.onDecision({ t: state.t, before, chosen: run.chef.order });
+  stepService(state, run.rule, run.human);
+  return said;
+}
+
+/** What a replay's turns need: who starts the turn, the human's model and the robots' rule, the keys left, the chef. */
+const runOf = (replay, state, { rule, onDecision }) => ({ first: startsFirst(replay.format), human: HUMANS[replay.human] ?? null, rule: rule ?? ruleNamed(replay.rule), inputs: [...replay.inputs], onDecision, chef: state.cooks.find((cook) => cook.manual) });
+
+const PLAY_OPTIONS = Object.freeze({ onTurn: () => {}, onDecision: null, until: Infinity, rule: null });
+
 /**
- * Plays \`replay\` again: the same service, the robots under the same rule, the keys at their turns. \`onTurn(state,
- * said)\` sees every turn (\`said\`: what the chef answered a key that turn). Returns the final state and the
+ * Plays `replay` again: the same service, the robots under the same rule, the keys at their turns. `onTurn(state,
+ * said)` sees every turn (`said`: what the chef answered a key that turn). Returns the final state and the
  * anomalies, each with the first turn it was seen.
  */
-export function playReplay(replay, { onTurn = () => {}, onDecision = null, until = Infinity, rule: ruleOverride = null } = {}) {
+export function playReplay(replay, options = {}) {
+  const { onTurn, onDecision, until, rule } = { ...PLAY_OPTIONS, ...options };
   if (!REPLAY_FORMATS.includes(replay.format)) throw new Error(`format de replay inconnu : ${replay.format}`);
-  const first = startsFirst(replay.format);
   const state = createService(replay.setup, drawOrders(replay.seed, replay.setup), { human: null, seed: replay.seed, manual: true });
-  const rule = ruleOverride ?? ruleNamed(replay.rule);
-  const inputs = [...replay.inputs];
+  const run = runOf(replay, state, { rule, onDecision });
   const seen = new Map();
-  const chef = state.cooks.find((cook) => cook.manual);
   while (!isOver(state) && state.t < until) {
-    let said = null;
-    if (first) beginTurn(state, HUMANS[replay.human] ?? null);
-    // The chef's hands empty before his keys: if they take an order, that was a decision (\`onDecision\`).
-    const before = onDecision && inputs[0]?.t === state.t && chef.order === null ? cloneService(state) : null;
-    while (inputs.length && inputs[0].t === state.t) said = pressKey(state, inputs.shift().key) ?? said;
-    if (before && chef.order !== null && chef.order > 0) onDecision({ t: state.t, before, chosen: chef.order });
-    stepService(state, rule, HUMANS[replay.human] ?? null);
+    const said = playTurn(state, run);
     for (const anomaly of anomaliesOf(state)) if (!seen.has(anomaly)) seen.set(anomaly, state.t);
     onTurn(state, said);
   }

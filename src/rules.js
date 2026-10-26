@@ -8,7 +8,11 @@ import { runService } from "./simulate.js";
  */
 const first = (open, before) => open.reduce((best, order) => (before(order, best) ? order : best));
 /** The work left on an order: cut onions waiting on a counter have only their cooking left, a dish ready to serve (on a stove or a counter) nothing. */
-const workOf = (order) => (order.status === "ready" || (order.status === "prepped" && (order.cooked || RECIPES[order.recipe].cook === 0)) ? 0 : (order.status === "prepped" ? 0 : RECIPES[order.recipe].cut) + RECIPES[order.recipe].cook);
+function workOf(order) {
+  const { cut, cook } = RECIPES[order.recipe];
+  if (order.status === "ready" || (order.status === "prepped" && (order.cooked || cook === 0))) return 0;
+  return order.status === "prepped" ? cook : cut + cook;
+}
 
 export const RULES = Object.freeze({
   /** The order that came first. */
@@ -33,15 +37,19 @@ const MEASURES = ["orders", "onTime", "late", "missed", "meanServe", "waits", "b
  * The robots' rules on the same `services` services of `setup`, with the human `humanName` (or none): each
  * rule's mean measures, and its dishes served in time against the oldest-first rule's, by pairs.
  */
-export function compareRules(setup, { services = 100, seed = 1, humanName = "urgent", rules = RULES } = {}) {
+export function compareRules(setup, options = {}) {
+  const { services, seed, humanName, rules } = { services: 100, seed: 1, humanName: "urgent", rules: RULES, ...options };
   const human = HUMANS[humanName] ?? null;
   const runs = Object.fromEntries(Object.keys(rules).map((name) => [name, []]));
-  for (let i = 0; i < services; i += 1) for (const [name, rule] of Object.entries(rules)) runs[name].push(runService(setup, seed + i, rule, human, humanName).measures);
+  for (let i = 0; i < services; i += 1) for (const [name, rule] of Object.entries(rules)) runs[name].push(runService(setup, seed + i, rule, human).measures);
   return summaryOf(runs);
 }
+
+/** The mean of each measure over `measures` (one rule's services), those the services have. */
+const meansOf = (measures) => Object.fromEntries(MEASURES.filter((key) => key in measures[0]).map((key) => [key, mean(measures.map((one) => one[key]))]));
 
 /** Each rule's services (`{ name: measures[] }`, the same services for all) summed up as `compareRules` does. */
 export function summaryOf(runs) {
   const baseline = runs.oldest?.map((one) => one.onTime);
-  return Object.fromEntries(Object.entries(runs).map(([name, measures]) => [name, { ...Object.fromEntries(MEASURES.filter((key) => key in measures[0]).map((key) => [key, mean(measures.map((one) => one[key]))])), gain: baseline ? paired(measures.map((one) => one.onTime), baseline) : null }]));
+  return Object.fromEntries(Object.entries(runs).map(([name, measures]) => [name, { ...meansOf(measures), gain: baseline ? paired(measures.map((one) => one.onTime), baseline) : null }]));
 }

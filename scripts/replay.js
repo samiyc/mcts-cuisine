@@ -14,7 +14,9 @@ if (!file) {
 }
 const replay = JSON.parse(readFileSync(file, "utf8"));
 const trace = flags.includes("--trace");
-const where = (state) => state.cooks.map((cook) => `${cook.kind === "human" ? "H" : cook.id}:${cook.phase}${cook.order ? `/${cook.order}:${cook.steps?.[cook.step]?.type ?? ""}` : ""}@${cook.x},${cook.y}`).join(" ");
+/** A cook's order and step, as `/12:cut`, or nothing when its hands are empty. */
+const doing = (cook) => (cook.order ? `/${cook.order}:${cook.steps?.[cook.step]?.type ?? ""}` : "");
+const where = (state) => state.cooks.map((cook) => `${cook.kind === "human" ? "H" : cook.id}:${cook.phase}${doing(cook)}@${cook.x},${cook.y}`).join(" ");
 const { state, anomalies } = playReplay(replay, {
   onTurn: (now, said) => {
     if (trace && said !== null) console.log(`tour ${now.t} : « ${said} » ${where(now)}`);
@@ -36,6 +38,7 @@ if (flags.includes("--gaps")) {
       return `commande ${id} (${option.recipe}${option.status === "ready" ? ", prête sur le feu" : ""})`;
     };
     const verdict = lost > 0 ? ` ; mieux : ${name(best)}, +${fixed(lost)} plat` : " : le meilleur choix";
-    console.log(`tour ${t} : ${name(chosen)}${verdict}  [${options.map((option) => `${option.id} → ${fixed(option.value)}`).join(", ")}]`);
+    const values = options.map((option) => `${option.id} → ${fixed(option.value)}`).join(", ");
+    console.log(`tour ${t} : ${name(chosen)}${verdict}  [${values}]`);
   }
 }

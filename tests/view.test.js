@@ -7,6 +7,33 @@ import { cellsOf, cooksOf, ordersOf, statusLine } from "../web/view.js";
 
 const setup = KITCHENS.petite;
 
+/** Each order shown with its age, its patience (none once served) and its dish. */
+function assertOrders(service) {
+  for (const order of ordersOf(service)) {
+    assert.equal(order.age, service.t - service.upcoming.find((one) => one.id === order.id).arrival);
+    assert.ok(order.served ? order.patience === null : order.patience >= 0 && order.patience <= 1);
+    assert.ok(["🍲", "🥗"].includes(order.emoji));
+  }
+}
+
+/** A gesture's progress: none, or between 0 and 1. */
+const inUnit = (value) => value === null || (value >= 0 && value <= 1);
+
+/** What a cell shows of a stove: its gesture's progress, a pot cooking or ready (with the turns before it burns), a stove to clean. */
+function seeStove(cell, seen) {
+  assert.ok(inUnit(cell.progress));
+  const pot = cell.pot ?? {};
+  if (pot.ready === false) seen.cooking = true;
+  if (pot.ready) seen.ready ||= pot.left >= 0 && pot.left <= 2;
+  if (cell.dirty) seen.dirty = true;
+}
+
+/** The stages of the onions in the cooks' hands of `service`, and what a counter holds: cut, or ready. */
+function seeStages(service, stages) {
+  for (const cook of cooksOf(service)) if (cook.holding === "soupe") stages.add(cook.stage);
+  for (const cell of cellsOf(service)) if (cell.dish) assert.ok(["cut", "ready"].includes(cell.stage), "un plat sur un comptoir est coupé ou prêt");
+}
+
 describe("what the page shows (web/view.js)", () => {
   it("draws every cell, the stations by their letter", () => {
     const service = createService(setup, drawOrders(1, setup), { seed: 1 });
@@ -26,7 +53,7 @@ describe("what the page shows (web/view.js)", () => {
     assert.ok(orders.length > 0 && orders[0].id >= orders.at(-1).id);
     assert.match(statusLine(service), /^Tour 30 \/ 200 · \d+ commandes · \d+ servies à temps · \d+ en retard$/);
     while (!isOver(service)) stepService(service, RULES.quickest, HUMANS.urgent);
-    assert.match(statusLine(service, measuresOf(service)), /\d+ pas servies · \d+ tours en moyenne de la commande à la table$/);
+    assert.match(statusLine(service, measuresOf(service)), /(?<!\d)\d+ pas servies · \d+ tours en moyenne de la commande à la table$/);
     assert.ok(cellsOf(service).every((cell) => cell.progress === null || (cell.progress >= 0 && cell.progress <= 1)));
   });
 
@@ -39,11 +66,7 @@ describe("what the page shows (web/view.js)", () => {
       const counters = cellsOf(service).filter((cell) => cell.kind === "counter");
       assert.equal(counters.length, 2);
       if (counters.some((cell) => cell.dish)) seenOnCounter = true;
-      for (const order of ordersOf(service)) {
-        assert.equal(order.age, service.t - service.upcoming.find((one) => one.id === order.id).arrival);
-        assert.ok(order.served ? order.patience === null : order.patience >= 0 && order.patience <= 1);
-        assert.ok(["🍲", "🥗"].includes(order.emoji));
-      }
+      assertOrders(service);
     }
     assert.ok(seenOnCounter, "un plat posé sur un comptoir");
     // Onions in hand: whole until cut, then cut (a knife on them), then the dish.
@@ -52,8 +75,7 @@ describe("what the page shows (web/view.js)", () => {
     const stages = new Set();
     while (!isOver(roles)) {
       stepService(roles, RULES.quickest, HUMANS.urgent);
-      for (const cook of cooksOf(roles)) if (cook.holding === "soupe") stages.add(cook.stage);
-      for (const cell of cellsOf(roles)) if (cell.dish) assert.ok(["cut", "ready"].includes(cell.stage), "un plat sur un comptoir est coupé ou prêt");
+      seeStages(roles, stages);
     }
     assert.deepEqual([...stages].sort(), ["cut", "ready", "whole"]);
   });
@@ -64,15 +86,10 @@ describe("what the page shows (web/view.js)", () => {
     const seen = { cooking: false, ready: false, dirty: false };
     while (!isOver(service)) {
       stepService(service, RULES.oldest, HUMANS.urgent);
-      for (const cell of cellsOf(service)) {
-        assert.ok(cell.progress === null || (cell.progress >= 0 && cell.progress <= 1));
-        if (cell.pot?.ready === false) seen.cooking = true;
-        if (cell.pot?.ready) seen.ready ||= cell.pot.left >= 0 && cell.pot.left <= 2;
-        if (cell.dirty) seen.dirty = true;
-      }
+      for (const cell of cellsOf(service)) seeStove(cell, seen);
       for (const order of ordersOf(service)) if (service.upcoming.find((one) => one.id === order.id).status === "ready") assert.match(order.status, /^prête sur le feu, brûle dans \d+ tours/);
     }
     assert.deepEqual(seen, { cooking: true, ready: true, dirty: true });
-    assert.match(statusLine(service), /\d+ soupes? brûlées?/);
+    assert.match(statusLine(service), /(?<!\d)\d+ soupes? brûlées?/);
   });
 });

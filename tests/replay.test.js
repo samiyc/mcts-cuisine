@@ -11,7 +11,7 @@ describe("replays of the chef at the keyboard (src/replay.js)", () => {
     const state = createService(setup, drawOrders(3, setup), { human: null, seed: 3, manual: true });
     const keys = ["q", "q", "z", "e", "s", "e", "d", "d", "e"];
     const inputs = [];
-    for (let i = 0; !isOver(state); i += 1) {
+    for (let i = 0; !isOver(state); ) {
       // As the page plays it: the turn starts, then the chef's key.
       beginTurn(state, null);
       if (i % 3 === 0) {
@@ -21,6 +21,7 @@ describe("replays of the chef at the keyboard (src/replay.js)", () => {
       }
       stepService(state, RULES.quickest, null);
       assert.deepEqual(anomaliesOf(state), [], `tour ${state.t}`);
+      i += 1;
     }
     const replay = replayOf({ kitchenId: "detour", setup, seed: 3, rule: "quickest", inputs });
     assert.equal(replay.format, REPLAY_FORMAT);
@@ -58,13 +59,14 @@ describe("replays of the chef at the keyboard (src/replay.js)", () => {
     const setup = KITCHENS.detour;
     const state = createService(setup, drawOrders(3, setup), { human: null, seed: 3, manual: true });
     const inputs = [];
-    for (let i = 0; !isOver(state); i += 1) {
+    for (let i = 0; !isOver(state); ) {
       if (i % 2 === 0) {
         const key = ["q", "z", "e", "s", "d", "e"][(i / 2) % 6];
         inputs.push({ t: state.t, key });
         pressKey(state, key);
       }
       stepService(state, RULES.quickest, null);
+      i += 1;
     }
     const old = { ...replayOf({ kitchenId: "detour", setup, seed: 3, rule: "quickest", inputs }), format: "cuisine-replay/1" };
     assert.deepEqual(measuresOf(playReplay(old).state), measuresOf(state));

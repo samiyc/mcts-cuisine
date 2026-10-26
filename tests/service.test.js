@@ -5,6 +5,28 @@ import { KITCHENS } from "../src/kitchens.js";
 import { HUMANS, RULES, compareRules } from "../src/rules.js";
 import { createService, drawOrders, fitsRole, interact, isOver, measuresOf, runService, steer, stepService, stepsOf } from "../src/simulate.js";
 
+/** No two cooks swapped cells during the turn (`before`: the cooks as they were). */
+function assertNoSwap(state, before, seed) {
+  const was = (cook) => before.find((one) => one.id === cook.id);
+  for (const a of state.cooks) {
+    for (const b of state.cooks) {
+      const swapped = a.id < b.id && a.x === was(b).x && a.y === was(b).y && b.x === was(a).x && b.y === was(a).y;
+      assert.ok(!swapped, `service ${seed}, tour ${state.t} : ${a.id} et ${b.id} se croisent`);
+    }
+  }
+}
+
+/** A pot holds its stove; a soup ready longer than `burn` turns has burnt, unless a cook is taking it off; putting the pot on is one turn at the stove, 1 + clean on a burnt one. */
+function assertPots(state, unattended) {
+  for (const [stove, pot] of state.pots) {
+    const order = state.upcoming.find((one) => one.id === pot.order);
+    assert.equal(order.stove, stove);
+    if (state.t < pot.ready) assert.equal(order.status, "cooking");
+    else assert.ok(state.t <= pot.ready + unattended.burn || state.cooks.some((cook) => cook.order === order.id && cook.phase === "working"));
+  }
+  for (const cook of state.cooks) if (cook.phase === "working" && cook.steps[cook.step].type === "cook") assert.ok([1, 1 + unattended.clean].includes(cook.span));
+}
+
 /** Plays a service turn by turn, checking that no two cooks share a cell or swap, and no board or stove serves two. */
 function playChecked(setup, seed, rule, humanName) {
   const human = HUMANS[humanName] ?? null;
@@ -15,13 +37,7 @@ function playChecked(setup, seed, rule, humanName) {
     const cells = state.cooks.map((cook) => `${cook.x},${cook.y}`);
     assert.equal(new Set(cells).size, cells.length, `service ${seed}, tour ${state.t} : deux cuisiniers dans la même case`);
     assert.ok(state.cooks.every((cook) => state.kitchen.floor(state.kitchen.plan.at(cook.x, cook.y))));
-    for (const a of state.cooks) {
-      for (const b of state.cooks) {
-        const was = (cook) => before.find((one) => one.id === cook.id);
-        const swapped = a.id < b.id && a.x === was(b).x && a.y === was(b).y && b.x === was(a).x && b.y === was(a).y;
-        assert.ok(!swapped, `service ${seed}, tour ${state.t} : ${a.id} et ${b.id} se croisent`);
-      }
-    }
+    assertNoSwap(state, before, seed);
     const busy = state.cooks.filter((cook) => cook.phase === "working" && ["C", "P"].includes(cook.station?.kind)).map((cook) => `${cook.station.x},${cook.station.y}`);
     assert.equal(new Set(busy).size, busy.length, `service ${seed}, tour ${state.t} : un poste pour deux`);
     before = state.cooks.map((cook) => ({ ...cook }));
@@ -58,7 +74,7 @@ describe("the kitchen (src/kitchen.js, src/simulate.js)", () => {
     assert.ok(measures.onTime > 0);
     assert.equal(measures.onTime + measures.late + measures.missed, measures.orders);
     assert.ok(state.log.some((event) => event.type === "served"));
-    assert.deepEqual(runService(KITCHENS.couloir, 3, RULES.quickest, HUMANS.random, "random").measures, runService(KITCHENS.couloir, 3, RULES.quickest, HUMANS.random, "random").measures);
+    assert.deepEqual(runService(KITCHENS.couloir, 3, RULES.quickest, HUMANS.random).measures, runService(KITCHENS.couloir, 3, RULES.quickest, HUMANS.random).measures);
     assert.deepEqual(measuresOf(createService(KITCHENS.petite, [])), { orders: 0, onTime: 0, late: 0, missed: 0, meanServe: 0, moves: 0, waits: 0, burnt: 0 });
   });
 
@@ -97,15 +113,7 @@ describe("the kitchen (src/kitchen.js, src/simulate.js)", () => {
       const state = createService(kitchen, drawOrders(seed, kitchen), { human: "urgent", seed });
       while (!isOver(state)) {
         stepService(state, RULES.quickest, HUMANS.urgent);
-        // A pot holds its stove; a soup ready longer than `burn` turns has burnt, unless a cook is taking it off.
-        for (const [stove, pot] of state.pots) {
-          const order = state.upcoming.find((one) => one.id === pot.order);
-          assert.equal(order.stove, stove);
-          if (state.t < pot.ready) assert.equal(order.status, "cooking");
-          else assert.ok(state.t <= pot.ready + unattended.burn || state.cooks.some((cook) => cook.order === order.id && cook.phase === "working"));
-        }
-        // Putting the pot on is one turn at the stove, 1 + clean on a burnt one.
-        for (const cook of state.cooks) if (cook.phase === "working" && cook.steps[cook.step].type === "cook") assert.ok([1, 1 + unattended.clean].includes(cook.span));
+        assertPots(state, unattended);
       }
       assert.ok(state.log.some((one) => one.type === "pot"));
       burnt += measuresOf(state).burnt;
@@ -186,7 +194,7 @@ describe("the kitchen (src/kitchen.js, src/simulate.js)", () => {
       }
     }
     assert.ok(gave > 0, "des places rendues");
-    const { state } = runService(KITCHENS.detour, 1, RULES.quickest, HUMANS.nearest, "nearest");
+    const { state } = runService(KITCHENS.detour, 1, RULES.quickest, HUMANS.nearest);
     const human = state.cooks.find((cook) => cook.kind === "human").id;
     assert.ok(state.log.some((event) => event.type === "relay" && event.cook === human), "le cuisinier pose pour le robot du passe");
   });

@@ -12,8 +12,53 @@ const READY_STEPS = new Set(["serve"]);
  * What a dish looks like at its stage (Sami, 23/10): `whole` the ingredient as fetched, `cut` once cut but not
  * yet a dish (onions to cook), `ready` the dish (a salad cut, a soup cooked).
  */
-const stageOf = (order, step) => (step?.type === "cut" ? "whole" : order.cooked || RECIPES[order.recipe].cook === 0 || READY_STEPS.has(step?.type) ? "ready" : "cut");
+function stageOf(order, step) {
+  if (step?.type === "cut") return "whole";
+  return order.cooked || RECIPES[order.recipe].cook === 0 || READY_STEPS.has(step?.type) ? "ready" : "cut";
+}
 const ROLE_LABELS = Object.freeze({ coupe: "coupe", cuisson: "cuisson", salade: "salades", passe: "passe" });
+const plural = (count, word) => `${count} ${word}${count > 1 ? "s" : ""}`;
+
+/** The progress of every busy board or stove, by "x,y": a cook's gesture, or a pot cooking alone. */
+function busyOf(state) {
+  const busy = new Map();
+  for (const cook of state.cooks) {
+    if (cook.phase !== "working" || !cook.station) continue;
+    const turns = cook.span ?? cook.steps[cook.step].turns;
+    busy.set(`${cook.station.x},${cook.station.y}`, 1 - (cook.until - state.t) / turns);
+  }
+  potsCooking(state, busy);
+  return busy;
+}
+
+/** A pot cooking alone: its progress on the stove, unless a cook works there. */
+function potsCooking(state, busy) {
+  for (const [key, pot] of state.pots ?? []) {
+    if (state.t < pot.ready && !busy.has(key)) busy.set(key, 1 - (pot.ready - state.t) / RECIPES[state.upcoming.find((order) => order.id === pot.order).recipe].cook);
+  }
+}
+
+/** Each pot by its stove: `{ ready, left }`, done or not, turns to ready or to burning. */
+function potsOf(state) {
+  const burn = state.setup.unattended?.burn ?? 0;
+  const potOf = (pot) => (state.t < pot.ready ? { ready: false, left: pot.ready - state.t } : { ready: true, left: pot.ready + burn - state.t });
+  return new Map([...(state.pots ?? [])].map(([key, pot]) => [key, potOf(pot)]));
+}
+
+/** What a plan's character is drawn as: floor, wall, counter, or a station's letter. */
+function kindOf(state, char) {
+  if (char === "_") return "counter";
+  if (STATIONS[char]) return char;
+  return state.kitchen.floor(char) ? "floor" : "wall";
+}
+
+/** The cell at `x`, `y`, with what `seen` (busy stations, pots, dishes on counters) says of it. */
+function cellAt(state, x, y, seen) {
+  const char = state.kitchen.plan.at(x, y);
+  const key = `${x},${y}`;
+  const dish = seen.dishes.get(key);
+  return { x, y, kind: kindOf(state, char), progress: seen.busy.get(key) ?? null, label: STATIONS[char] ?? null, dish: dish ? dish.recipe : null, stage: dish ? stageOf(dish, null) : null, pot: seen.pots.get(key) ?? null, dirty: Boolean(state.dirty?.has(key)) };
+}
 
 /**
  * Every cell to draw: `{ x, y, kind, progress, label, dish, stage, pot, dirty }`, kind floor, wall, counter or a
@@ -23,30 +68,24 @@ const ROLE_LABELS = Object.freeze({ coupe: "coupe", cuisson: "cuisson", salade: 
  */
 export function cellsOf(state) {
   const { plan } = state.kitchen;
-  const busy = new Map();
-  for (const cook of state.cooks) {
-    if (cook.phase !== "working" || !cook.station) continue;
-    const turns = cook.span ?? cook.steps[cook.step].turns;
-    busy.set(`${cook.station.x},${cook.station.y}`, 1 - (cook.until - state.t) / turns);
-  }
-  const burn = state.setup.unattended?.burn ?? 0;
-  const pots = new Map([...(state.pots ?? [])].map(([key, pot]) => [key, state.t < pot.ready ? { ready: false, left: pot.ready - state.t } : { ready: true, left: pot.ready + burn - state.t }]));
-  // A pot cooking alone: its progress on the stove.
-  for (const [key, pot] of state.pots ?? []) {
-    if (state.t < pot.ready && !busy.has(key)) busy.set(key, 1 - (pot.ready - state.t) / RECIPES[state.upcoming.find((order) => order.id === pot.order).recipe].cook);
-  }
-  const dishes = new Map([...state.shelf].map(([key, id]) => [key, state.upcoming.find((order) => order.id === id)]));
+  const seen = { busy: busyOf(state), pots: potsOf(state), dishes: new Map([...state.shelf].map(([key, id]) => [key, state.upcoming.find((order) => order.id === id)])) };
   const cells = [];
-  for (let y = 0; y < plan.height; y += 1) {
-    for (let x = 0; x < plan.width; x += 1) {
-      const char = plan.at(x, y);
-      const key = `${x},${y}`;
-      let kind = state.kitchen.floor(char) ? "floor" : "wall";
-      if (STATIONS[char]) kind = char === "_" ? "counter" : char;
-      cells.push({ x, y, kind, progress: busy.get(key) ?? null, label: STATIONS[char] ?? null, dish: dishes.get(key)?.recipe ?? null, stage: dishes.has(key) ? stageOf(dishes.get(key), null) : null, pot: pots.get(key) ?? null, dirty: state.dirty?.has(key) ?? false });
-    }
-  }
+  for (let y = 0; y < plan.height; y += 1) for (let x = 0; x < plan.width; x += 1) cells.push(cellAt(state, x, y, seen));
   return cells;
+}
+
+/** A cook in words: the human, or a robot with its role. */
+function nameOf(cook) {
+  if (cook.kind === "human") return "Le cuisinier";
+  return cook.role ? `Robot ${cook.id} (${ROLE_LABELS[cook.role]})` : `Robot ${cook.id}`;
+}
+
+/** What a cook does, in words: its step and its order, cleaning a stove, or nothing. */
+function doingOf(cook, order, step) {
+  if (!order) return cook.steps?.[cook.step]?.type === "clean" ? STEP_LABELS.clean : "libre";
+  const dish = RECIPES[order.recipe].label;
+  const what = order.stock ? `en avance, ${dish}` : `commande ${order.id}, ${dish}`;
+  return `${STEP_LABELS[step.type]} (${what})`;
 }
 
 /** The cooks: where they are, robot or human, what they do and for which order, and what they carry. */
@@ -54,22 +93,43 @@ export function cooksOf(state) {
   return state.cooks.map((cook) => {
     const order = state.upcoming.find((one) => one.id === cook.order);
     const step = order ? cook.steps[cook.step] : null;
-    const who = cook.kind === "human" ? "Le cuisinier" : `Robot ${cook.id}${cook.role ? ` (${ROLE_LABELS[cook.role]})` : ""}`;
-    const what = order ? (order.stock ? `en avance, ${RECIPES[order.recipe].label}` : `commande ${order.id}, ${RECIPES[order.recipe].label}`) : "";
-    const cleaning = !order && cook.steps?.[cook.step]?.type === "clean";
-    const doing = order ? `${STEP_LABELS[step.type]} (${what})` : cleaning ? STEP_LABELS.clean : "libre";
+    const carrying = Boolean(order) && cook.step > 0;
     return {
       id: cook.id,
       kind: cook.kind,
       x: cook.x,
       y: cook.y,
-      holding: order && cook.step > 0 ? order.recipe : null,
+      holding: carrying ? order.recipe : null,
       ready: Boolean(step) && READY_STEPS.has(step.type),
-      stage: order && cook.step > 0 ? stageOf(order, step) : null,
-      label: `${who} : ${doing}`,
+      stage: carrying ? stageOf(order, step) : null,
+      label: `${nameOf(cook)} : ${doingOf(cook, order, step)}`,
       ahead: cook.target ? (cook.path ?? []).filter((one) => one.t >= state.t) : [],
     };
   });
+}
+
+/** Who has taken `order`, in words, or null. */
+function takerOf(state, order) {
+  const cook = state.cooks.find((one) => one.id === order.cook);
+  if (!cook) return null;
+  return cook.kind === "human" ? "le cuisinier" : `robot ${cook.id}`;
+}
+
+/** What a dish waiting on a counter needs next. */
+function needOf(order, ready) {
+  if (order.stock) return "en avance, pour la prochaine commande";
+  return ready ? "il faut le passe" : "il faut un fourneau";
+}
+
+/** The request of `order`, waiting on `counter`. */
+function requestOf(state, counter, order) {
+  const dish = RECIPES[order.recipe];
+  const ready = order.cooked || dish.cook === 0;
+  const what = ready ? `${dish.label} prête` : "oignons coupés";
+  const who = order.status === "taken" ? takerOf(state, order) : null;
+  const name = order.stock ? "" : `commande ${order.id}, `;
+  const taking = who ? ` — ${who} : je prends` : "";
+  return { counter, order: order.id, who, text: `Comptoir ${counter} : ${name}${what}, ${needOf(order, ready)}${taking}` };
 }
 
 /**
@@ -81,34 +141,31 @@ export function boardOf(state) {
   const items = [];
   for (const [counter, id] of state.shelf) {
     const order = state.upcoming.find((one) => one.id === id);
-    if (!order) continue;
-    const dish = RECIPES[order.recipe];
-    const ready = order.cooked || dish.cook === 0;
-    const what = ready ? `${dish.label} prête` : "oignons coupés";
-    const need = order.stock ? "en avance, pour la prochaine commande" : ready ? "il faut le passe" : "il faut un fourneau";
-    const taker = order.status === "taken" ? state.cooks.find((cook) => cook.id === order.cook) : null;
-    const who = taker ? (taker.kind === "human" ? "le cuisinier" : `robot ${taker.id}`) : null;
-    const name = order.stock ? "" : `commande ${order.id}, `;
-    items.push({ counter, order: order.id, who, text: `Comptoir ${counter} : ${name}${what}, ${need}${who ? ` — ${who} : je prends` : ""}` });
+    if (order) items.push(requestOf(state, counter, order));
   }
   return items;
 }
 
-/** Where an order stands, in words. */
-function statusOf(state, order) {
-  const cook = state.cooks.find((one) => one.id === order.cook);
-  const who = cook ? (cook.kind === "human" ? "le cuisinier" : `robot ${cook.id}`) : null;
-  const left = order.deadline - state.t;
-  const time = left >= 0 ? `encore ${left} tours` : `${-left} tours de retard`;
-  if (order.status === "served") return order.servedAt <= order.deadline ? `servie à temps (tour ${order.servedAt})` : `servie en retard (tour ${order.servedAt})`;
-  if (order.status === "taken") return `${who}, ${time}`;
-  if (order.status === "prepped") return `oignons coupés sur un comptoir, ${time}`;
+/** A served order, in words. */
+const servedText = (order) => (order.servedAt <= order.deadline ? `servie à temps (tour ${order.servedAt})` : `servie en retard (tour ${order.servedAt})`);
+
+/** An order on a stove, or burnt, or nobody's yet, in words, `time` its time left. */
+function stoveText(state, order, time) {
   const pot = order.stove ? state.pots.get(order.stove) : null;
   // Done this turn, the soup is ready: the order says so at the next turn's start.
   if (order.status === "cooking" && state.t < pot.ready) return `cuit seule, prête dans ${pot.ready - state.t} tours, ${time}`;
   if (order.status === "cooking" || order.status === "ready") return `prête sur le feu, brûle dans ${pot.ready + state.setup.unattended.burn - state.t} tours, ${time}`;
-  if (order.burnt) return `brûlée, à refaire, ${time}`;
-  return `personne, ${time}`;
+  return order.burnt ? `brûlée, à refaire, ${time}` : `personne, ${time}`;
+}
+
+/** Where an order stands, in words. */
+function statusOf(state, order) {
+  const left = order.deadline - state.t;
+  const time = left >= 0 ? `encore ${left} tours` : `${-left} tours de retard`;
+  if (order.status === "served") return servedText(order);
+  if (order.status === "taken") return `${takerOf(state, order)}, ${time}`;
+  if (order.status === "prepped") return `oignons coupés sur un comptoir, ${time}`;
+  return stoveText(state, order, time);
 }
 
 /**
@@ -142,8 +199,9 @@ export function statusLine(state, measures) {
   const onTime = served.filter((order) => order.servedAt <= order.deadline).length;
   const come = state.upcoming.filter((order) => order.arrival <= state.t).length;
   const parts = [`Tour ${state.t} / ${state.setup.service}`, `${come} commandes`, `${onTime} servies à temps`, `${served.length - onTime} en retard`];
-  if (state.burnt > 0) parts.push(`${state.burnt} soupe${state.burnt > 1 ? "s" : ""} brûlée${state.burnt > 1 ? "s" : ""}`);
-  if (state.shelf.size > 0) parts.push(`${state.shelf.size} comptoir${state.shelf.size > 1 ? "s" : ""} garni${state.shelf.size > 1 ? "s" : ""}`);
+  const s = (count) => (count > 1 ? "s" : "");
+  if (state.burnt > 0) parts.push(`${plural(state.burnt, "soupe")} brûlée${s(state.burnt)}`);
+  if (state.shelf.size > 0) parts.push(`${plural(state.shelf.size, "comptoir")} garni${s(state.shelf.size)}`);
   if (measures) parts.push(`${measures.missed} pas servies`, `${Math.round(measures.meanServe)} tours en moyenne de la commande à la table`);
   return parts.join(" · ");
 }
