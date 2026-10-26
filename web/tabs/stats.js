@@ -46,8 +46,15 @@ export function statsView({ state }) {
     el("p", { class: "hint" }, "Le bon : de la commande au passe. Le coup de feu : le plus de bons ouverts à la fois. Le poste le plus occupé : la part des tours où le plus chargé de sa sorte travaille ; l'attente : les tours passés à attendre qu'un poste de cette sorte se libère (docs/recherche/indicateurs.md)."),
     table(["Les robots prennent", "bon moyen", "bon p90", "bon max", "retard max", "coup de feu", "poste le plus occupé", "le plus attendu"], entries.map(([name, row]) => indicatorsRow(state, name, row))),
     ...(entries[0][1].tables === undefined ? [] : tablesPart(state, entries)),
+    ...(entries[0][1].refused === undefined ? [] : rupturePart(state, entries)),
   ];
 }
+
+/** The rupture (step 1): the orders refused once a crate is empty, beside those served. */
+const rupturePart = (state, entries) => [
+  el("h3", {}, "La rupture"),
+  table(["Les robots prennent", "commandes", "refusées", "à temps", "pas servies"], entries.map(([name, row]) => el("tr", { class: name === state.rule ? "current" : null }, el("td", {}, RULE_LABELS[name]), num(fixed(row.orders)), num(fixed(row.refused)), num(fixed(row.onTime)), num(fixed(row.missed))))),
+];
 
 /** The tables (step 1 of the trades' roadmap): those sent in time, the dishes dead at the pass, the longest wait there. */
 const tablesPart = (state, entries) => [

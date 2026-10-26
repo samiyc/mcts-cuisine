@@ -61,7 +61,7 @@ export function valueOf(world) {
   for (const order of world.upcoming) {
     if (order.arrival > world.t) continue;
     if (order.status === "served") value += order.servedAt <= order.deadline ? 1 : 0;
-    else if (order.deadline > world.t) value += 0.5;
+    else if (order.deadline > world.t && order.status !== "refused") value += 0.5;
   }
   return value;
 }

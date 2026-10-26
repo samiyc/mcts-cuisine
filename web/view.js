@@ -166,6 +166,7 @@ function statusOf(state, order) {
   if (order.status === "served") return servedText(order);
   if (order.status === "taken") return `${takerOf(state, order)}, ${time}`;
   if (order.status === "prepped") return `oignons coupés sur un comptoir, ${time}`;
+  if (order.status === "refused") return `refusée : plus de ${RECIPES[order.recipe].label} ce soir (86)`;
   if (order.status === "passed") return `au passe depuis ${state.t - order.passedAt} tours, attend sa table, ${time}`;
   return stoveText(state, order, time);
 }
@@ -206,7 +207,8 @@ function endOf(state, measures) {
   const rush = measures.peakOpen === undefined ? [] : [`coup de feu : ${measures.peakOpen} bons ouverts au tour ${measures.peakAt}`];
   const busiest = neck ? [`poste le plus occupé : ${neck.use.word} (${Math.round(100 * neck.use.share)} % des tours)`] : [];
   const tables = measures.tables === undefined ? [] : [`${measures.tablesOnTime} tables sur ${measures.tables} parties à temps`, `${measures.died} plats morts au passe`];
-  return [`bon le plus long : ${measures.maxServe} tours`, ...rush, ...tables, ...human, ...busiest, `${measures.missed} pas servies`, `${Math.round(measures.meanServe)} tours en moyenne de la commande à la table`];
+  const refused = measures.refused === undefined ? [] : [`${measures.refused} commandes refusées (rupture)`];
+  return [`bon le plus long : ${measures.maxServe} tours`, ...rush, ...tables, ...refused, ...human, ...busiest, `${measures.missed} pas servies`, `${Math.round(measures.meanServe)} tours en moyenne de la commande à la table`];
 }
 
 /** The service in one line. */

@@ -1,4 +1,5 @@
 import { KITCHENS } from "../../src/kitchens.js";
+import { SUPPLY } from "../../src/service-supply.js";
 import { TABLES } from "../../src/service-tables.js";
 import { board } from "../board.js";
 import { el, select } from "../dom.js";
@@ -25,6 +26,8 @@ export const kitchenPanel = ({ state }) =>
 const field = (label, name, value) => el("label", {}, label, el("input", { name, type: "number", min: "1", value: String(value) }));
 
 function fieldsOf(setup) {
+  // What the options would be if ticked: the kitchen's own, or the defaults.
+  const [cooking, tables, supply] = [{ ...UNATTENDED, ...setup.unattended }, { ...TABLES, ...setup.tables }, { ...SUPPLY, ...setup.supply }];
   const roles = el("input", { name: "roles", value: (setup.roles ?? []).map((role) => role || "-").join(" "), placeholder: "coupe cuisson", title: "Un mot par robot, dans l'ordre du plan : coupe, cuisson, salade, passe (sert ce qui est prêt), ou - pour un robot qui fait tout" });
   return el(
     "div",
@@ -35,10 +38,13 @@ function fieldsOf(setup) {
     field("Fin du service (tour)", "service", setup.service),
     el("label", {}, "Rôles des robots", roles),
     el("label", { class: "check" }, el("input", { name: "unattended", type: "checkbox", checked: Boolean(setup.unattended) }), "La soupe cuit seule"),
-    field("Elle brûle, prête, après (tours)", "burn", setup.unattended?.burn ?? UNATTENDED.burn),
-    field("Nettoyer un fourneau brûlé (tours)", "clean", setup.unattended?.clean ?? UNATTENDED.clean),
+    field("Elle brûle, prête, après (tours)", "burn", cooking.burn),
+    field("Nettoyer un fourneau brûlé (tours)", "clean", cooking.clean),
     el("label", { class: "check" }, el("input", { name: "tables", type: "checkbox", checked: Boolean(setup.tables) }), `Des tables (${TABLES.min} à ${TABLES.max} plats, servis ensemble)`),
-    field("Un plat attend sa table au passe (tours)", "pass", setup.tables?.pass ?? TABLES.pass),
+    field("Un plat attend sa table au passe (tours)", "pass", tables.pass),
+    el("label", { class: "check" }, el("input", { name: "supply", type: "checkbox", checked: Boolean(setup.supply) }), "Un stock par caisse (rupture : les commandes sont refusées)"),
+    field("Oignons pour le service", "onions", supply.o),
+    field("Tomates pour le service", "tomatoes", supply.t),
   );
 }
 
@@ -55,5 +61,6 @@ export function kitchenFrom(form, setup) {
   const roles = String(data.get("roles")).split(/\s+/).filter(Boolean).map((role) => (ROLES.includes(role) ? role : null));
   const unattended = data.get("unattended") ? { burn: number("burn"), clean: number("clean") } : null;
   const tables = data.get("tables") ? { ...TABLES, pass: number("pass") } : null;
-  return { ...setup, label: "Cuisine modifiée", text: String(data.get("text")).trimEnd(), every: number("every"), patience: number("patience"), lastOrder: number("lastOrder"), service: number("service"), roles, unattended, tables };
+  const supply = data.get("supply") ? { o: number("onions"), t: number("tomatoes") } : null;
+  return { ...setup, label: "Cuisine modifiée", text: String(data.get("text")).trimEnd(), every: number("every"), patience: number("patience"), lastOrder: number("lastOrder"), service: number("service"), roles, unattended, tables, supply };
 }

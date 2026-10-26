@@ -44,7 +44,13 @@ Ils passent dans `npm run compare`, dans l'onglet Stats et dans la fin d'un serv
 mesures changent, celles des journaux non ; le commit le dit. Les règles d'aujourd'hui sont remesurées : le
 goulot de chaque cuisine est-il celui qu'on croit ?
 
-## Étape 1 : la brigade
+## Étape 1 : la brigade (tables, passe et rupture faits le 26/10 ; la mise en place reportée)
+
+Les choix de Sami (26/10) : une table est un groupe de commandes ; un plat attend 10 tours au passe, puis il est
+refait ; une caisse vide fait refuser les commandes ; la mise en place attend les robots en avance. Faits :
+`src/service-tables.js`, `src/service-supply.js`, la règle « la table ». **À trancher** : avec l'échelle de temps
+d'aujourd'hui (une case de marche vaut une minute de coupe), presque aucune table ne part à temps ; voir
+[modele.md](../modele.md), « Les tables, le passe et la rupture ».
 
 D'après [brigade-service.md](brigade-service.md) :
 - **les tables** : une commande de deux ou trois plats, servie quand tous sont au passe ; le temps de bon est

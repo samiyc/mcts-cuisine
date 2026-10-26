@@ -1,6 +1,7 @@
 import { RECIPES } from "./kitchens.js";
 import { PUT, collectSteps, isWorkStation, keyOf, orderOf, pickupSteps, standsOn, stepsOf } from "./service-basics.js";
 import { drop, holdHere, planLeg, turnsOf, unfit } from "./service-legs.js";
+import { isOut, useSupply } from "./service-supply.js";
 
 /**
  * The chef at the keyboard (Sami, 23/10/2026; split from simulate.js, 26/10): `steer` moves him one cell for the
@@ -90,15 +91,19 @@ function aheadAt(state, cook, station) {
   const order = { id: -state.stocked, recipe, arrival: Infinity, deadline: Infinity, status: "open", cook: null, servedAt: null, stock: true };
   state.upcoming.push(order);
   takeAt(state, cook, { order, steps: stepsOf(order.recipe), station });
+  useSupply(state, recipe);
   const what = station.kind === "o" ? "des oignons" : "des tomates";
   return `le chef prend ${what} en avance, pour la prochaine commande`;
 }
 
-/** At a crate: the most urgent open order of its dish, or a batch made ahead. */
+/** At a crate: the most urgent open order of its dish, or a batch made ahead; nothing from an empty crate (the 86, service-supply.js). */
 function fetchAt(state, cook, station) {
+  const recipe = Object.keys(RECIPES).find((name) => RECIPES[name].ingredient === station.kind);
+  if (isOut(state, recipe)) return `la caisse est vide : plus de ${RECIPES[recipe].label} ce soir (86)`;
   const order = state.upcoming.filter((one) => !one.stock && one.status === "open" && RECIPES[one.recipe].ingredient === station.kind).sort((a, b) => a.deadline - b.deadline)[0];
   if (!order) return aheadAt(state, cook, station);
   Object.assign(order, { status: "taken", cook: cook.id });
+  useSupply(state, recipe);
   Object.assign(cook, { order: order.id, steps: stepsOf(order.recipe), step: 0 });
   state.log.push({ t: state.t, type: "taken", cook: cook.id, order: order.id });
   startWork(state, cook, station);

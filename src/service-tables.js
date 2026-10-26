@@ -1,5 +1,6 @@
 import { RECIPES } from "./kitchens.js";
 import { FREE } from "./service-basics.js";
+import { refuseIfOut } from "./service-supply.js";
 
 /**
  * The tables (Sami, 26/10/2026, step 1 of docs/recherche/feuille-de-route.md; his choice: a table is a group of
@@ -48,8 +49,8 @@ export function toPass(state, cook, order) {
   Object.assign(cook, FREE);
 }
 
-/** The orders of `table`, every one of them. */
-const tableOrders = (state, table) => state.upcoming.filter((order) => order.table === table);
+/** The orders of `table` still to serve: every one of them, but a dish refused (off the menu, service-supply.js), which the table goes without. */
+const tableOrders = (state, table) => state.upcoming.filter((order) => order.table === table && order.status !== "refused");
 
 /** A table whose every dish is at the pass is sent: its dishes served this turn. */
 function sendTables(state) {
@@ -67,6 +68,7 @@ function dieAtPass(state) {
   for (const order of state.upcoming) {
     if (order.status !== "passed" || state.t - order.passedAt <= state.setup.tables.pass) continue;
     Object.assign(order, { status: "open", passedAt: null, died: (order.died ?? 0) + 1 });
+    refuseIfOut(state, order);
     state.died = (state.died ?? 0) + 1;
     state.log.push({ t: state.t, type: "died", order: order.id });
   }
@@ -98,6 +100,7 @@ function longestAtPass(state) {
 export function tableMeasures(state) {
   if (!state.setup.tables) return {};
   const come = new Set(state.upcoming.filter((order) => order.table && order.arrival <= state.t).map((order) => order.table));
-  const inTime = [...come].filter((table) => tableOrders(state, table).every((order) => order.status === "served" && order.servedAt <= order.deadline));
+  const servedInTime = (orders) => orders.length > 0 && orders.every((order) => order.status === "served" && order.servedAt <= order.deadline);
+  const inTime = [...come].filter((table) => servedInTime(tableOrders(state, table)));
   return { tables: come.size, tablesOnTime: inTime.length, died: state.died ?? 0, maxPass: longestAtPass(state) };
 }

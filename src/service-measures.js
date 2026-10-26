@@ -1,4 +1,5 @@
 import { keyOf } from "./service-basics.js";
+import { supplyMeasures } from "./service-supply.js";
 import { tableMeasures } from "./service-tables.js";
 
 /**
@@ -41,7 +42,7 @@ export function countTurn(state) {
   const { tally } = state;
   if (!tally) return;
   tally.turns += 1;
-  const open = state.upcoming.filter((order) => !order.stock && order.arrival <= state.t && order.status !== "served").length;
+  const open = state.upcoming.filter((order) => !order.stock && order.arrival <= state.t && !CLOSED.has(order.status)).length;
   if (open > tally.peakOpen) Object.assign(tally, { peakOpen: open, peakAt: state.t });
   const working = new Set(state.cooks.filter((cook) => cook.phase === "working" && cook.station && cook.until > state.t).map((cook) => keyOf(cook.station)));
   for (const station of state.kitchen.stations) {
@@ -56,6 +57,8 @@ export function countWait(state, kind) {
 
 /** A dish handed over by its cook: served, or put at the pass to wait for its table. */
 const HANDED = new Set(["served", "passed"]);
+/** An order no longer open: served, or refused (the dish off the menu). */
+const CLOSED = new Set(["served", "refused"]);
 
 /** The value at rank `share` of the sorted `values` (nearest rank), 0 when there are none. */
 const rank = (values, share) => (values.length ? values[Math.ceil(share * values.length) - 1] : 0);
@@ -91,7 +94,7 @@ export function measuresOf(state) {
     orders: come.length,
     onTime: served.filter((order) => order.servedAt <= order.deadline).length,
     late: served.filter((order) => order.servedAt > order.deadline).length,
-    missed: come.length - served.length,
+    missed: come.length - served.length - come.filter((order) => order.status === "refused").length,
     meanServe: served.length ? served.reduce((sum, order) => sum + order.servedAt - order.arrival, 0) / served.length : 0,
     p90Serve: rank(times, 0.9),
     maxServe: rank(times, 1),
@@ -102,5 +105,6 @@ export function measuresOf(state) {
     ...(state.setup.unattended ? { burnt: state.burnt } : {}),
     ...tallyMeasures(state),
     ...tableMeasures(state),
+    ...supplyMeasures(state),
   };
 }

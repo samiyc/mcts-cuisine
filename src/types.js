@@ -43,6 +43,7 @@
  *   kitchen: object, setup: object, human: string | null, rng: object, t: number, cooks: Cook[], upcoming: Order[],
  *   claims: Map<string, number>, shelf: Map<string, number>, pots: Map<string, Pot>, dirty: Set<string>, burnt: number,
  *   reservations: object, log: object[], cursor: number | null, stocked?: number, replans?: number, tally: Tally | null,
+ *   supply?: Record<string, number> | null, died?: number,
  * }} Service
  */
 
@@ -60,7 +61,8 @@
  *   orders: number, onTime: number, late: number, missed: number, meanServe: number, p90Serve: number, maxServe: number,
  *   maxLate: number, moves: number, waits: number, servedByHuman: number, burnt?: number, peakOpen?: number, peakAt?: number,
  *   useBoard?: number, useStove?: number, usePass?: number, useCounter?: number, waitBoard?: number, waitStove?: number,
- *   waitPass?: number, waitCounter?: number, tables?: number, tablesOnTime?: number, died?: number, maxPass?: number,
+ *   waitPass?: number, waitCounter?: number, tables?: number, tablesOnTime?: number, died?: number, maxPass?: number, refused?: number,
+ *   outAt?: Record<string, number>,
  * }} Measures
  */
 

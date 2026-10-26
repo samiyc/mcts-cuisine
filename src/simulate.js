@@ -6,6 +6,7 @@ import { ask, choiceOf, take } from "./service-choice.js";
 import { letGo, move, stepAside, watch } from "./service-legs.js";
 import { countTurn, createTally, measuresOf } from "./service-measures.js";
 import { startStep } from "./service-relays.js";
+import { refuseIfOut } from "./service-supply.js";
 import { drawTables, watchPass } from "./service-tables.js";
 import { adoptStock, finishWork, watchPots } from "./service-work.js";
 
@@ -102,7 +103,7 @@ export function createService(setup, orders, { human = "urgent", seed = 1, manua
   const reservations = createReservations();
   // Every cook holds its place from the start: nobody plans through a cook standing still.
   for (const one of cooks) reservations.reserve(one.id, [{ x: one.x, y: one.y, t: 0 }], { stay: true });
-  return { kitchen, setup, human, rng: createRng(seed + 7_919), t: 0, cooks, upcoming: orders.map((order) => ({ ...order, status: "upcoming", cook: null, servedAt: null })), claims: new Map(), shelf: new Map(), pots: new Map(), dirty: new Set(), burnt: 0, reservations, log: [], cursor: null, tally: createTally() };
+  return { kitchen, setup, human, rng: createRng(seed + 7_919), t: 0, cooks, upcoming: orders.map((order) => ({ ...order, status: "upcoming", cook: null, servedAt: null })), claims: new Map(), shelf: new Map(), pots: new Map(), dirty: new Set(), burnt: 0, reservations, log: [], cursor: null, tally: createTally(), supply: supplyOf(setup) };
 }
 
 /** The orders `cook` may take now, as they would be offered to it (the replays' analysis, src/replay.js). */
@@ -113,12 +114,21 @@ export function assign(state, cook, id) {
   take(state, choiceOf(state, cook), id);
 }
 
+/** The crates' stock for the service (service-supply.js), its own copy; null without a rupture. */
+const supplyOf = (setup) => (setup.supply ? { ...setup.supply } : null);
+
+/** An order comes in: open, or refused when its dish is off the menu (service-supply.js). */
+function open(state, order) {
+  order.status = "open";
+  refuseIfOut(state, order);
+}
+
 /** The start of a turn, up to the robots' choices: work ended, orders come in, the human takes his (he does not wait for the robots). */
 export function beginTurn(state, human) {
   finishWork(state);
   if (state.setup.unattended) watchPots(state);
   watchPass(state);
-  for (const order of state.upcoming) if (order.status === "upcoming" && order.arrival <= state.t) order.status = "open";
+  for (const order of state.upcoming) if (order.status === "upcoming" && order.arrival <= state.t) open(state, order);
   adoptStock(state);
   countTurn(state);
   const person = state.cooks.find((cook) => cook.kind === "human" && !cook.manual && cook.phase === "idle");
@@ -205,6 +215,7 @@ export function cloneService(state) {
     log: [],
     // The search's worlds decide, they are not measured.
     tally: null,
+    supply: state.supply && { ...state.supply },
   };
 }
 

@@ -2,6 +2,7 @@ import { distancesFrom } from "./kitchen.js";
 import { RECIPES } from "./kitchens.js";
 import { PILE, fitsRole, keyOf, kindDistance, placeOf, servable, sideDistance, stepsFrom, stoveFree } from "./service-basics.js";
 import { stepAside, watch } from "./service-legs.js";
+import { useSupply } from "./service-supply.js";
 
 /**
  * What a free cook may take, and taking it (split from simulate.js, 26/10/2026): the orders it is offered by its
@@ -61,6 +62,7 @@ export function take(state, choice, id) {
   }
   const steps = stepsFrom(chosen);
   Object.assign(chosen, { status: "taken", cook: cook.id });
+  if (steps[0].type === "fetch") useSupply(state, chosen.recipe);
   Object.assign(cook, { order: chosen.id, steps, step: 0, phase: "next" });
   state.log.push({ t: state.t, type: "taken", cook: cook.id, order: chosen.id });
 }

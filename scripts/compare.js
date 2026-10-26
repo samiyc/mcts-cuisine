@@ -2,10 +2,11 @@ import { KITCHENS } from "../src/kitchens.js";
 import { HUMAN_LABELS, HUMANS, RULE_LABELS, RULES, compareRules } from "../src/rules.js";
 import { searchRule } from "../src/search.js";
 import { bottleneckOf } from "../src/service-measures.js";
+import { SUPPLY } from "../src/service-supply.js";
 import { TABLES } from "../src/service-tables.js";
 
 /**
- * `npm run compare -- [--kitchen petite|couloir|brigade] [--services 100] [--search [budget]] [--tables]`: the robots' rules
+ * `npm run compare -- [--kitchen petite|couloir|brigade] [--services 100] [--search [budget]] [--tables] [--rupture [n]]`: the robots' rules
  * on the same drawn services, with each simulated human and with none; every kitchen when none is named.
  * `--search` adds the search (src/search.js, ~1 to 3 s a service). Since step 0 of the trades' roadmap (26/10), each
  * row also gives the ticket time at the 9th decile and at most, the rush (the most orders open at once) and the
@@ -17,6 +18,13 @@ const named = args.includes("--kitchen") ? [args[args.indexOf("--kitchen") + 1]]
 const searching = args.includes("--search");
 const budget = searching && /^\d+$/.test(args[args.indexOf("--search") + 1] ?? "") ? Number(args[args.indexOf("--search") + 1]) : undefined;
 const rules = searching ? { ...RULES, search: searchRule(budget ? { budget } : {}) } : RULES;
+// `--rupture [n]`: every crate holds n ingredients (6 by default, service-supply.js), the orders refused once it is empty.
+function ruptureOf() {
+  if (!args.includes("--rupture")) return 0;
+  const next = args[args.indexOf("--rupture") + 1] ?? "";
+  return /^\d+$/.test(next) ? Number(next) : SUPPLY.o;
+}
+const rupture = ruptureOf();
 // `--tables`: every kitchen with tables of two or three dishes, a dish dying after 10 turns at the pass (service-tables.js).
 const tables = args.includes("--tables");
 const fixed = (value, digits = 1) => value.toFixed(digits).replace(".", ",");
@@ -28,7 +36,7 @@ function bottleneckText(row) {
 }
 const HEAD = "L'humain              | Règle des robots         | commandes | à temps | en retard | manquées | gain à temps (IC 95 %) | bon p90 | bon max | pic | goulot";
 for (const id of named) {
-  const setup = tables ? { ...KITCHENS[id], tables: TABLES } : KITCHENS[id];
+  const setup = { ...KITCHENS[id], ...(tables ? { tables: TABLES } : {}), ...(rupture ? { supply: { o: rupture, t: rupture } } : {}) };
   if (!KITCHENS[id]) throw new Error(`cuisine inconnue ; au choix : ${Object.keys(KITCHENS).join(", ")}`);
   console.log(`\n${setup.label} : ${services} services`);
   console.log(HEAD);
@@ -36,7 +44,7 @@ for (const id of named) {
     const result = compareRules(setup, { services, humanName, rules });
     for (const [name, row] of Object.entries(result)) {
       const first = [HUMAN_LABELS[humanName].padEnd(21), RULE_LABELS[name].padEnd(24), fixed(row.orders).padStart(9), fixed(row.onTime).padStart(7), fixed(row.late).padStart(9), fixed(row.missed).padStart(8), gainOf(name, row).padStart(22)];
-      const tableText = tables ? [`tables à temps ${fixed(row.tablesOnTime)} / ${fixed(row.tables)}, morts au passe ${fixed(row.died)}`] : [];
+      const tableText = [...(tables ? [`tables à temps ${fixed(row.tablesOnTime)} / ${fixed(row.tables)}, morts au passe ${fixed(row.died)}`] : []), ...(rupture ? [`refusées ${fixed(row.refused)}`] : [])];
       console.log([...first, fixed(row.p90Serve).padStart(7), fixed(row.maxServe).padStart(7), fixed(row.peakOpen).padStart(3), bottleneckText(row), ...tableText].join(" | "));
     }
   }

@@ -410,3 +410,49 @@ Les étapes du métier (Sami, 26/10) sont dans [`recherche/feuille-de-route.md`]
 4. **Laisser la recherche décider de revenir au feu** : retirer la soupe ou finir ce qu'on fait.
 5. **Des recettes plus longues** (plusieurs ingrédients), où l'on se passe les ingrédients d'un comptoir à
    l'autre.
+
+## Les tables, le passe et la rupture (26/10, étape 1 de la feuille de route des métiers)
+
+Les choix de Sami (26/10) : une table est **un groupe de commandes** ; un plat attend sa table **10 tours** au passe,
+puis il est perdu et refait ; une caisse vide fait **refuser** les commandes de son plat ; la mise en place est
+**reportée** (c'est le chantier des robots en avance, « La suite » 3). Deux réglages, éteints par défaut : les
+services sans eux ont les mêmes journaux qu'avant.
+
+**Les tables** (`setup.tables`, `src/service-tables.js`) :
+- une table commande 2 ou 3 plats à la fois, chacun une commande avec le numéro de la table et son échéance ; les
+  tables arrivent au rythme de la cuisine divisé par leur taille moyenne, pour garder à peu près autant de plats
+  (hypothèse) ;
+- un plat fini va **au passe** et y attend sa table ; la table part entière, quand son dernier plat arrive ; un plat
+  qui attend plus de 10 tours **meurt au passe** et sa commande revient à faire (« à la volée ») ;
+- la recherche imagine des tables dans ses mondes et les joue avec la règle de la table ;
+- **une règle simple de plus, « la table »** (faire marcher) : la table la plus ancienne, son plat le plus long
+  d'abord ; un plat ne part que si ce qui reste aux autres plats de sa table ne dépasse pas son propre travail de plus
+  de 4 tours (hypothèse). Sans tables, elle revient à « la plus ancienne ».
+
+**Ce qu'elles donnent** (30 services, le cuisinier « le plus urgent ») : **presque aucune table ne part à temps.**
+Petite cuisine, tables de 2 ou 3, passe à 10 tours : 0,5 à 1 table sur 8,3 à temps, 10 à 13 plats morts au passe, 1 à
+2 plats à temps au lieu de 12 sans tables. Même avec 40 tours au passe et des tables de deux, au mieux un tiers des
+tables part à temps (3,3 sur 11,1), et les plats à temps tombent de 12-16 à 4-8. La règle de la table fait mourir moins
+de plats (souvent deux fois moins) mais ne sert pas plus de tables à temps, sauf dans le grand détour (+0,8 plat).
+
+Ce n'est pas un bug, c'est **l'échelle de temps du modèle** : une salade met 25 tours de la commande au passe, dont 4
+de coupe et le reste à marcher ; une soupe 40 à 50. Avec deux robots, une table de trois soupes ne peut pas se faire en
+même temps : ses plats arrivent forcément à 20 ou 30 tours d'écart, et la table attend le plus lent. Les 60 tours de
+patience, faits pour un plat, ne suffisent pas à une table. Un tour vaut une case de marche comme une minute de
+coupe : la marche est bien trop lente devant le travail. C'est la question posée à Sami avant d'aller plus loin.
+
+**La rupture** (`setup.supply`, `src/service-supply.js`) :
+- chaque caisse a un stock pour le service ; un plat prend son ingrédient quand un cuisinier prend sa commande à faire
+  depuis la caisse (personne ne marche vers une caisse vide), une préparation d'avance aussi ;
+- la caisse vide, le plat est retiré (le 86) : ses commandes ouvertes, celles qui arrivent, et une soupe brûlée ou un
+  plat mort à refaire sont **refusés**, comptés à part ; une table part sans son plat refusé ; le chef au clavier
+  trouve la caisse vide ;
+- les mondes de la recherche ont leur propre compte.
+
+**Ce qu'elle donne** (30 services) : les refusées remplacent les manquées (il n'en reste presque plus). Avec 4
+ingrédients par caisse, les trois règles font exactement pareil : le stock décide de tout (petite : 12 refusées sur
+20, 7,5 à temps). Avec 8, le plat le plus rapide reprend son avance (+0,9 dans la petite, +1,5 dans la grande
+brigade). Aucune règle ne choisit encore **à qui donner les derniers oignons** : une commande qui sera servie à temps
+plutôt qu'une qui sera en retard. C'est une décision pour la recherche.
+
+Les deux réglages sont dans l'onglet Cuisine, et `npm run compare -- --tables --rupture [n]`.
