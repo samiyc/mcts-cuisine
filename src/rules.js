@@ -37,7 +37,8 @@ export const HUMANS = Object.freeze({
 export const HUMAN_LABELS = Object.freeze({ nearest: "prend le plus proche", urgent: "prend le plus urgent", random: "prend au hasard", clavier: "c'est vous, au clavier (Z Q S D, E)", none: "pas d'humain" });
 
 const mean = (values) => values.reduce((sum, value) => sum + value, 0) / values.length;
-const MEASURES = ["orders", "onTime", "late", "missed", "meanServe", "waits", "burnt"];
+// The indicators of step 0 (26/10, docs/recherche/indicateurs.md) after the first ones: means over the services, maxima included.
+const MEASURES = ["orders", "onTime", "late", "missed", "meanServe", "waits", "burnt", "p90Serve", "maxServe", "maxLate", "peakOpen", "servedByHuman", "useBoard", "useStove", "usePass", "useCounter", "waitBoard", "waitStove", "waitPass", "waitCounter"];
 
 /**
  * The robots' rules on the same `services` services of `setup`, with the human `humanName` (or none): each

@@ -1,6 +1,7 @@
 import { distancesFrom } from "./kitchen.js";
 import { PUT, isWorkStation, keyOf, kindDistance, orderOf, sideDistance } from "./service-basics.js";
 import { holdHere, planLeg, stationFor, unfitKind, waitFor } from "./service-legs.js";
+import { countWait } from "./service-measures.js";
 
 /**
  * A cook setting off for its step (split from simulate.js, 26/10/2026): handing its dish over on a counter, leaving
@@ -126,6 +127,7 @@ export function startStep(state, cook) {
   if (!choice && claimFromAfar(state, cook, step)) choice = stationFor(state, cook, step);
   if (!choice || !planLeg(state, cook, choice.cell)) {
     cook.waits += 1;
+    countWait(state, step.kind);
     waitFor(state, cook, step);
     return;
   }

@@ -29,7 +29,10 @@ Faits dans la foulée de ces recherches (26/10) :
 - **la page en onglets** de lopin, déjà reprise par urgences : les onglets dans la bande du haut (Service, Cuisine,
   Replays, Stats), les réglages de l'onglet ouvert dans le panneau de gauche, repliable.
 
-## Étape 0 : les indicateurs
+## Étape 0 : les indicateurs (faite le 26/10, `src/service-measures.js`)
+
+Ce qu'ils ont montré, dans [modele.md](../modele.md) : aucun poste n'est saturé ; on attend la case unique du passe,
+et, dans la cuisine coupée en deux, des fourneaux réservés par des cuisiniers encore loin.
 
 D'après [indicateurs.md](indicateurs.md), compter sans rien décider :
 - le temps de bon au 9e décile et au maximum, le retard maximal ;

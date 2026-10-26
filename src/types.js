@@ -37,30 +37,37 @@
 /**
  * A service under way (simulate.js `createService`): the kitchen and its setup, the human's model by name, the draws,
  * the turn, the cooks and orders, the stations claimed, the dishes on the counters (`shelf`), the pots, the burnt
- * stoves, the reservations, the log, and the robot whose choice comes next (`cursor`, null between turns).
+ * stoves, the reservations, the log, the robot whose choice comes next (`cursor`, null between turns), and what the
+ * turns counted (`tally`, null in the search's worlds).
  * @typedef {{
  *   kitchen: object, setup: object, human: string | null, rng: object, t: number, cooks: Cook[], upcoming: Order[],
  *   claims: Map<string, number>, shelf: Map<string, number>, pots: Map<string, Pot>, dirty: Set<string>, burnt: number,
- *   reservations: object, log: object[], cursor: number | null, stocked?: number, replans?: number,
+ *   reservations: object, log: object[], cursor: number | null, stocked?: number, replans?: number, tally: Tally | null,
  * }} Service
  */
+
+/** A service's counts, turn by turn (service-measures.js): the turns, the rush and its turn, each station's turns at work, the waits by kind. @typedef {{ turns: number, peakOpen: number, peakAt: number, busy: Map<string, number>, waitsFor: Record<string, number> }} Tally */
 
 /** What a rule is told at a choice: the turn, the floor distance to an order, the draws, and the service (only the search reads it). @typedef {{ t?: number, reach?: (order: Order) => number, rng?: object, state?: Service }} RuleContext */
 
 /** A rule, or a model of the human: which of the open orders the cook takes (rules.js, search.js). @typedef {(open: Order[], context?: RuleContext) => Order} Rule */
 
 /**
- * A service's measures (simulate.js `measuresOf`); `burnt` with unattended cooking only.
- * @typedef {{ orders: number, onTime: number, late: number, missed: number, meanServe: number, moves: number, waits: number, burnt?: number }} Measures
+ * A service's measures (service-measures.js `measuresOf`): the dishes, the ticket times, the worst lateness, the
+ * moves and waits, the human's dishes; `burnt` with unattended cooking only; the rush and the stations' use and waits
+ * when the turns were counted, a station kind's only when the kitchen has one.
+ * @typedef {{
+ *   orders: number, onTime: number, late: number, missed: number, meanServe: number, p90Serve: number, maxServe: number,
+ *   maxLate: number, moves: number, waits: number, servedByHuman: number, burnt?: number, peakOpen?: number, peakAt?: number,
+ *   useBoard?: number, useStove?: number, usePass?: number, useCounter?: number, waitBoard?: number, waitStove?: number,
+ *   waitPass?: number, waitCounter?: number,
+ * }} Measures
  */
 
 /**
  * A rule's services summed up (rules.js `summaryOf`): the mean measures, and the dishes served in time gained on the
  * oldest order first, by pairs (null without it).
- * @typedef {{
- *   orders: number, onTime: number, late: number, missed: number, meanServe: number, waits: number, burnt?: number,
- *   gain: { mean: number, low: number, high: number } | null,
- * }} Summary
+ * @typedef {Omit<Measures, "moves" | "peakAt"> & { gain: { mean: number, low: number, high: number } | null }} Summary
  */
 
 /** A replay (replay.js): the kitchen, the seed, the robots' rule, the keys with their turns. @typedef {{ format: string, kitchenId: string, setup: object, seed: number, rule: string, human?: string, inputs: { t: number, key: string }[], savedAt?: string }} Replay */

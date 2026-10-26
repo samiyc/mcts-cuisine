@@ -355,6 +355,47 @@ Chaque bug a été retrouvé dans un replay de Sami, puis corrigé et vérifié 
 - **La grande brigade** : la mesure de l'après-midi sur 12 services donnait la recherche derrière (−1,3) ; sur 50, elle est devant avec chaque humain (+0,1 à +1,2) : les 12 services étaient trop peu.
 - Chaque job a pris 8 à 39 min sur un fil ; les quinze mesures des trois projets ont tourné côte à côte en 39 min.
 
+## Les indicateurs du métier (26/10, étape 0 de la feuille de route des métiers)
+
+Sami : passer aux étapes 0 et 1 de [`recherche/feuille-de-route.md`](recherche/feuille-de-route.md). L'étape 0 compte
+sans rien décider (`src/service-measures.js`, [`recherche/indicateurs.md`](recherche/indicateurs.md)) :
+- **le bon** : de la commande au passe, en moyenne, au 9e décile (`p90Serve`) et au plus (`maxServe`) ; le retard
+  maximal d'un plat servi (`maxLate`) ;
+- **le coup de feu** : le plus de bons ouverts au même tour (`peakOpen`), et ce tour (`peakAt`) ;
+- **les postes** : la part des tours où le plus chargé de chaque sorte travaille (`useBoard`, `useStove`, `usePass`,
+  `useCounter` : un geste, une marmite, un plat posé), et les tours passés à attendre qu'un poste de cette sorte se
+  libère (`waitBoard`…) ;
+- **le cuisinier** : les plats qu'il a servis (`servedByHuman`).
+
+Les mondes de la recherche ne comptent rien (`tally` à `null` dans `cloneService`) : ils décident, on ne les mesure
+pas, et la recherche ne paie pas ce comptage. Les journaux des services sont identiques avant et après ; les quatre
+empreintes ont changé parce qu'elles hachent les mesures, et redonnent les anciennes une fois les mesures ramenées aux
+anciennes. Les indicateurs passent dans `npm run compare`, l'onglet Stats et la fin d'un service de la page.
+
+**Ce qu'ils disent** (`compareRules`, 50 services par cuisine, le plat le plus rapide, le cuisinier « le plus
+urgent », la cuisson sans surveillance) :
+
+| Cuisine | à temps / commandes | bon moyen | bon p90 | bon max | coup de feu | planche | fourneau | passe | comptoir | attente : fourneau | passe |
+|---|---|---|---|---|---|---|---|---|---|---|---|
+| petite | 12,6 / 19,5 | 46,1 | 75,5 | 92,3 | 8,8 | 22 % | 28 % | 8 % | — | 5,3 | 27,9 |
+| en couloir | 5,6 / 13,0 | 63,0 | 103,4 | 107,1 | 7,4 | 17 % | 22 % | 4 % | — | 15,6 | 23,3 |
+| grande brigade | 16,7 / 33,7 | 51,0 | 82,5 | 115,2 | 16,9 | 21 % | 27 % | 6 % | — | 2,2 | 28,4 |
+| passe-plats | 7,2 / 14,9 | 54,2 | 88,1 | 97,9 | 7,8 | 21 % | 32 % | 5 % | 35 % | 6,1 | 23,0 |
+| postes | 9,0 / 19,5 | 53,0 | 84,6 | 95,6 | 9,8 | 21 % | 28 % | 7 % | 34 % | 6,6 | 15,0 |
+| coupée en deux | 11,0 / 19,5 | 39,4 | 85,0 | 100,8 | 9,0 | 16 % | 23 % | 7 % | 66 % | 55,8 | 6,5 |
+| le grand détour | 8,0 / 19,5 | 57,8 | 89,1 | 104,3 | 10,2 | 21 % | 31 % | 7 % | 30 % | 0,6 | 4,3 |
+
+- **Aucun poste n'est saturé** : la planche et le fourneau les plus chargés travaillent un quart à un tiers du service.
+  Ce qui borne la cuisine est **la marche** des cuisiniers, pas les feux.
+- **Le passe** attend 15 à 28 tours par service dans cinq cuisines, alors qu'il ne sert que 4 à 8 % du temps : il n'a
+  qu'**une case d'accès** dans ces plans (`##S##`), et les cuisiniers y font la queue. Le grand détour et la cuisine
+  coupée en deux, où le passe a un robot ou deux côtés, n'attendent presque pas.
+- **La cuisine coupée en deux attend ses fourneaux 56 tours pour 23 % d'usage** : un fourneau est réservé par un
+  cuisinier encore loin (de l'autre côté des comptoirs), et ne cuit pas pendant ce temps. Un poste réservé n'est pas
+  un poste au travail ; ce temps-là n'est pas encore compté à part.
+- **Le 9e décile du bon dépasse la patience** (60 à 70 tours) partout : un plat sur dix arrive très en retard ou pas
+  du tout. La moyenne (39 à 63) le cachait.
+
 ## La suite
 
 Les étapes communes aux trois dépôts sont dans la [feuille de route](https://github.com/samiyc/lopin/blob/main/docs/ismcts-ailleurs/feuille-de-route.md) § 6 (Sami, 23/10 au soir) : l'ordonnanceur en commun pour les mesures de nuit, les replays avec un humain pour analyser les écarts, la vitrine. Le journal des versions est dans la page (`web/changelog.html`).

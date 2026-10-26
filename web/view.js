@@ -1,5 +1,6 @@
 import { STATIONS } from "../src/kitchen.js";
 import { RECIPES } from "../src/kitchens.js";
+import { bottleneckOf } from "../src/service-measures.js";
 
 /**
  * What the page shows of a service, pure and tested under Node (tests/view.test.js): the cells and stations to
@@ -193,6 +194,18 @@ export function ordersOf(state) {
     .reverse();
 }
 
+/**
+ * The end of a service, in words (step 0 of the trades' roadmap, 26/10): the longest ticket, the rush, the dishes the
+ * cook served, the bottleneck, then the dishes not served and the mean ticket time.
+ */
+function endOf(state, measures) {
+  const neck = bottleneckOf(measures);
+  const human = state.cooks.some((cook) => cook.kind === "human") ? [`le cuisinier en a servi ${measures.servedByHuman}`] : [];
+  const rush = measures.peakOpen === undefined ? [] : [`coup de feu : ${measures.peakOpen} bons ouverts au tour ${measures.peakAt}`];
+  const busiest = neck ? [`poste le plus occupé : ${neck.use.word} (${Math.round(100 * neck.use.share)} % des tours)`] : [];
+  return [`bon le plus long : ${measures.maxServe} tours`, ...rush, ...human, ...busiest, `${measures.missed} pas servies`, `${Math.round(measures.meanServe)} tours en moyenne de la commande à la table`];
+}
+
 /** The service in one line. */
 export function statusLine(state, measures) {
   const served = state.upcoming.filter((order) => order.status === "served");
@@ -202,6 +215,6 @@ export function statusLine(state, measures) {
   const s = (count) => (count > 1 ? "s" : "");
   if (state.burnt > 0) parts.push(`${plural(state.burnt, "soupe")} brûlée${s(state.burnt)}`);
   if (state.shelf.size > 0) parts.push(`${plural(state.shelf.size, "comptoir")} garni${s(state.shelf.size)}`);
-  if (measures) parts.push(`${measures.missed} pas servies`, `${Math.round(measures.meanServe)} tours en moyenne de la commande à la table`);
+  if (measures) parts.push(...endOf(state, measures));
   return parts.join(" · ");
 }

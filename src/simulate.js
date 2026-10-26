@@ -4,6 +4,7 @@ import { readKitchen } from "./kitchen.js";
 import { RECIPES } from "./kitchens.js";
 import { ask, choiceOf, take } from "./service-choice.js";
 import { letGo, move, stepAside, watch } from "./service-legs.js";
+import { countTurn, createTally, measuresOf } from "./service-measures.js";
 import { startStep } from "./service-relays.js";
 import { adoptStock, finishWork, watchPots } from "./service-work.js";
 
@@ -13,6 +14,7 @@ import { adoptStock, finishWork, watchPots } from "./service-work.js";
 
 export { fitsRole, stepsOf } from "./service-basics.js";
 export { interact, steer } from "./service-keys.js";
+export { measuresOf } from "./service-measures.js";
 
 /**
  * A service in the kitchen, turn by turn. Orders come during the service, each a dish with a deadline. A free
@@ -98,7 +100,7 @@ export function createService(setup, orders, { human = "urgent", seed = 1, manua
   const reservations = createReservations();
   // Every cook holds its place from the start: nobody plans through a cook standing still.
   for (const one of cooks) reservations.reserve(one.id, [{ x: one.x, y: one.y, t: 0 }], { stay: true });
-  return { kitchen, setup, human, rng: createRng(seed + 7_919), t: 0, cooks, upcoming: orders.map((order) => ({ ...order, status: "upcoming", cook: null, servedAt: null })), claims: new Map(), shelf: new Map(), pots: new Map(), dirty: new Set(), burnt: 0, reservations, log: [], cursor: null };
+  return { kitchen, setup, human, rng: createRng(seed + 7_919), t: 0, cooks, upcoming: orders.map((order) => ({ ...order, status: "upcoming", cook: null, servedAt: null })), claims: new Map(), shelf: new Map(), pots: new Map(), dirty: new Set(), burnt: 0, reservations, log: [], cursor: null, tally: createTally() };
 }
 
 /** The orders `cook` may take now, as they would be offered to it (the replays' analysis, src/replay.js). */
@@ -115,6 +117,7 @@ export function beginTurn(state, human) {
   if (state.setup.unattended) watchPots(state);
   for (const order of state.upcoming) if (order.status === "upcoming" && order.arrival <= state.t) order.status = "open";
   adoptStock(state);
+  countTurn(state);
   const person = state.cooks.find((cook) => cook.kind === "human" && !cook.manual && cook.phase === "idle");
   if (person && human) {
     const choice = choiceOf(state, person);
@@ -197,28 +200,8 @@ export function cloneService(state) {
     reservations: state.reservations.clone(),
     rng: state.rng.clone(),
     log: [],
-  };
-}
-
-/**
- * The service's measures: orders come, served in time (the score a team should raise), served late, not
- * served by the end, the mean time from order to table, and the cooks' moves and waits; with unattended
- * cooking, the soups burnt.
- * @param {Service} state
- * @returns {Measures}
- */
-export function measuresOf(state) {
-  const come = state.upcoming.filter((order) => order.arrival <= state.t);
-  const served = come.filter((order) => order.status === "served");
-  return {
-    orders: come.length,
-    onTime: served.filter((order) => order.servedAt <= order.deadline).length,
-    late: served.filter((order) => order.servedAt > order.deadline).length,
-    missed: come.length - served.length,
-    meanServe: served.length ? served.reduce((sum, order) => sum + order.servedAt - order.arrival, 0) / served.length : 0,
-    moves: state.cooks.reduce((sum, cook) => sum + cook.moves, 0),
-    waits: state.cooks.reduce((sum, cook) => sum + cook.waits, 0),
-    ...(state.setup.unattended ? { burnt: state.burnt } : {}),
+    // The search's worlds decide, they are not measured.
+    tally: null,
   };
 }
 

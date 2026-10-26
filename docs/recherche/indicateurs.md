@@ -23,6 +23,12 @@ ajoutera pour comparer les règles et la recherche. Les sources sont dans [briga
 | **Rupture** (86) | non | — | les commandes manquées faute d'ingrédient (étape 1) |
 | Part de l'humain | non | — | les plats servis par le cuisinier humain, par chaque robot |
 
+Comptés depuis le 26/10 (étape 0, `src/service-measures.js`) : le temps de bon au 9e décile et au maximum
+(`p90Serve`, `maxServe`), le retard maximal (`maxLate`), le coup de feu (`peakOpen`, `peakAt`), l'utilisation et
+l'attente par sorte de poste (`useBoard`… `waitPass`…), les plats du cuisinier humain (`servedByHuman`). Restent à
+compter : les bons par tranche de tours (une courbe), les plats par robot, et le temps où un poste est réservé sans
+travailler.
+
 ## Le banquet
 
 | Indicateur réel | Ce qu'il compte | Ce que le simulateur comptera |
