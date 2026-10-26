@@ -12,6 +12,10 @@ import { assign, beginTurn, cloneService, createService, drawOrders, interact, i
  * come) before the chef's key, so a key finds the soup ready on its turn and the chef free once his gesture is done.
  * Version 1, the key first, still plays back as it was played.
  */
+/** @typedef {import("./types.js").Replay} Replay */
+/** @typedef {import("./types.js").Rule} Rule */
+/** @typedef {import("./types.js").Service} Service */
+
 export const REPLAY_FORMAT = "cuisine-replay/2";
 export const REPLAY_FORMATS = Object.freeze(["cuisine-replay/1", REPLAY_FORMAT]);
 /** Does a replay of `format` start each turn before the chef's key (version 2 on)? */
@@ -97,12 +101,20 @@ function playTurn(state, run) {
 /** What a replay's turns need: who starts the turn, the human's model and the robots' rule, the keys left, the chef. */
 const runOf = (replay, state, { rule, onDecision }) => ({ first: startsFirst(replay.format), human: HUMANS[replay.human] ?? null, rule: rule ?? ruleNamed(replay.rule), inputs: [...replay.inputs], onDecision, chef: state.cooks.find((cook) => cook.manual) });
 
+/**
+ * What `playReplay` is told: who sees every turn, who sees the chef's decisions, the turn to stop at, another rule.
+ * @typedef {{ onTurn?: (state: Service, said: string | null) => void, onDecision?: ((decision: { t: number, before: Service, chosen: number }) => void) | null, until?: number, rule?: Rule | null }} PlayOptions
+ */
+/** @type {PlayOptions} */
 const PLAY_OPTIONS = Object.freeze({ onTurn: () => {}, onDecision: null, until: Infinity, rule: null });
 
 /**
  * Plays `replay` again: the same service, the robots under the same rule, the keys at their turns. `onTurn(state,
  * said)` sees every turn (`said`: what the chef answered a key that turn). Returns the final state and the
  * anomalies, each with the first turn it was seen.
+ * @param {Replay} replay
+ * @param {PlayOptions} [options]
+ * @returns {{ state: Service, anomalies: { t: number, text: string }[] }}
  */
 export function playReplay(replay, options = {}) {
   const { onTurn, onDecision, until, rule } = { ...PLAY_OPTIONS, ...options };

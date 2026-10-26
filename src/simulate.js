@@ -7,6 +7,10 @@ import { letGo, move, stepAside, watch } from "./service-legs.js";
 import { startStep } from "./service-relays.js";
 import { adoptStock, finishWork, watchPots } from "./service-work.js";
 
+/** @typedef {import("./types.js").Measures} Measures */
+/** @typedef {import("./types.js").Rule} Rule */
+/** @typedef {import("./types.js").Service} Service */
+
 export { fitsRole, stepsOf } from "./service-basics.js";
 export { interact, steer } from "./service-keys.js";
 
@@ -81,6 +85,10 @@ export function drawOrders(seed, setup) {
 /**
  * The start of a service: cooks at their places, no order yet. `human` names the human's model, or null for
  * none; `seed` draws the random human's choices and the cooks' giving way.
+ * @param {object} setup
+ * @param {{ id: number, recipe: string, arrival: number, deadline: number }[]} orders
+ * @param {{ human?: string | null, seed?: number, manual?: boolean }} [options]
+ * @returns {Service}
  */
 export function createService(setup, orders, { human = "urgent", seed = 1, manual = false } = {}) {
   const kitchen = readKitchen(setup.text);
@@ -144,7 +152,13 @@ export function endTurn(state) {
   state.cursor = null;
 }
 
-/** Plays one turn of `state`: robots under `rule`, the human under `human` (HUMANS, rules.js). */
+/**
+ * Plays one turn of `state`: robots under `rule`, the human under `human` (HUMANS, rules.js).
+ * @param {Service} state
+ * @param {Rule} rule
+ * @param {Rule | null} human
+ * @returns {Service}
+ */
 export function stepService(state, rule, human) {
   if (state.cursor === null) beginTurn(state, human);
   for (let choice = nextChoice(state); choice; choice = nextChoice(state)) choose(state, choice, ask(state, choice, rule));
@@ -190,6 +204,8 @@ export function cloneService(state) {
  * The service's measures: orders come, served in time (the score a team should raise), served late, not
  * served by the end, the mean time from order to table, and the cooks' moves and waits; with unattended
  * cooking, the soups burnt.
+ * @param {Service} state
+ * @returns {Measures}
  */
 export function measuresOf(state) {
   const come = state.upcoming.filter((order) => order.arrival <= state.t);
@@ -209,6 +225,11 @@ export function measuresOf(state) {
 /**
  * A whole service of `setup` from `seed`: robots under `rule`, the human under `human` (a model of HUMANS, rules.js,
  * named in the service by its key; null: robots alone).
+ * @param {object} setup
+ * @param {number} seed
+ * @param {Rule} rule
+ * @param {Rule | null} human
+ * @returns {{ state: Service, measures: Measures }}
  */
 export function runService(setup, seed, rule, human) {
   const state = createService(setup, drawOrders(seed, setup), { human: human ? human.name : null, seed });
