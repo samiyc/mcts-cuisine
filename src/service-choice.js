@@ -2,6 +2,7 @@ import { distancesFrom } from "./kitchen.js";
 import { RECIPES } from "./kitchens.js";
 import { PILE, fitsRole, keyOf, kindDistance, placeOf, servable, sideDistance, stepsFrom, stoveFree } from "./service-basics.js";
 import { toldBy } from "./service-aboyeur.js";
+import { formBatch } from "./service-batch.js";
 import { paceOf, stepAside, watch } from "./service-legs.js";
 import { useSupply } from "./service-supply.js";
 
@@ -68,7 +69,8 @@ export function take(state, choice, id) {
     if (!state.setup.unattended || !watch(state, cook)) stepAside(state, cook);
     return;
   }
-  const steps = stepsFrom(chosen);
+  // At a banquet, with the dishes of its batch (service-batch.js).
+  const steps = formBatch(state, cook, chosen, stepsFrom(chosen));
   Object.assign(chosen, { status: "taken", cook: cook.id });
   if (steps[0].type === "fetch") useSupply(state, chosen.recipe);
   Object.assign(cook, { order: chosen.id, steps, step: 0, phase: "next" });

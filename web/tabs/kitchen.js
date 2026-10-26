@@ -52,6 +52,7 @@ function fieldsOf(setup) {
     el("label", { class: "check" }, el("input", { name: "delivery", type: "checkbox", checked: Boolean(setup.delivery) }), `La livraison : un coursier par commande, annoncé ${DELIVERY.prep} tours après elle, à ${DELIVERY.spread} tours près ; il attend ${DELIVERY.wait} tours`),
     el("label", { class: "check" }, el("input", { name: "mise", type: "checkbox", checked: Boolean(setup.miseEnPlace) }), `La mise en place : un robot sans commande coupe d'avance les oignons d'une soupe et les pose sur un comptoir (${MISE.ahead} au plus)`),
     el("label", { class: "check" }, el("input", { name: "banquet", type: "checkbox", checked: Boolean(setup.banquet) }), `Un banquet : ${BANQUET.covers} couverts environ, l'entrée vers le tour ${BANQUET.courses[0].at}, le plat vers le tour ${BANQUET.courses[1].at}, ${BANQUET.pass} tours au chaud au plus`),
+    field("Plats d'un envoi faits ensemble (coupe en série ; 1 : un par un)", "batch", setup.banquet?.batch ?? BANQUET.batch),
   );
 }
 
@@ -69,7 +70,7 @@ export function kitchenFrom(form, setup) {
   const unattended = data.get("unattended") ? { burn: number("burn"), clean: number("clean") } : null;
   const tables = data.get("tables") ? { ...TABLES, pass: number("pass") } : null;
   const supply = data.get("supply") ? { o: number("onions"), t: number("tomatoes") } : null;
-  const banquet = data.get("banquet") ? BANQUET : null;
+  const banquet = data.get("banquet") ? { ...BANQUET, batch: number("batch") } : null;
   const delivery = data.get("delivery") ? DELIVERY : null;
   const miseEnPlace = data.get("mise") ? MISE : null;
   return { ...setup, label: "Cuisine modifiée", text: String(data.get("text")).trimEnd(), every: number("every"), patience: number("patience"), lastOrder: number("lastOrder"), service: number("service"), pace: number("pace"), roles, unattended, tables, supply, banquet, delivery, miseEnPlace };

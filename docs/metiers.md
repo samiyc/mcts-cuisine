@@ -441,3 +441,40 @@ Mesuré par paires (30 services, le plat le plus rapide, le cuisinier « le plus
   14,4. Les mondes de la recherche jouent la mise en place comme le service.
 
 Dans l'onglet Cuisine (le rôle `aboyeur`, « La mise en place »), et `npm run compare -- --aboyeur --mise-en-place`.
+
+## La coupe en série (26/10, le soir, étape 2)
+
+Sami (26/10, le soir) : la coupe en série, d'abord. Le premier calibrage du banquet avait échoué parce que le modèle
+fait un plat par voyage : à 8 couverts et 30 tours au chaud, aucun envoi ne partait (« Le banquet », plus haut).
+
+**Le lot** (`setup.banquet.batch`, `src/service-batch.js`) : au banquet, un cuisinier qui prend un plat d'un envoi
+prend avec lui jusqu'à `batch − 1` autres plats du même envoi encore ouverts, et les fait ensemble, comme un traiteur :
+un voyage à la caisse (un ingrédient par portion), une coupe plus longue d'**un tour par portion de plus** (la planche et
+le couteau s'installent une fois ; hypothèse, [`recherche/production.md`](recherche/production.md)), une grande
+marmite, et tous au passe d'un coup. Le plat pris mène (il porte les pas) ; les autres le suivent (« dans le lot »,
+`batched`), personne d'autre ne les voit ; si la marmite brûle, ils redeviennent des plats à faire, chacun le sien.
+Éteint par défaut (`batch` 1) ; dans l'onglet Cuisine et `npm run compare -- --banquet --serie [k]`.
+
+Mesuré par paires (30 banquets, le cuisinier « le plus urgent » ; plats à temps, un par un → par lots de 3 → un lot
+par envoi entier) :
+
+| Banquet | Cuisine | le plus rapide | le rétroplanning |
+|---|---|---|---|
+| 6 couverts, 60 tours au chaud | petite | 5,0 → 5,6 → 7,4 | 4,7 → **6,3** (+1,60) → 5,9 |
+| | passe-plats | 1,6 → 6,1 → **11,7** | 4,9 → 9,3 (+4,43) → 5,9 |
+| | postes | 3,2 → 10,5 (+7,27) → **11,7** | 4,7 → 7,8 → 6,1 |
+| | le grand détour | 6,5 → 5,9 → 8,8 | 6,1 → 6,2 → **11,9** |
+| | grande brigade | 5,3 → 7,0 → **9,4** | 5,4 → 5,5 → 5,8 |
+| 8 couverts, 30 tours au chaud | petite | 0 → 1,3 → 7,4 | 0 → 0,6 → **8,9** |
+| | passe-plats | 0 → 0,9 → 2,1 | 0 → 0 → 0,3 |
+| | postes | 0 → 0,7 → 3,2 | 0 → 1,1 → **8,9** |
+| | le grand détour | 0 → 0,6 → 7,0 | 0 → 1,0 → **12,9** |
+| | grande brigade | 0 → 1,8 → 3,6 | 1,2 → 3,2 → **7,9** |
+
+- **La série fait le banquet** : à 6 couverts, jusqu'à trois fois plus de plats à temps ; à 8 couverts et 30 tours au
+  chaud, le calibrage qui échouait le matin (aucun plat à temps) sert 8 à 13 plats sur 16 avec un lot par envoi et le
+  rétroplanning. Un traiteur ne fait pas un plat par voyage : le modèle non plus, maintenant.
+- **Le lot entier va avec le rétroplanning**, qui le lance au bon moment ; le plat le plus rapide le lance trop tôt, et
+  au passe-plats, un lot entier attend au chaud et meurt (2,1 contre 11,7 par lots de 3 à 6 couverts) : la taille du
+  lot et l'heure de son départ se décident ensemble. C'est un choix pour la recherche (mesures dans la file).
+- Le chiffre clé, **un tour (30 s) par portion de plus**, est une hypothèse ([questions au spécialiste](recherche/questions-specialiste.md), 10).

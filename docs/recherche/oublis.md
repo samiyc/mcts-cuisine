@@ -24,10 +24,6 @@ point dit où il se rangera.
 - **L'impasse du passe** : dans la cuisine en couloir, les deux passes sont au fond d'une impasse et l'attente reste
   (18 à 25 tours par service). Un plan à revoir, si Sami le veut.
 
-- **Un plat par voyage** : au banquet, un vrai traiteur coupe en série (plusieurs portions d'un coup) et dresse à la
-  chaîne ; le modèle fait un plat par voyage, de la caisse au passe. À 8 couverts et 30 tours au chaud, aucun envoi ne
-  partait jamais (`docs/metiers.md`, « Le banquet »). Rangé : étape 2, un geste « en série » (couper N portions, plus
-  long qu'une mais bien moins que N).
 - **L'humain du banquet** : « au hasard », il fait mourir presque tous les envois de trois cuisines. L'humain « qui
   suit sa table » suit aussi le plan de production (il ne lance pas un plat qui mourrait au chaud) : à mesurer au
   banquet. Rangé : étape 2.
@@ -69,3 +65,5 @@ Les oublis réglés quittent cette liste et vont dans [modele.md](../modele.md) 
 - **Les trois derniers indicateurs de l'étape 0** (26/10) : la courbe du service, les plats par cuisinier, le temps
   réservé sans travailler.
 - **L'aboyeur et la mise en place** (26/10, le soir) : faits, éteints par défaut, mesurés (`docs/metiers.md`).
+- **Un plat par voyage** (26/10, le soir) : la coupe en série ; à 8 couverts et 30 tours au chaud, le banquet part enfin
+  (`docs/metiers.md`, « La coupe en série »). Reste : quand lancer un lot, et de quelle taille (la recherche, dans la file).

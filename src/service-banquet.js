@@ -17,6 +17,9 @@ export const BANQUET = Object.freeze({
   spread: 10,
   slack: 5,
   pass: 60,
+  // The batch (service-batch.js): dishes of a course made together, a turn more to cut each; 1, none.
+  batch: 1,
+  extra: 1,
 });
 
 /** The banquet's orders, all known at the start, drawn by `rng`: `{ id, recipe, arrival, deadline, table, sendAt }`, a course a table. */

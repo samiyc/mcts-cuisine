@@ -2,6 +2,7 @@ import { RECIPES } from "./kitchens.js";
 import { FREE, keyOf, orderOf } from "./service-basics.js";
 import { drop } from "./service-legs.js";
 import { goOn } from "./service-mise.js";
+import { handFollowers, releaseFollowers } from "./service-batch.js";
 import { refuseIfOut } from "./service-supply.js";
 import { passOf, toPass } from "./service-tables.js";
 
@@ -35,6 +36,7 @@ function burn(state, stove, order) {
   state.pots.delete(stove);
   state.dirty.add(stove);
   state.burnt += 1;
+  releaseFollowers(state, order);
   // A soup made ahead is simply lost; an order's is to make again.
   if (order.stock) state.upcoming.splice(state.upcoming.indexOf(order), 1);
   Object.assign(order, { status: "open", cook: null, stove: null, burnt: (order.burnt ?? 0) + 1 });
@@ -98,7 +100,10 @@ function finish(state, cook) {
 
 /** The dish done: served, or, with tables (service-tables.js), at the pass to wait for its table. */
 function handOver(state, cook, order) {
-  if (passOf(state.setup) && order.table) return toPass(state, cook, order);
+  if (passOf(state.setup) && order.table) {
+    handFollowers(state, order, (follower) => toPass(state, cook, follower));
+    return toPass(state, cook, order);
+  }
   Object.assign(order, { status: "served", servedAt: state.t });
   state.log.push({ t: state.t, type: "served", cook: cook.id, order: order.id });
   Object.assign(cook, FREE);

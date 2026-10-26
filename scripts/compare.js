@@ -10,7 +10,7 @@ import { SUPPLY } from "../src/service-supply.js";
 import { TABLES } from "../src/service-tables.js";
 
 /**
- * `npm run compare -- [--kitchen petite|couloir|brigade] [--services 100] [--search [budget]] [--tables] [--rupture [n]] [--banquet] [--livraison] [--mise-en-place] [--aboyeur] [--humain urgent]`: the
+ * `npm run compare -- [--kitchen petite|couloir|brigade] [--services 100] [--search [budget]] [--tables] [--rupture [n]] [--banquet] [--livraison] [--serie [k]] [--couverts n] [--chaud m] [--mise-en-place] [--aboyeur] [--humain urgent]`: the
  * robots' rules on the same drawn services, with each simulated human the service may have (src/rules.js, `humansOf`)
  * and with none, or only `--humain` (a name of HUMANS, or none); every kitchen when none is named.
  * `--search` adds the search (src/search.js, ~1 to 3 s a service). Since step 0 of the trades' roadmap (26/10), each
@@ -39,6 +39,16 @@ const banquet = args.includes("--banquet");
 const delivery = args.includes("--livraison");
 // `--mise-en-place`: free robots prepare soups ahead (service-mise.js); `--aboyeur`: the last robot is the aboyeur (service-aboyeur.js).
 const mise = args.includes("--mise-en-place");
+// `--serie [k]`: at a banquet, dishes of a course made k at a time (service-batch.js; the whole course by default).
+function serieOf() {
+  if (!args.includes("--serie")) return 0;
+  const next = args[args.indexOf("--serie") + 1] ?? "";
+  return /^\d+$/.test(next) ? Number(next) : 99;
+}
+const serie = serieOf();
+// `--couverts n`, `--chaud m`: the banquet's guests and turns warm (service-banquet.js: 6 and 60).
+const numberAfter = (flag) => (args.includes(flag) ? Number(args[args.indexOf(flag) + 1]) : null);
+const banquetOf = () => ({ ...BANQUET, ...(serie ? { batch: serie } : {}), ...(numberAfter("--couverts") ? { covers: numberAfter("--couverts") } : {}), ...(numberAfter("--chaud") ? { pass: numberAfter("--chaud") } : {}) });
 const aboyeur = args.includes("--aboyeur");
 function withAboyeur(setup) {
   const robots = readKitchen(setup.text).robots.length;
@@ -53,7 +63,7 @@ function bottleneckText(row) {
 }
 const HEAD = "L'humain              | Règle des robots         | commandes | à temps | en retard | manquées | gain à temps (IC 95 %) | bon p90 | bon max | pic | goulot";
 for (const id of named) {
-  const setup = { ...KITCHENS[id], ...(tables ? { tables: TABLES } : {}), ...(rupture ? { supply: { o: rupture, t: rupture } } : {}), ...(banquet ? { banquet: BANQUET } : {}), ...(delivery ? { delivery: DELIVERY } : {}), ...(mise ? { miseEnPlace: MISE } : {}) };
+  const setup = { ...KITCHENS[id], ...(tables ? { tables: TABLES } : {}), ...(rupture ? { supply: { o: rupture, t: rupture } } : {}), ...(banquet ? { banquet: banquetOf() } : {}), ...(delivery ? { delivery: DELIVERY } : {}), ...(mise ? { miseEnPlace: MISE } : {}) };
   if (aboyeur) Object.assign(setup, withAboyeur(setup));
   if (!KITCHENS[id]) throw new Error(`cuisine inconnue ; au choix : ${Object.keys(KITCHENS).join(", ")}`);
   console.log(`\n${setup.label} : ${services} services`);

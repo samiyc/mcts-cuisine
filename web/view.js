@@ -162,17 +162,23 @@ function stoveText(state, order, time) {
 /** What a dish at the pass waits for: its table, or its banquet course's turn. */
 const waitsFor = (order) => (order.sendAt === undefined ? "sa table" : `son envoi (tour ${order.sendAt})`);
 
-/** Where an order stands, in words. */
+/** What each status says of an order. */
+const STATUS_WORDS = {
+  served: (_state, order) => servedText(order),
+  taken: (state, order, time) => `${takerOf(state, order)}, ${time}`,
+  prepped: (_state, _order, time) => `oignons coupés sur un comptoir, ${time}`,
+  refused: (_state, order) => `refusée : plus de ${RECIPES[order.recipe].label} ce soir (86)`,
+  gone: (_state, order) => `le coursier est reparti sans le plat (tour ${order.deadline + 1})`,
+  batched: (_state, order, time) => `dans le lot de la commande ${order.batchOf}, ${time}`,
+  passed: (state, order, time) => `au passe depuis ${state.t - order.passedAt} tours, attend ${waitsFor(order)}, ${time}`,
+};
+
+/** Where an order stands, in words: its status's, or the stove's. */
 function statusOf(state, order) {
   const left = order.deadline - state.t;
   const time = left >= 0 ? `encore ${left} tours` : `${-left} tours de retard`;
-  if (order.status === "served") return servedText(order);
-  if (order.status === "taken") return `${takerOf(state, order)}, ${time}`;
-  if (order.status === "prepped") return `oignons coupés sur un comptoir, ${time}`;
-  if (order.status === "refused") return `refusée : plus de ${RECIPES[order.recipe].label} ce soir (86)`;
-  if (order.status === "gone") return `le coursier est reparti sans le plat (tour ${order.deadline + 1})`;
-  if (order.status === "passed") return `au passe depuis ${state.t - order.passedAt} tours, attend ${waitsFor(order)}, ${time}`;
-  return stoveText(state, order, time);
+  const words = STATUS_WORDS[order.status];
+  return words ? words(state, order, time) : stoveText(state, order, time);
 }
 
 /**

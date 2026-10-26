@@ -462,6 +462,76 @@
       "estimate": "1 h",
       "priority": 3,
       "limit": 240
+    },
+    {
+      "id": "cuis-serie-petite-urgent",
+      "command": "npm run compare -- --kitchen petite --services 30 --banquet --serie 3 --search --humain urgent",
+      "estimate": "1 h 30",
+      "priority": 2,
+      "limit": 300
+    },
+    {
+      "id": "cuis-serie-dur-petite-urgent",
+      "command": "npm run compare -- --kitchen petite --services 30 --banquet --serie --couverts 8 --chaud 30 --search --humain urgent",
+      "estimate": "1 h 30",
+      "priority": 2,
+      "limit": 300
+    },
+    {
+      "id": "cuis-serie-comptoirs-urgent",
+      "command": "npm run compare -- --kitchen comptoirs --services 30 --banquet --serie 3 --search --humain urgent",
+      "estimate": "1 h 30",
+      "priority": 2,
+      "limit": 300
+    },
+    {
+      "id": "cuis-serie-dur-comptoirs-urgent",
+      "command": "npm run compare -- --kitchen comptoirs --services 30 --banquet --serie --couverts 8 --chaud 30 --search --humain urgent",
+      "estimate": "1 h 30",
+      "priority": 2,
+      "limit": 300
+    },
+    {
+      "id": "cuis-serie-postes-urgent",
+      "command": "npm run compare -- --kitchen postes --services 30 --banquet --serie 3 --search --humain urgent",
+      "estimate": "1 h 30",
+      "priority": 2,
+      "limit": 300
+    },
+    {
+      "id": "cuis-serie-dur-postes-urgent",
+      "command": "npm run compare -- --kitchen postes --services 30 --banquet --serie --couverts 8 --chaud 30 --search --humain urgent",
+      "estimate": "1 h 30",
+      "priority": 2,
+      "limit": 300
+    },
+    {
+      "id": "cuis-serie-detour-urgent",
+      "command": "npm run compare -- --kitchen detour --services 30 --banquet --serie 3 --search --humain urgent",
+      "estimate": "1 h 30",
+      "priority": 2,
+      "limit": 300
+    },
+    {
+      "id": "cuis-serie-dur-detour-urgent",
+      "command": "npm run compare -- --kitchen detour --services 30 --banquet --serie --couverts 8 --chaud 30 --search --humain urgent",
+      "estimate": "1 h 30",
+      "priority": 2,
+      "limit": 300
+    },
+    {
+      "id": "cuis-serie-brigade-urgent",
+      "command": "npm run compare -- --kitchen brigade --services 30 --banquet --serie 3 --search --humain urgent",
+      "estimate": "4 h",
+      "priority": 2,
+      "limit": 600
+    },
+    {
+      "id": "cuis-serie-dur-brigade-urgent",
+      "command": "npm run compare -- --kitchen brigade --services 30 --banquet --serie --couverts 8 --chaud 30 --search --humain urgent",
+      "estimate": "4 h",
+      "priority": 2,
+      "limit": 600
     }
   ]
 }
