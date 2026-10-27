@@ -146,6 +146,15 @@ côté de la file tournaient pendant qu'elle occupait déjà tous les fils : tou
   cuisine inconnue) sort avec le code 1.
 - Essayé de bout en bout le 27/10 sur une file temporaire (`--home`) : deux tranches et leur job final (0, 0, 0, le
   dernier ayant repris les 6 services), une cuisine inconnue (1), les `progress` dans la trace.
+- Puis sur la vraie file, le 27/10 vers midi, six jobs de 1 à 9 min :
+  - le couloir avec tables : deux tranches et leur rassemblement, qui reprend les 6 services ;
+  - une cuisine inconnue, en échec ;
+  - un banquet de la grande brigade annulé après deux services : sa trace finit par `end`, `cancelled` ;
+    relancé par `--retry`, il reprend ces deux services et ne joue que les deux autres (4 min au lieu de 9).
+  - Aucune case réservée deux fois.
+  - Le couloir avec tables et la recherche : environ 0,3 min par service, contre 2,1 dans la nuit. Le grand détour
+    avec tables : 0,7 contre 2,4 (A* qui s'arrête tôt ; la nuit, sous la charge de 18 jobs).
+  - La vue peut avoir un service de retard : `progress` n'écrit qu'à intervalle.
 - **À la main**, seulement les essais courts : moins de 10 services, un cuisinier, quelques minutes.
 - **Pendant qu'une file tourne**, le dépôt reste utilisable à chaque instant : un job démarre avec le code tel qu'il
   est sur le disque.

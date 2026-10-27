@@ -72,9 +72,12 @@
         "Une mesure de la file dit à chaque service où elle en est : la file affiche « service 12/30, fin vers 10:20 », au lieu de rester muette jusqu'à la fin.",
         "Chaque service joué est écrit aussitôt (une ligne par service, dans resultats/) : une mesure arrêtée garde ce qu'elle a calculé, et relancée sur le même code, elle repart de là.",
         "Les mesures longues sont coupées en tranches de 30 minutes au plus (npm run tranches), puis rassemblées sous leur nom : elles se placent mieux dans la nuit, et un échec coûte moins.",
-        "Les estimations de night.json viennent des durées réelles de la nuit du 26 au 27/10."
+        "Les estimations de night.json viennent des durées réelles de la nuit du 26 au 27/10.",
+        "Essayé sur la vraie file avec six jobs courts : les tranches rassemblées, une mesure annulée puis relancée qui repart de ses services déjà faits, et le couloir et le grand détour avec la recherche trois à sept fois plus rapides qu'avant."
       ],
-      "commits": []
+      "commits": [
+        "5696532"
+      ]
     },
     {
       "version": "0.26",
