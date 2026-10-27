@@ -34,13 +34,13 @@ const first = args.includes("--de") ? Number(args[args.indexOf("--de") + 1]) : 1
 const linesOn = args.includes("--lignes");
 const onlyHuman = args.includes("--humain") ? args[args.indexOf("--humain") + 1] : null;
 const budget = searching && /^\d+$/.test(args[args.indexOf("--search") + 1] ?? "") ? Number(args[args.indexOf("--search") + 1]) : undefined;
-// `--arret-anticipe` (mcts-commun's earlyStop, 27/10/2026): beside the search as it is, the same search stopping once
-// its leading move cannot be caught, on the same services; never by default (the fingerprints would change). Each
-// search counts its decisions, iterations, ms and `diagnose`'s codes (scripts/search-tally.js), written with its service.
+// `--arret-anticipe` (mcts-commun's earlyStop, 27/10/2026): the search without the early stop (`search`, as before the
+// evening of 27/10) beside the search with it (`earlyStop`, the default since), on the same services. Each search
+// counts its decisions, iterations, ms and `diagnose`'s codes (scripts/search-tally.js), written with its service.
 const early = searching && args.includes("--arret-anticipe");
 const tallies = searching ? { search: searchTally(), ...(early ? { earlyStop: searchTally() } : {}) } : {};
 const searchOf = (name, extra) => searchRule({ ...(budget ? { budget } : {}), ...extra, onResult: tallies[name].onResult });
-const rules = searching ? { ...RULES, search: searchOf("search", {}), ...(early ? { earlyStop: searchOf("earlyStop", { earlyStop: true }) } : {}) } : RULES;
+const rules = searching ? { ...RULES, search: searchOf("search", early ? { earlyStop: false } : {}), ...(early ? { earlyStop: searchOf("earlyStop", { earlyStop: true }) } : {}) } : RULES;
 const LABELS = { ...RULE_LABELS, earlyStop: "recherche, arrêt anticipé" };
 // `--rupture [n]`: every crate holds n ingredients (6 by default, service-supply.js), the orders refused once it is empty.
 function ruptureOf() {

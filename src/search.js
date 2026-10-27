@@ -26,7 +26,7 @@ import { advance, choose, cloneService } from "./simulate.js";
  * A world is scored against the quickest-dish rule's from the same point: ½ for as many dishes served in time
  * (a dish still in time at the horizon counts half), a dish more or less worth `1 / spread`.
  */
-export const SEARCH_SETTINGS = Object.freeze({ budget: 64, depth: 2, explore: 0.3, width: 4, spread: 3, horizon: 60, seed: 1 });
+export const SEARCH_SETTINGS = Object.freeze({ budget: 64, depth: 2, explore: 0.3, width: 4, spread: 3, horizon: 60, seed: 1, earlyStop: true });
 
 /**
  * The orders still to come, drawn again from turn `t` at the service's pace (setup's `every`), ids after those `come`;
@@ -165,11 +165,14 @@ function baseOf(state, rng, { horizon, human }, runs = 4) {
  * at once, unless the robot may wait; otherwise `budget` iterations, seeded from the turn and the robot. Waiting
  * found best, it names no order.
  *
- * `earlyStop` (mcts-commun, 27/10/2026, off by default): stop once the leading move cannot be caught. `onResult(found,
- * depth)` is told every search's result, for the benches to count what it saw (`diagnose`); it changes nothing.
+ * `earlyStop` (mcts-commun, 27/10/2026): stop once the leading move cannot be caught. On by default since Sami's
+ * choice of 27/10 evening: 16 measures of 30 services by pairs gave the same services to the dish, a decision's
+ * randomness being seeded from its turn and robot, with 23 % less search time (docs/mesures-27-10.md); the
+ * fingerprints did not move. `onResult(found, depth)` is told every search's result, for the benches to count what it
+ * saw (`diagnose`); it changes nothing.
  */
 export function searchRule(options = {}) {
-  const { budget, depth, explore, width, spread, horizon, seed, human = null, earlyStop = false, onResult = null } = { ...SEARCH_SETTINGS, ...options };
+  const { budget, depth, explore, width, spread, horizon, seed, earlyStop, human = null, onResult = null } = { ...SEARCH_SETTINGS, ...options };
   return (open, { state }) => {
     if (open.length === 1 && !mayHold(state.setup)) return open[0];
     const robot = state.cooks[state.cursor];

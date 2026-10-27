@@ -11,8 +11,8 @@ import { pathToFileURL } from "node:url";
  * (its output, `~/.mcts-backlog/runs/*_<id>-<tag>.txt`, is where the docs read it). A measure under `SLICE` stays one
  * job, its lines written too. Each limit is `SPAN` times its estimate, 30 minutes at least: past the worst case.
  *
- * `--arret-anticipe` (mcts-commun's earlyStop, 27/10/2026): every measure of the search plays, beside it, the search
- * stopping early on the same services (`npm run compare -- --arret-anticipe`), under an id of its own (`<id>-arret`),
+ * `--arret-anticipe` (mcts-commun's earlyStop, 27/10/2026, the search's default since): every measure of the search
+ * plays the search with and without the early stop on the same services (`npm run compare -- --arret-anticipe`), under an id of its own (`<id>-arret`),
  * its estimate twice the search's, written to `<file>.arret.tranches.json`; the measures without the search are left out.
  */
 const SLICE = 25;

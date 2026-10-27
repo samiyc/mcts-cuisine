@@ -327,7 +327,7 @@ codes rendus à chaque décision de la recherche (le budget du projet : 64 itér
 | brigade avec plonge | 36 | 72 % | 22 % | 61 % | 3 % |
 
 - **`closeCall` domine** (59 à 91 % des décisions) : les deux premiers coups de la racine se valent à deux erreurs
-  types près. Les mondes communs (`common`) sont déjà en place : il reste plus d'itérations.
+  types près. Ce chiffre est **surévalué** (la réserve plus bas, « Ce que vaut `closeCall` »).
 - **`fewIterations` vient ensuite**, partout où la racine a quatre ou cinq coups (la liste courte de 4, plus
   « attendre ») : 64 itérations, c'est 13 à 16 par coup, sous le seuil de 20. Les deux codes disent la même chose : le
   budget est court pour séparer les coups.
@@ -337,7 +337,21 @@ codes rendus à chaque décision de la recherche (le budget du projet : 64 itér
   des moments calmes : le score à l'horizon ne départage rien.
 - **Le levier à travailler ensuite est donc le budget**, ou ce qui revient au même, un rollout plus rapide pour en
   faire plus dans le même temps. `earlyStop` peut y aider : les itérations qu'il épargne là où le choix est déjà fait
-  pourraient servir aux décisions serrées.
+  pourraient servir aux décisions serrées. C'est `fewIterations` qui le dit le plus sûrement : 13 à 16 itérations
+  par coup, c'est peu.
+
+**Ce que vaut `closeCall`** (mcts-commun, réponse du 27/10 au soir sur le tableau des sessions, son commit `8d57d5a`).
+Le code sort presque partout, dans la cuisine comme aux urgences et à l'entrepôt :
+- **Sa marge d'erreur est trop large pour nous.** Elle prend chaque coup à part, avec la borne `p(1 − p)` sur la
+  variance d'une moyenne. Or avec les mondes communs (`common`), les coups de la racine sont joués sur les mêmes mondes,
+  et le bruit des mondes s'annule dans leur différence. L'écart réel entre deux coups est donc mieux connu que ne le
+  croit `closeCall`, qui dit « à égalité » trop souvent.
+- **Les pourcentages de `closeCall` sont donc des majorants**, pas la part réelle des décisions serrées. Ils ne
+  disent pas que la recherche tire au sort entre deux coups.
+- **Ce qui reste vrai** : le budget est court (`fewIterations`). La conclusion ne change pas, seul son appui principal
+  passe de `closeCall` à `fewIterations`.
+- mcts-commun l'a noté pour la lib (`docs/essais-projets.md`, « Ce qu'ils ont répondu ») : tel quel, `closeCall` dit
+  peu. Les chiffres de la cuisine seront à relire si la lib le corrige.
 
 Les jobs de la file donnent aussi ces codes, sur 30 services et toutes les familles (plus bas, « L'arrêt anticipé »).
 
@@ -374,13 +388,18 @@ même recherche avec `earlyStop`. La file de jour du 27/10 au soir en a fait 16 
 - **La raison** : l'arrêt anticipé rend le même coup, et dans la cuisine, chaque décision tire son hasard d'une
   graine qui ne dépend que du tour et du robot (`searchRule`). Le hasard que la recherche n'a pas consommé ne se
   reporte pas sur la suite du service.
-- **Ce qu'il épargne** : de 13 à 28 % des itérations, et de 11 à 31 % du temps de la recherche ; 23 % sur l'ensemble
-  (13 521 décisions ; la recherche a pris 493 min au total, contre 380 min).
-  Il épargne le moins au banquet et aux tables en couloir, où le coup en tête se détache plus tard.
-- **Les empreintes ne bougeraient pas.** Une copie de la cuisine avec `earlyStop` allumé par défaut passe
+- **Ce qu'il épargne** : de 13 à 28 % des itérations, sur 13 521 décisions. Il épargne le moins au banquet et aux
+  tables en couloir, où le coup en tête se détache plus tard.
+- **Le temps se lit avec prudence** : 11 à 31 % de moins, 23 % sur l'ensemble (493 min contre 380). Mais dans
+  `compare`, la recherche avec l'arrêt anticipé est toujours jouée après l'autre, sur un code déjà chaud, ce qui
+  l'avantage (mcts-commun, `8d57d5a`). L'épargne se juge aux itérations.
+- **Les empreintes ne bougent pas.** Une copie de la cuisine avec `earlyStop` allumé par défaut passait déjà
   `tests/fingerprint.test.js`. Ce test voit pourtant bien un changement de la recherche : `width: 2` fait bouger
   l'empreinte de la recherche.
-- **Le choix reste à Sami** : l'option est éteinte par défaut.
+- **Allumé par défaut depuis le 27/10 au soir** (Sami : « lance les tests avec earlystop ») : `earlyStop: true` dans
+  `SEARCH_SETTINGS` (`src/search.js`). `npm run check` passe, et les quatre empreintes restent les mêmes.
+  Depuis, `--arret-anticipe` joue la recherche **sans** l'arrêt anticipé (comme avant) à côté de la recherche par
+  défaut, pour refaire la paire au besoin.
 
 Les codes de `diagnose` sur ces 30 services, pour la recherche telle qu'elle est (et `fewIterations` avec l'arrêt
 anticipé, qui fait moins d'itérations par décision) :
@@ -404,13 +423,15 @@ anticipé, qui fait moins d'itérations par décision) :
 | banquet | grande brigade | 2472 | 84 % | 46 % | 34 % | 0 % | 87 % |
 | livraison | grande brigade | 1600 | 33 % | 1 % | 87 % | 0 % | 62 % |
 
-- **`closeCall` domine** à la carte, aux tables et à la livraison (56 à 87 %), comme dans le bench.
+- **`closeCall` domine** à la carte, aux tables et à la livraison (56 à 87 %), comme dans le bench. Ce sont des
+  majorants (« Ce que vaut `closeCall` », plus haut).
 - **Au banquet, c'est `fewIterations`** (84 %) et **`flatScore`** (45 et 46 %) : la recherche y a beaucoup de coups,
   et près d'une décision sur deux ne voit aucune différence entre eux à l'horizon. Pour le banquet, le levier serait
   le score (un retard d'envoi gradué), plus que le budget.
 - **`shallow`** ne dépasse 4 % qu'à la carte en couloir (9 %) : `widening` ne vaut pas d'être essayé.
 - Avec l'arrêt anticipé, `fewIterations` monte (53 à 87 %) : il compte les itérations faites. Ce n'est pas un défaut,
-  puisque le coup est déjà décidé quand il s'arrête.
+  puisque le coup est déjà décidé quand il s'arrête. mcts-commun l'a noté aussi : depuis que `earlyStop` est le
+  défaut, `fewIterations` se lit sur une recherche sans lui (`--arret-anticipe`, la ligne « recherche (ISMCTS) »).
 
 ### Les cases réservées deux fois
 

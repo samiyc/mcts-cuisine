@@ -65,17 +65,31 @@
   ],
   "versions": [
     {
+      "version": "0.29",
+      "title": "La recherche s'arrête quand son choix est fait",
+      "date": "27/10",
+      "items": [
+        "L'arrêt anticipé est maintenant le réglage par défaut de la recherche (Sami) : elle s'arrête dès que son coup en tête ne peut plus être rattrapé. Les services restent les mêmes, plat pour plat, et les empreintes n'ont pas bougé ; la recherche fait environ un quart d'itérations en moins.",
+        "npm run compare -- --search --arret-anticipe refait la paire : la recherche sans l'arrêt anticipé, à côté de celle par défaut.",
+        "Une réserve sur diagnose (de la bibliothèque commune) : « les deux meilleurs coups se valent » sort trop souvent, car son calcul ignore que les coups sont jugés sur les mêmes mondes. Le levier reste le budget, que dit « trop peu d'itérations par coup ».",
+        "npx mcts-backlog et npx mcts-board marchent depuis la cuisine (npm install)."
+      ],
+      "commits": []
+    },
+    {
       "version": "0.28",
       "title": "Les réglages de la bibliothèque commune, essayés",
       "date": "27/10",
       "items": [
         "La bibliothèque commune (mcts-commun) a changé le soir : A* borné, l'arrêt anticipé de la recherche, et diagnose, qui dit ce qu'une recherche a vu. La cuisine joue exactement comme avant : aucune empreinte n'a bougé.",
         "A* : les mêmes chemins avec les trois versions de la bibliothèque (avant, matin, soir). Le gain est celui du matin, quatorze fois plus vite en couloir et deux à trois fois au grand détour avec tables ; le correctif du soir vise les plans plus larges de l'entrepôt.",
-        "L'arrêt anticipé (npm run compare -- --search --arret-anticipe, éteint par défaut) : 16 mesures de 30 services dans la file, les mêmes plats au service près, 23 % de temps de recherche en moins. Le passer par défaut ne changerait pas les empreintes ; c'est à Sami de trancher.",
+        "L'arrêt anticipé (npm run compare -- --search --arret-anticipe, éteint par défaut) : 16 mesures de 30 services dans la file, les mêmes plats au service près, de 13 à 28 % d'itérations en moins. Le passer par défaut ne changerait pas les empreintes.",
         "Ce que dit diagnose (npm run bench -- … --diagnose, et chaque compare avec la recherche) : le plus souvent, les deux meilleurs coups se valent au bruit près, avec 13 à 16 itérations par coup. Le levier suivant est le budget, ou un rollout plus rapide ; au banquet, un score plus fin.",
         "Plus aucune case réservée deux fois dans les 32 jobs de cuisine lancés depuis la correction du matin, ni dans le service ni dans les mondes de la recherche."
       ],
-      "commits": []
+      "commits": [
+        "0061596"
+      ]
     },
     {
       "version": "0.27",

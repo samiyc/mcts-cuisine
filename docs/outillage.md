@@ -155,20 +155,21 @@ côté de la file tournaient pendant qu'elle occupait déjà tous les fils : tou
   - Le couloir avec tables et la recherche : environ 0,3 min par service, contre 2,1 dans la nuit. Le grand détour
     avec tables : 0,7 contre 2,4 (A* qui s'arrête tôt ; la nuit, sous la charge de 18 jobs).
   - La vue peut avoir un service de retard : `progress` n'écrit qu'à intervalle.
-- **Les réglages de mcts-commun du 27/10 au soir**, éteints par défaut (`docs/mesures-27-10.md`, « Les essais de
-  mcts-commun ») :
-  - `npm run compare -- --search --arret-anticipe` joue, à côté de la recherche, la même recherche avec `earlyStop`,
-    sur les mêmes services. Il imprime la comparaison par paires (plats à temps, retards, avec leur intervalle) et ce
-    qu'elle épargne (itérations, durée) ;
+- **Les réglages de mcts-commun du 27/10 au soir** (`docs/mesures-27-10.md`, « Les essais de mcts-commun ») ;
+  `earlyStop` est allumé par défaut depuis ce soir-là (Sami), `widening` n'est pas utilisé :
+  - `npm run compare -- --search --arret-anticipe` joue, sur les mêmes services, la recherche sans `earlyStop` (la
+    ligne « recherche (ISMCTS) ») et la recherche par défaut, avec lui. Il imprime la comparaison par paires (plats à
+    temps, retards, avec leur intervalle) et ce qu'il épargne (itérations, durée) ;
   - chaque recherche compte aussi ses décisions, ses itérations, sa durée et les codes de `diagnose`
     (`scripts/search-tally.js`). Ces comptes sont écrits avec le service dans les lignes, si bien que le job qui
     rassemble les tranches les retrouve ;
   - `npm run tranches -- fichier.json --arret-anticipe` fait de chaque mesure de la recherche son essai avec
     l'arrêt anticipé (`<id>-arret`, l'estimation doublée), dans `fichier.arret.tranches.json` ;
   - `searchRule({ earlyStop, onResult })` : `onResult` reçoit le résultat de chaque recherche et ne change rien.
-- **`npx mcts-backlog` ne marche pas depuis la cuisine** : le lien `file:` n'installe pas son binaire dans
-  `node_modules/.bin`. On lance `node mcts-commun/bin/backlog.js …` depuis `E:\Dev\My projects`, le chemin du
-  fichier de jobs relatif à ce dossier (`mcts-cuisine/…`).
+- **`npx mcts-backlog` et `npx mcts-board`** marchent depuis la cuisine depuis le 27/10 au soir. Avant, `npx
+  mcts-backlog` cherchait le paquet sur le registre npm (404) : le lien `file:` avait été installé avant que
+  mcts-commun ait ces binaires. `npm install` puis `npm rebuild mcts-commun` les ont mis dans `node_modules/.bin`.
+  À refaire quand mcts-commun ajoute un binaire.
 - **À la main**, seulement les essais courts : moins de 10 services, un cuisinier, quelques minutes.
 - **Pendant qu'une file tourne**, le dépôt reste utilisable à chaque instant : un job démarre avec le code tel qu'il
   est sur le disque.
