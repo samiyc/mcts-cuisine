@@ -34,13 +34,24 @@
         <h2>Les versions</h2>
 
       <article class="version">
+        <h3><span class="tag">0.27</span> Les mesures de la file disent où elles en sont <span class="date">27/10</span></h3>
+        <ul>
+          <li>Une mesure de la file dit à chaque service où elle en est : la file affiche « service 12/30, fin vers 10:20 », au lieu de rester muette jusqu'à la fin.</li>
+          <li>Chaque service joué est écrit aussitôt (une ligne par service, dans resultats/) : une mesure arrêtée garde ce qu'elle a calculé, et relancée sur le même code, elle repart de là.</li>
+          <li>Les mesures longues sont coupées en tranches de 30 minutes au plus (npm run tranches), puis rassemblées sous leur nom : elles se placent mieux dans la nuit, et un échec coûte moins.</li>
+          <li>Les estimations de night.json viennent des durées réelles de la nuit du 26 au 27/10.</li>
+        </ul>
+        <p class="commits"></p>
+      </article>
+
+      <article class="version">
         <h3><span class="tag">0.26</span> Plus de cuisiniers l'un sur l'autre, des chemins plus vite <span class="date">27/10</span></h3>
         <ul>
           <li>Corrigé (lu dans les traces de la file) : un robot qui s'arrêtait où il était (en panne, son plat parti, sa place cédée) gardait sa case sans voir qu'un autre devait y passer ; les deux finissaient sur la même case, une fois sur 600 services environ. Ceux qui devaient passer cherchent maintenant un autre chemin.</li>
           <li>L'effet sur les mesures est nul : 35 services sur 9 000 changent, 75 158 plats à temps avant, 75 154 après.</li>
           <li>Les chemins sont trouvés plus vite : quand la case visée est murée par un cuisinier garé, la recherche de chemin s'arrête tout de suite au lieu de tout explorer. 14 fois plus rapide en couloir, deux fois au grand détour, les mêmes résultats.</li>
         </ul>
-        <p class="commits"></p>
+        <p class="commits"><code>87a775c</code></p>
       </article>
 
       <article class="version">

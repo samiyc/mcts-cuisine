@@ -120,13 +120,32 @@ et cuisine), presque à l'identique ; ils pourraient rejoindre `web/theme.css`.
 
 Toute mesure de plus de quelques minutes (la recherche sur 30 services, une cuisine entière, le banquet de la grande
 brigade) passe par **la file de la machine**, `mcts-backlog` (mcts-commun) : un job (`mcts-backlog --add ID --cwd
-mcts-cuisine --estimate "1 h" --limit 240 -- npm run compare -- …`) ou un fichier de jobs (`night.json`, ajouté par
-`mcts-backlog --add-file mcts-cuisine/night.json --tag <série>`). La file partage les 18 fils entre les projets, garde
+mcts-cuisine --estimate "1 h" --limit 240 -- npm run compare -- …`) ou un fichier de jobs (`night.json`, coupé en
+tranches par `npm run tranches -- night.json`, puis ajouté par `mcts-backlog --add-file
+mcts-cuisine/night.tranches.json --tag <série>`). La file partage les 18 fils entre les projets, garde
 la température et la mémoire, et range les sorties dans `~/.mcts-backlog/runs/`. Le 26/10, huit mesures lancées à
 côté de la file tournaient pendant qu'elle occupait déjà tous les fils : tout ralentissait.
 
-- **Un job par cuisine et par cuisinier simulé** (`npm run compare -- --humain urgent`) : les jobs tiennent dans leur
-  `limit` et se partagent les fils ; la grande brigade et le banquet ont un `limit` large (jusqu'à 720 min).
+- **Une mesure par cuisine et par cuisinier simulé** (`npm run compare -- --humain urgent`), chacune dans
+  `night.json` avec son estimation : la durée réelle de la nuit du 26 au 27/10, plus 25 %.
+- **Des jobs de 30 min au plus** (27/10, les recommandations de mcts-commun, `docs/backlog.md`) :
+  - `npm run tranches` (`scripts/tranches.js`) coupe une mesure de plus de 25 min en tranches (`--de`,
+    `--services`, ids `<id>-t1`, `<id>-t2`…). Il ajoute ensuite le job de la mesure, sous son propre id, qui
+    attend les tranches (`after`) et imprime le tableau ; sa sortie reste `runs/*_<id>-<série>.txt`.
+  - Chaque `limit` vaut trois fois l'estimation, 30 min au moins.
+  - `night.json` fait 284 jobs pour 87 mesures, `night-reference.json` 65 jobs pour 32 mesures.
+- **Les résultats au fil de l'eau** : `--lignes` (`scripts/compare-lines.js`) écrit une ligne JSON par service
+  joué dans `resultats/<empreinte du code>/`. L'empreinte est celle des `src/` de la cuisine et de mcts-commun.
+  - Une ligne déjà là pour le même code et la même mesure n'est pas rejouée.
+  - Un job arrêté garde ce qu'il a calculé ; relancé (`--retry`), il repart de là.
+  - Le job qui rassemble les tranches ne refait rien.
+- **Dire où on en est** : `progress("compare", …)` de mcts-commun à chaque service (les vues de la file disent
+  « service 12/30, fin vers 10:20 »), et une ligne courte par service sur la sortie d'erreur. Le tableau reste seul
+  sur la sortie standard.
+- **Un fil par job** : `npm run compare` ne lance pas de fil (`MCTS_THREADS` ne lui sert pas), et une erreur (une
+  cuisine inconnue) sort avec le code 1.
+- Essayé de bout en bout le 27/10 sur une file temporaire (`--home`) : deux tranches et leur job final (0, 0, 0, le
+  dernier ayant repris les 6 services), une cuisine inconnue (1), les `progress` dans la trace.
 - **À la main**, seulement les essais courts : moins de 10 services, un cuisinier, quelques minutes.
 - **Pendant qu'une file tourne**, le dépôt reste utilisable à chaque instant : un job démarre avec le code tel qu'il
   est sur le disque.

@@ -35,5 +35,8 @@ npm-debug.log*
 tmp/
 # The games played on the page, saved automatically.
 replays/
+# The services played by npm run compare -- --lignes, a line each (scripts/compare-lines.js), and the night files cut in slices.
+resultats/
+*.tranches.json
 # The traces of mcts-commun (MCTS_TRACE=1) and the page server's failed requests.
 logs/

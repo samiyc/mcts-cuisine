@@ -71,17 +71,25 @@ const mean = (values) => values.reduce((sum, value) => sum + value, 0) / values.
 const MEASURES = ["orders", "onTime", "late", "missed", "meanServe", "waits", "burnt", "p90Serve", "maxServe", "maxLate", "peakOpen", "servedByHuman", "useBoard", "useStove", "usePass", "useCounter", "waitBoard", "waitStove", "waitPass", "waitCounter", "idleBoard", "idleStove", "idlePass", "idleCounter", "usePack", "waitPack", "idlePack", "tables", "tablesOnTime", "died", "maxPass", "refused", "maxSendLate", "gone", "meanCourierWait", "maxCourierWait", "maxDishWait", "ahead", "aheadUsed", "aheadLeft", "platesWashed", "waitPlate", "fewestPlates", "allergenOrders", "boardsCleaned", "pausedTurns", "remade", "breakdowns", "brokenTurns"];
 
 /**
- * The robots' rules on the same `services` services of `setup`, with the human `humanName` (or none): each
- * rule's mean measures, and its dishes served in time against the oldest-first rule's, by pairs.
+ * The robots' rules on the same `services` services of `setup`, from service `seed` on, with the human `humanName`
+ * (or none): each rule's mean measures, and its dishes served in time against the oldest-first rule's, by pairs.
+ * `known(seed)` gives a service's measures already played (by rule), if any; `onService(seed, measures, known)` is
+ * told of each service once played or found (Sami, 27/10: a job of the queue says how far it is, and keeps what it
+ * computed: scripts/compare-lines.js).
  * @param {object} setup
- * @param {{ services?: number, seed?: number, humanName?: string, rules?: Record<string, Rule> }} [options]
+ * @param {{ services?: number, seed?: number, humanName?: string, rules?: Record<string, Rule>, known?: (seed: number) => Record<string, Measures> | undefined, onService?: (seed: number, measures: Record<string, Measures>, known: boolean) => void }} [options]
  * @returns {Record<string, Summary>}
  */
 export function compareRules(setup, options = {}) {
-  const { services, seed, humanName, rules } = { services: 100, seed: 1, humanName: "urgent", rules: RULES, ...options };
+  const { services, seed, humanName, rules, known, onService } = { services: 100, seed: 1, humanName: "urgent", rules: RULES, known: () => undefined, onService: () => {}, ...options };
   const human = HUMANS[humanName] ?? null;
   const runs = Object.fromEntries(Object.keys(rules).map((name) => [name, []]));
-  for (let i = 0; i < services; i += 1) for (const [name, rule] of Object.entries(rules)) runs[name].push(runService(setup, seed + i, rule, human).measures);
+  for (let i = 0; i < services; i += 1) {
+    const found = known(seed + i);
+    const measures = found ?? Object.fromEntries(Object.entries(rules).map(([name, rule]) => [name, runService(setup, seed + i, rule, human).measures]));
+    onService(seed + i, measures, Boolean(found));
+    for (const name of Object.keys(rules)) runs[name].push(measures[name]);
+  }
   return summaryOf(runs);
 }
 

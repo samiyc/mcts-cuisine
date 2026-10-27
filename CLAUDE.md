@@ -35,6 +35,7 @@ where the ISMCTS was built and measured). The plan and the reasons live in lopin
   redone after the fix of 26/10 (the robot that barred the stove): `docs/mesures-27-10.md`.
 - **Every figure is sourced or marked a hypothesis** (Sami, 26/10): search the web first; what cannot be found goes to
   `docs/recherche/questions-specialiste.md` (the question, the assumption meanwhile, whom to ask).
-- **Long measures go through the machine's queue** (`mcts-backlog`, a job or `night.json`), never beside it; by hand,
-  only short tries (under 10 services, one cook). See `docs/outillage.md`.
+- **Long measures go through the machine's queue** (`mcts-backlog`, a job or `night.json` cut by `npm run tranches`
+  into jobs of 30 min at most, each writing its services as it goes: `--lignes`), never beside it; by hand, only short
+  tries (under 10 services, one cook). See `docs/outillage.md`.
 - **Commit straight to `main`, and push** (Sami, 26/10: push the commits still local, every step).

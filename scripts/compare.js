@@ -1,3 +1,4 @@
+import { progress } from "mcts-commun/trace.js";
 import { readKitchen } from "../src/kitchen.js";
 import { KITCHENS } from "../src/kitchens.js";
 import { HUMAN_LABELS, RULE_LABELS, RULES, compareRules, humansOf } from "../src/rules.js";
@@ -11,9 +12,10 @@ import { ERRORS, FATIGUE, PAUSES } from "../src/service-human.js";
 import { BREAKDOWNS } from "../src/service-breakdowns.js";
 import { SUPPLY } from "../src/service-supply.js";
 import { TABLES } from "../src/service-tables.js";
+import { measureKey, openLines } from "./compare-lines.js";
 
 /**
- * `npm run compare -- [--kitchen petite|couloir|brigade] [--services 100] [--search [budget]] [--tables] [--rupture [n]] [--banquet] [--livraison] [--serie [k]] [--couverts n] [--chaud m] [--mise-en-place] [--aboyeur] [--hygiene] [--fatigue] [--pauses] [--erreurs] [--pannes] [--humain urgent]`: the
+ * `npm run compare -- [--kitchen petite|couloir|brigade] [--services 100] [--de 1] [--lignes] [--search [budget]] [--tables] [--rupture [n]] [--banquet] [--livraison] [--serie [k]] [--couverts n] [--chaud m] [--mise-en-place] [--aboyeur] [--hygiene] [--fatigue] [--pauses] [--erreurs] [--pannes] [--humain urgent]`: the
  * robots' rules on the same drawn services, with each simulated human the service may have (src/rules.js, `humansOf`)
  * and with none, or only `--humain` (a name of HUMANS, or none); every kitchen when none is named.
  * `--search` adds the search (src/search.js, ~1 to 3 s a service). Since step 0 of the trades' roadmap (26/10), each
@@ -24,6 +26,10 @@ const args = process.argv.slice(2);
 const services = args.includes("--services") ? Number(args[args.indexOf("--services") + 1]) : 100;
 const named = args.includes("--kitchen") ? [args[args.indexOf("--kitchen") + 1]] : Object.keys(KITCHENS);
 const searching = args.includes("--search");
+// `--de n`: the first service played (1 by default), so a measure is cut in slices; `--lignes`: each service written as it
+// is played, and those already there for this code taken back (scripts/compare-lines.js).
+const first = args.includes("--de") ? Number(args[args.indexOf("--de") + 1]) : 1;
+const linesOn = args.includes("--lignes");
 const onlyHuman = args.includes("--humain") ? args[args.indexOf("--humain") + 1] : null;
 const budget = searching && /^\d+$/.test(args[args.indexOf("--search") + 1] ?? "") ? Number(args[args.indexOf("--search") + 1]) : undefined;
 const rules = searching ? { ...RULES, search: searchRule(budget ? { budget } : {}) } : RULES;
@@ -70,18 +76,47 @@ function bottleneckText(row) {
   return `${neck.use.word} ${Math.round(100 * neck.use.share)} % ; attente : ${neck.wait.word} ${fixed(neck.wait.turns)}`;
 }
 const HEAD = "L'humain              | Règle des robots         | commandes | à temps | en retard | manquées | gain à temps (IC 95 %) | bon p90 | bon max | pic | goulot";
-for (const id of named) {
-  const setup = { ...KITCHENS[id], ...(tables ? { tables: TABLES } : {}), ...(rupture ? { supply: { o: rupture, t: rupture } } : {}), ...(banquet ? { banquet: banquetOf() } : {}), ...(delivery ? { delivery: { ...DELIVERY, ...KITCHENS[id].delivery } } : {}), ...(mise ? { miseEnPlace: MISE } : {}), ...(hygiene ? { hygiene: HYGIENE } : {}), ...limits };
-  if (aboyeur) Object.assign(setup, withAboyeur(setup));
+/** The setup of kitchen `id` with the options asked. */
+function setupOf(id) {
   if (!KITCHENS[id]) throw new Error(`cuisine inconnue ; au choix : ${Object.keys(KITCHENS).join(", ")}`);
-  console.log(`\n${setup.label} : ${services} services`);
+  /** @type {[unknown, () => object][]} */
+  const options = [[tables, () => ({ tables: TABLES })], [rupture, () => ({ supply: { o: rupture, t: rupture } })], [banquet, () => ({ banquet: banquetOf() })], [delivery, () => ({ delivery: { ...DELIVERY, ...KITCHENS[id].delivery } })], [mise, () => ({ miseEnPlace: MISE })], [hygiene, () => ({ hygiene: HYGIENE })]];
+  const setup = Object.assign({ ...KITCHENS[id] }, ...options.filter(([on]) => on).map(([, part]) => part()), limits);
+  return aboyeur ? withAboyeur(setup) : setup;
+}
+/** A summary's row, in words. */
+function rowText(humanName, name, row) {
+  const first = [HUMAN_LABELS[humanName].padEnd(21), RULE_LABELS[name].padEnd(24), fixed(row.orders).padStart(9), fixed(row.onTime).padStart(7), fixed(row.late).padStart(9), fixed(row.missed).padStart(8), gainOf(name, row).padStart(22)];
+  const tableText = [...(tables ? [`tables à temps ${fixed(row.tablesOnTime)} / ${fixed(row.tables)}, morts au passe ${fixed(row.died)}`] : []), ...(rupture ? [`refusées ${fixed(row.refused)}`] : []), ...(banquet ? [`envois à l'heure ${fixed(row.tablesOnTime)} / 2, retard max d'envoi ${fixed(row.maxSendLate)}, perdus à l'étuve ${fixed(row.died)}`] : []), ...(delivery ? [`partis sans plat ${fixed(row.gone)}, attente des coursiers ${fixed(row.meanCourierWait)} (max ${fixed(row.maxCourierWait)}), froids ${fixed(row.died)}`] : [])];
+  return [...first, fixed(row.p90Serve).padStart(7), fixed(row.maxServe).padStart(7), fixed(row.peakOpen).padStart(3), bottleneckText(row), ...tableText].join(" | ");
+}
+
+const setups = named.map((id) => [id, setupOf(id)]);
+const humansFor = (setup) => (onlyHuman ? [onlyHuman] : [...humansOf(setup), "none"]);
+// How far the run is (mcts-commun's progress, for the queue's views), a short line on stderr for whoever reads the output.
+const total = services * setups.reduce((sum, [, setup]) => sum + humansFor(setup).length, 0);
+let done = 0;
+let reused = 0;
+function tick(setup, humanName, seed, found) {
+  done += 1;
+  if (found) reused += 1;
+  progress("compare", done, total, { unit: "service", kitchen: setup.label, human: humanName });
+  if (!found) console.error(`service ${done}/${total} (${setup.label}, ${HUMAN_LABELS[humanName]}, n° ${seed})`);
+}
+for (const [id, setup] of setups) {
+  const lines = linesOn ? openLines(measureKey({ setup, rules: Object.keys(rules), budget: budget ?? null }), `${id}-${onlyHuman ?? "tous"}-${first}`) : null;
+  const from = first > 1 ? `, à partir du n° ${first}` : "";
+  console.log(`
+${setup.label} : ${services} services${from}`);
   console.log(HEAD);
-  for (const humanName of onlyHuman ? [onlyHuman] : [...humansOf(setup), "none"]) {
-    const result = compareRules(setup, { services, humanName, rules });
-    for (const [name, row] of Object.entries(result)) {
-      const first = [HUMAN_LABELS[humanName].padEnd(21), RULE_LABELS[name].padEnd(24), fixed(row.orders).padStart(9), fixed(row.onTime).padStart(7), fixed(row.late).padStart(9), fixed(row.missed).padStart(8), gainOf(name, row).padStart(22)];
-      const tableText = [...(tables ? [`tables à temps ${fixed(row.tablesOnTime)} / ${fixed(row.tables)}, morts au passe ${fixed(row.died)}`] : []), ...(rupture ? [`refusées ${fixed(row.refused)}`] : []), ...(banquet ? [`envois à l'heure ${fixed(row.tablesOnTime)} / 2, retard max d'envoi ${fixed(row.maxSendLate)}, perdus à l'étuve ${fixed(row.died)}`] : []), ...(delivery ? [`partis sans plat ${fixed(row.gone)}, attente des coursiers ${fixed(row.meanCourierWait)} (max ${fixed(row.maxCourierWait)}), froids ${fixed(row.died)}`] : [])];
-      console.log([...first, fixed(row.p90Serve).padStart(7), fixed(row.maxServe).padStart(7), fixed(row.peakOpen).padStart(3), bottleneckText(row), ...tableText].join(" | "));
-    }
+  for (const humanName of humansFor(setup)) {
+    const known = (seed) => lines?.known(humanName, seed);
+    const onService = (seed, measures, found) => {
+      if (!found) lines?.write(humanName, seed, measures);
+      tick(setup, humanName, seed, found);
+    };
+    const result = compareRules(setup, { services, seed: first, humanName, rules, known, onService });
+    for (const [name, row] of Object.entries(result)) console.log(rowText(humanName, name, row));
   }
+  if (lines) console.error(`lignes : ${lines.written} écrites dans ${lines.file}, ${reused} services repris`);
 }

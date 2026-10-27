@@ -65,6 +65,18 @@
   ],
   "versions": [
     {
+      "version": "0.27",
+      "title": "Les mesures de la file disent où elles en sont",
+      "date": "27/10",
+      "items": [
+        "Une mesure de la file dit à chaque service où elle en est : la file affiche « service 12/30, fin vers 10:20 », au lieu de rester muette jusqu'à la fin.",
+        "Chaque service joué est écrit aussitôt (une ligne par service, dans resultats/) : une mesure arrêtée garde ce qu'elle a calculé, et relancée sur le même code, elle repart de là.",
+        "Les mesures longues sont coupées en tranches de 30 minutes au plus (npm run tranches), puis rassemblées sous leur nom : elles se placent mieux dans la nuit, et un échec coûte moins.",
+        "Les estimations de night.json viennent des durées réelles de la nuit du 26 au 27/10."
+      ],
+      "commits": []
+    },
+    {
       "version": "0.26",
       "title": "Plus de cuisiniers l'un sur l'autre, des chemins plus vite",
       "date": "27/10",
@@ -73,7 +85,9 @@
         "L'effet sur les mesures est nul : 35 services sur 9 000 changent, 75 158 plats à temps avant, 75 154 après.",
         "Les chemins sont trouvés plus vite : quand la case visée est murée par un cuisinier garé, la recherche de chemin s'arrête tout de suite au lieu de tout explorer. 14 fois plus rapide en couloir, deux fois au grand détour, les mêmes résultats."
       ],
-      "commits": []
+      "commits": [
+        "87a775c"
+      ]
     },
     {
       "version": "0.25",
