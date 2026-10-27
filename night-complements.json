@@ -1,0 +1,47 @@
+{
+  "about": "Les compléments des mesures du 27/10 (docs/mesures-27-10.md), passés en journée (Sami, 27/10 : le PC est libre) : le grand détour avec tables de la référence (coupé le matin, il était lent, pas bloqué), les tables de la grande brigade avec « le plus urgent » et « suit sa table » (absentes de night.json), la rupture à 8 ingrédients dans la grande brigade (pas remesurée depuis la correction du 26/10). Estimations : les durées de la nuit, A* plus rapide depuis (le grand détour avec tables, 0,7 min par service). Ajout : npm run tranches -- night-complements.json, puis mcts-backlog --add-file mcts-cuisine/night-complements.tranches.json --tag <date>.",
+  "jobs": [
+    {
+      "id": "cuis-tables-detour-urgent",
+      "command": "npm run compare -- --kitchen detour --services 30 --tables --search --humain urgent",
+      "estimate": "30 min",
+      "priority": 1
+    },
+    {
+      "id": "cuis-tables-brigade-urgent",
+      "command": "npm run compare -- --kitchen brigade --services 30 --tables --search --humain urgent",
+      "estimate": "1 h 30",
+      "priority": 1
+    },
+    {
+      "id": "cuis-tables-brigade-table",
+      "command": "npm run compare -- --kitchen brigade --services 30 --tables --search --humain table",
+      "estimate": "1 h 30",
+      "priority": 1
+    },
+    {
+      "id": "cuis-rupture-brigade-nearest",
+      "command": "npm run compare -- --kitchen brigade --services 30 --rupture 8 --search --humain nearest",
+      "estimate": "40 min",
+      "priority": 1
+    },
+    {
+      "id": "cuis-rupture-brigade-urgent",
+      "command": "npm run compare -- --kitchen brigade --services 30 --rupture 8 --search --humain urgent",
+      "estimate": "40 min",
+      "priority": 1
+    },
+    {
+      "id": "cuis-rupture-brigade-random",
+      "command": "npm run compare -- --kitchen brigade --services 30 --rupture 8 --search --humain random",
+      "estimate": "40 min",
+      "priority": 1
+    },
+    {
+      "id": "cuis-rupture-brigade-none",
+      "command": "npm run compare -- --kitchen brigade --services 30 --rupture 8 --search --humain none",
+      "estimate": "40 min",
+      "priority": 1
+    }
+  ]
+}
