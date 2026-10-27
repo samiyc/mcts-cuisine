@@ -1,6 +1,6 @@
 import { describe, it } from "node:test";
 import assert from "node:assert/strict";
-import { minutesOf, slicesOf, wordsOf } from "../scripts/tranches.js";
+import { minutesOf, slicesOf, withEarlyStop, wordsOf } from "../scripts/tranches.js";
 
 /** The night file cut in jobs of 30 minutes at most (Sami, 27/10/2026, mcts-commun's recommendations). */
 describe("the night's slices (scripts/tranches.js)", () => {
@@ -26,5 +26,11 @@ describe("the night's slices (scripts/tranches.js)", () => {
     assert.deepEqual(slicesOf({ id: "cuis-carte-petite-none", command: "npm run compare -- --kitchen petite --services 50 --humain none", estimate: "10 min" }), [
       { id: "cuis-carte-petite-none", command: "npm run compare -- --kitchen petite --services 50 --humain none --lignes", estimate: "10 min", limit: 30 },
     ]);
+  });
+
+  it("puts the early stop beside a measure's search, under an id of its own, and leaves the rules alone (27/10/2026)", () => {
+    const job = { id: "cuis-tables-couloir-urgent", command: "npm run compare -- --kitchen couloir --services 30 --tables --search --humain urgent", estimate: "20 min" };
+    assert.deepEqual(withEarlyStop(job), { ...job, id: "cuis-tables-couloir-urgent-arret", command: `${job.command} --arret-anticipe`, estimate: "40 min" });
+    assert.equal(withEarlyStop({ id: "cuis-carte-petite-none", command: "npm run compare -- --kitchen petite --services 50 --humain none", estimate: "10 min" }), null);
   });
 });

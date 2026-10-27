@@ -10,6 +10,10 @@ import { pathToFileURL } from "node:url";
  * its services all found in the slices' lines (`--lignes`, scripts/compare-lines.js), so it only prints the table
  * (its output, `~/.mcts-backlog/runs/*_<id>-<tag>.txt`, is where the docs read it). A measure under `SLICE` stays one
  * job, its lines written too. Each limit is `SPAN` times its estimate, 30 minutes at least: past the worst case.
+ *
+ * `--arret-anticipe` (mcts-commun's earlyStop, 27/10/2026): every measure of the search plays, beside it, the search
+ * stopping early on the same services (`npm run compare -- --arret-anticipe`), under an id of its own (`<id>-arret`),
+ * its estimate twice the search's, written to `<file>.arret.tranches.json`; the measures without the search are left out.
  */
 const SLICE = 25;
 const SPAN = 3;
@@ -30,6 +34,12 @@ export function wordsOf(minutes) {
 
 const limitOf = (minutes) => Math.max(30, Math.ceil(SPAN * minutes));
 
+/** `job` with the early stop beside its search (`--arret-anticipe`), or null when it has no search to stop. */
+export function withEarlyStop(job) {
+  if (!/--search\b/.test(job.command)) return null;
+  return { ...job, id: `${job.id}-arret`, command: `${job.command} --arret-anticipe`, estimate: wordsOf(2 * minutesOf(job.estimate)) };
+}
+
 /** `job` (a compare command with `--services N`) as its slices and the job that gathers them, or alone. */
 export function slicesOf(job) {
   const services = Number(/--services (\d+)/.exec(job.command)?.[1]);
@@ -48,11 +58,13 @@ export function slicesOf(job) {
 }
 
 if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
-  const file = process.argv[2] ?? "night.json";
+  const early = process.argv.includes("--arret-anticipe");
+  const file = process.argv.slice(2).find((arg) => !arg.startsWith("--")) ?? "night.json";
   const source = JSON.parse(readFileSync(file, "utf8"));
-  const jobs = source.jobs.flatMap(slicesOf);
-  const out = file.replace(/\.json$/, ".tranches.json");
-  const about = `${source.about} Coupé en tranches de ${SLICE} min au plus par npm run tranches -- ${file} (scripts/tranches.js) : ${source.jobs.length} mesures, ${jobs.length} jobs.`;
+  const measures = early ? source.jobs.map(withEarlyStop).filter(Boolean) : source.jobs;
+  const jobs = measures.flatMap(slicesOf);
+  const out = file.replace(/\.json$/, early ? ".arret.tranches.json" : ".tranches.json");
+  const about = `${source.about} Coupé en tranches de ${SLICE} min au plus par npm run tranches -- ${file}${early ? " --arret-anticipe" : ""} (scripts/tranches.js) : ${measures.length} mesures, ${jobs.length} jobs.`;
   writeFileSync(out, `${JSON.stringify({ about, jobs }, null, 2)}\n`);
-  console.log(`${out} : ${source.jobs.length} mesures, ${jobs.length} jobs`);
+  console.log(`${out} : ${measures.length} mesures, ${jobs.length} jobs`);
 }

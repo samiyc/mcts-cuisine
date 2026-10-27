@@ -65,6 +65,19 @@
   ],
   "versions": [
     {
+      "version": "0.28",
+      "title": "Les réglages de la bibliothèque commune, essayés",
+      "date": "27/10",
+      "items": [
+        "La bibliothèque commune (mcts-commun) a changé le soir : A* borné, l'arrêt anticipé de la recherche, et diagnose, qui dit ce qu'une recherche a vu. La cuisine joue exactement comme avant : aucune empreinte n'a bougé.",
+        "A* : les mêmes chemins avec les trois versions de la bibliothèque (avant, matin, soir). Le gain est celui du matin, quatorze fois plus vite en couloir et deux à trois fois au grand détour avec tables ; le correctif du soir vise les plans plus larges de l'entrepôt.",
+        "L'arrêt anticipé (npm run compare -- --search --arret-anticipe, éteint par défaut) : 16 mesures de 30 services dans la file, les mêmes plats au service près, 23 % de temps de recherche en moins. Le passer par défaut ne changerait pas les empreintes ; c'est à Sami de trancher.",
+        "Ce que dit diagnose (npm run bench -- … --diagnose, et chaque compare avec la recherche) : le plus souvent, les deux meilleurs coups se valent au bruit près, avec 13 à 16 itérations par coup. Le levier suivant est le budget, ou un rollout plus rapide ; au banquet, un score plus fin.",
+        "Plus aucune case réservée deux fois dans les 32 jobs de cuisine lancés depuis la correction du matin, ni dans le service ni dans les mondes de la recherche."
+      ],
+      "commits": []
+    },
+    {
       "version": "0.27",
       "title": "Les mesures de la file disent où elles en sont",
       "date": "27/10",
@@ -76,7 +89,9 @@
         "Essayé sur la vraie file avec six jobs courts : les tranches rassemblées, une mesure annulée puis relancée qui repart de ses services déjà faits, et le couloir et le grand détour avec la recherche trois à sept fois plus rapides qu'avant."
       ],
       "commits": [
-        "5696532"
+        "5696532",
+        "7504616",
+        "dc07afb"
       ]
     },
     {

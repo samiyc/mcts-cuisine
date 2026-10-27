@@ -164,14 +164,18 @@ function baseOf(state, rng, { horizon, human }, runs = 4) {
  * The search as a robots' rule (rules.js's signature, reading `context.state`): a single open order is taken
  * at once, unless the robot may wait; otherwise `budget` iterations, seeded from the turn and the robot. Waiting
  * found best, it names no order.
+ *
+ * `earlyStop` (mcts-commun, 27/10/2026, off by default): stop once the leading move cannot be caught. `onResult(found,
+ * depth)` is told every search's result, for the benches to count what it saw (`diagnose`); it changes nothing.
  */
 export function searchRule(options = {}) {
-  const { budget, depth, explore, width, spread, horizon, seed, human = null } = { ...SEARCH_SETTINGS, ...options };
+  const { budget, depth, explore, width, spread, horizon, seed, human = null, earlyStop = false, onResult = null } = { ...SEARCH_SETTINGS, ...options };
   return (open, { state }) => {
     if (open.length === 1 && !mayHold(state.setup)) return open[0];
     const robot = state.cooks[state.cursor];
     const rng = createRng((Math.imul(seed, 0x9e3779b1) + state.t * 131 + robot.id * 7 + open.length) >>> 0);
-    const found = search(state, problemFor(baseOf(state, rng, { horizon, human }), { width, spread, horizon, human }), { budget, rng, depth, explore, common: true });
+    const found = search(state, problemFor(baseOf(state, rng, { horizon, human }), { width, spread, horizon, human }), { budget, rng, depth, explore, common: true, earlyStop });
+    onResult?.(found, depth);
     if (found.move && found.move.order === null) return undefined;
     return open.find((order) => order.id === found.move?.id) ?? RULES.quickest(open);
   };

@@ -13,6 +13,8 @@ import { BREAKDOWNS } from "../src/service-breakdowns.js";
 import { SUPPLY } from "../src/service-supply.js";
 import { TABLES } from "../src/service-tables.js";
 import { measureKey, openLines } from "./compare-lines.js";
+import { searchLines } from "./compare-search.js";
+import { searchTally } from "./search-tally.js";
 
 /**
  * `npm run compare -- [--kitchen petite|couloir|brigade] [--services 100] [--de 1] [--lignes] [--search [budget]] [--tables] [--rupture [n]] [--banquet] [--livraison] [--serie [k]] [--couverts n] [--chaud m] [--mise-en-place] [--aboyeur] [--hygiene] [--fatigue] [--pauses] [--erreurs] [--pannes] [--humain urgent]`: the
@@ -32,7 +34,14 @@ const first = args.includes("--de") ? Number(args[args.indexOf("--de") + 1]) : 1
 const linesOn = args.includes("--lignes");
 const onlyHuman = args.includes("--humain") ? args[args.indexOf("--humain") + 1] : null;
 const budget = searching && /^\d+$/.test(args[args.indexOf("--search") + 1] ?? "") ? Number(args[args.indexOf("--search") + 1]) : undefined;
-const rules = searching ? { ...RULES, search: searchRule(budget ? { budget } : {}) } : RULES;
+// `--arret-anticipe` (mcts-commun's earlyStop, 27/10/2026): beside the search as it is, the same search stopping once
+// its leading move cannot be caught, on the same services; never by default (the fingerprints would change). Each
+// search counts its decisions, iterations, ms and `diagnose`'s codes (scripts/search-tally.js), written with its service.
+const early = searching && args.includes("--arret-anticipe");
+const tallies = searching ? { search: searchTally(), ...(early ? { earlyStop: searchTally() } : {}) } : {};
+const searchOf = (name, extra) => searchRule({ ...(budget ? { budget } : {}), ...extra, onResult: tallies[name].onResult });
+const rules = searching ? { ...RULES, search: searchOf("search", {}), ...(early ? { earlyStop: searchOf("earlyStop", { earlyStop: true }) } : {}) } : RULES;
+const LABELS = { ...RULE_LABELS, earlyStop: "recherche, arrêt anticipé" };
 // `--rupture [n]`: every crate holds n ingredients (6 by default, service-supply.js), the orders refused once it is empty.
 function ruptureOf() {
   if (!args.includes("--rupture")) return 0;
@@ -86,7 +95,7 @@ function setupOf(id) {
 }
 /** A summary's row, in words. */
 function rowText(humanName, name, row) {
-  const first = [HUMAN_LABELS[humanName].padEnd(21), RULE_LABELS[name].padEnd(24), fixed(row.orders).padStart(9), fixed(row.onTime).padStart(7), fixed(row.late).padStart(9), fixed(row.missed).padStart(8), gainOf(name, row).padStart(22)];
+  const first = [HUMAN_LABELS[humanName].padEnd(21), LABELS[name].padEnd(24), fixed(row.orders).padStart(9), fixed(row.onTime).padStart(7), fixed(row.late).padStart(9), fixed(row.missed).padStart(8), gainOf(name, row).padStart(22)];
   const tableText = [...(tables ? [`tables à temps ${fixed(row.tablesOnTime)} / ${fixed(row.tables)}, morts au passe ${fixed(row.died)}`] : []), ...(rupture ? [`refusées ${fixed(row.refused)}`] : []), ...(banquet ? [`envois à l'heure ${fixed(row.tablesOnTime)} / 2, retard max d'envoi ${fixed(row.maxSendLate)}, perdus à l'étuve ${fixed(row.died)}`] : []), ...(delivery ? [`partis sans plat ${fixed(row.gone)}, attente des coursiers ${fixed(row.meanCourierWait)} (max ${fixed(row.maxCourierWait)}), froids ${fixed(row.died)}`] : [])];
   return [...first, fixed(row.p90Serve).padStart(7), fixed(row.maxServe).padStart(7), fixed(row.peakOpen).padStart(3), bottleneckText(row), ...tableText].join(" | ");
 }
@@ -111,12 +120,16 @@ ${setup.label} : ${services} services${from}`);
   console.log(HEAD);
   for (const humanName of humansFor(setup)) {
     const known = (seed) => lines?.known(humanName, seed);
+    const seen = [];
     const onService = (seed, measures, found) => {
+      if (!found) for (const [name, tally] of Object.entries(tallies)) measures[name] = { ...measures[name], search: tally.take() };
       if (!found) lines?.write(humanName, seed, measures);
+      seen.push(measures);
       tick(setup, humanName, seed, found);
     };
     const result = compareRules(setup, { services, seed: first, humanName, rules, known, onService });
     for (const [name, row] of Object.entries(result)) console.log(rowText(humanName, name, row));
+    for (const text of searchLines(seen, LABELS)) console.log(`${HUMAN_LABELS[humanName].padEnd(21)} | ${text}`);
   }
   if (lines) console.error(`lignes : ${lines.written} écrites dans ${lines.file}, ${reused} services repris`);
 }

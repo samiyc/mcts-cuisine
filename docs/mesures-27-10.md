@@ -272,3 +272,154 @@ services que ceux de la nuit. Écart moyen des plats à temps, de l'ancien code 
 - **Le banquet sans série** de la petite cuisine, du passe-plats et des postes : pour la coupe en série.
 
 Leurs résultats compléteront ce fichier.
+
+## Les essais de mcts-commun (27/10 au soir)
+
+mcts-commun a changé le soir du 27/10 (`a9a4c99`, `4abc577`) : A* borné, et deux réglages de la recherche, éteints
+par défaut (`earlyStop`, `widening`), plus `diagnose`, qui dit ce qu'une recherche a vu. Sa session a demandé à la
+cuisine de les essayer (`../mcts-commun/docs/essais-projets.md`).
+
+### Les empreintes
+
+`npm run check` passe, et les quatre empreintes n'ont pas bougé : le correctif d'A* rend les mêmes chemins, et les
+réglages sont éteints.
+
+### Le gain d'A*
+
+Un service court, mesuré à la main sur les mêmes services avec trois versions de mcts-commun. Ce sont des copies dans
+un dossier temporaire : `8ef17c6` avant tout correctif, `1c37ffc` le correctif du matin, `f78be75` celui du soir. La
+cuisine est celle d'aujourd'hui, avec « le plus urgent ». Les trois versions ont tourné l'une après l'autre, parce que
+la machine était chargée par ailleurs (des processus Java occupaient environ 9 cœurs). Les temps ne se comparent donc
+pas à ceux du matin, mais se comparent entre eux. C'est la moyenne de deux passes, une seule pour la dernière ligne.
+
+| Essai | Appels d'A* | A* avant | matin | soir | `givenUp` | `expanded / calls` |
+|---|---|---|---|---|---|---|
+| couloir, 3 services des règles | 1 998 | 5,6 s | 0,34 s | 0,37 s | 1 126 | 37,8 |
+| couloir, 1 service de la recherche | 15 529 | 17,0 s | 2,2 s | 2,0 s | 7 731 | 33,9 |
+| grand détour avec tables, 3 services des règles | 1 672 | 1,8 s | 0,36 s | 0,30 s | 48 | 20,0 |
+| grand détour avec tables, 1 service de la recherche | 120 943 | 28,4 s | 8,1 s | 7,9 s | 887 | 8,9 |
+
+- **Les mêmes chemins** : les trois versions font le même nombre d'appels, rendent `null` aussi souvent (`notFound`)
+  et servent les mêmes plats à l'heure (couloir : 7,7 / 9 / 7,7 / 8 pour les quatre règles ; détour avec tables, la
+  recherche 9 contre 2 pour la plus ancienne).
+- **Le gain est celui du matin** : 4,6 s → 0,33 s, et 18,7 s → 8,0 s, comme le notait `1c37ffc`. Le correctif du soir
+  ne change presque rien dans la cuisine, dont les plans sont petits : il compte sur les plans larges de l'entrepôt.
+- **Ce que coûte un appel** : 9 à 38 cases explorées en moyenne. En couloir, un appel sur deux est encore un `null`,
+  mais il est rendu tôt (`givenUp`).
+- Ces essais ne changent ni les règles ni la recherche, ils ne mesurent que A*. La cuisine compte 120 943 appels pour un
+  service de la recherche au grand détour avec tables : A* y fait encore 30 % du temps.
+
+### Ce que dit `diagnose`
+
+`node scripts/search-bench.js 2 toutes urgent "" --diagnose` : deux services par cuisine, « le plus urgent », les
+codes rendus à chaque décision de la recherche (le budget du projet : 64 itérations, profondeur 2, largeur 4).
+
+| Cuisine | Décisions | `fewIterations` | `flatScore` | `closeCall` | `shallow` |
+|---|---|---|---|---|---|
+| petite | 17 | 76 % | 18 % | 59 % | 6 % |
+| en couloir | 7 | 71 % | 14 % | 71 % | 14 % |
+| grande brigade | 32 | 78 % | 3 % | 72 % | 0 % |
+| passe-plats | 9 | 11 % | 11 % | 78 % | 0 % |
+| postes | 21 | 48 % | 19 % | 76 % | 0 % |
+| coupée en deux | 22 | 23 % | 23 % | 59 % | 5 % |
+| le grand détour | 14 | 64 % | 7 % | 71 % | 0 % |
+| dark kitchen | 54 | 19 % | 4 % | 91 % | 0 % |
+| brigade avec plonge | 36 | 72 % | 22 % | 61 % | 3 % |
+
+- **`closeCall` domine** (59 à 91 % des décisions) : les deux premiers coups de la racine se valent à deux erreurs
+  types près. Les mondes communs (`common`) sont déjà en place : il reste plus d'itérations.
+- **`fewIterations` vient ensuite**, partout où la racine a quatre ou cinq coups (la liste courte de 4, plus
+  « attendre ») : 64 itérations, c'est 13 à 16 par coup, sous le seuil de 20. Les deux codes disent la même chose : le
+  budget est court pour séparer les coups.
+- **`shallow` est rare** (0 à 14 %) : l'arbre atteint presque toujours sa profondeur de 2. `widening` n'aurait pas de
+  prise, comme le prévoyait mcts-commun (à profondeur 2 et largeur 4). Il n'est pas essayé.
+- **`flatScore`** (3 à 23 %) : un quart des décisions au plus où tous les coups valent la même chose. Ce sont souvent
+  des moments calmes : le score à l'horizon ne départage rien.
+- **Le levier à travailler ensuite est donc le budget**, ou ce qui revient au même, un rollout plus rapide pour en
+  faire plus dans le même temps. `earlyStop` peut y aider : les itérations qu'il épargne là où le choix est déjà fait
+  pourraient servir aux décisions serrées.
+
+Les jobs de la file donnent aussi ces codes, sur 30 services et toutes les familles (plus bas, « L'arrêt anticipé »).
+
+### L'arrêt anticipé (`earlyStop`)
+
+`npm run compare -- --search --arret-anticipe` joue, sur les mêmes services, la recherche telle qu'elle est et la
+même recherche avec `earlyStop`. La file de jour du 27/10 au soir en a fait 16 mesures, de 30 services chacune, avec
+« le plus urgent » :
+- 64 jobs, tous finis, de 18 h 01 à 19 h 25, tag `essais-commun-2026-10-27` ;
+- `essais-commun.json`, coupé par `npm run tranches -- essais-commun.json --arret-anticipe` ;
+- les sorties dans `~/.mcts-backlog/runs/*_cuis-*-arret-essais-commun-2026-10-27.txt`.
+
+| Famille | Cuisine | à temps (recherche) | arrêt anticipé contre la recherche : à temps | en retard | itérations par décision | itérations | durée de la recherche |
+|---|---|---|---|---|---|---|---|
+| à la carte | petite | 18,8 | +0,00 (0,00 à 0,00) | +0,00 (0,00 à 0,00) | 64,0 → 49,9 | −22 % | −23 % |
+| à la carte | en couloir | 9,1 | +0,00 (0,00 à 0,00) | +0,00 (0,00 à 0,00) | 64,0 → 46,5 | −27 % | −31 % |
+| à la carte | grande brigade | 29,0 | +0,00 (0,00 à 0,00) | +0,00 (0,00 à 0,00) | 64,0 → 50,0 | −22 % | −23 % |
+| à la carte | passe-plats | 13,8 | +0,00 (0,00 à 0,00) | +0,00 (0,00 à 0,00) | 64,0 → 46,2 | −28 % | −31 % |
+| à la carte | postes | 17,3 | +0,00 (0,00 à 0,00) | +0,00 (0,00 à 0,00) | 64,0 → 47,6 | −26 % | −28 % |
+| à la carte | coupée en deux | 16,3 | +0,00 (0,00 à 0,00) | +0,00 (0,00 à 0,00) | 64,0 → 49,7 | −22 % | −24 % |
+| à la carte | le grand détour | 17,2 | +0,00 (0,00 à 0,00) | +0,00 (0,00 à 0,00) | 64,0 → 48,3 | −25 % | −25 % |
+| à la carte | dark kitchen | 12,9 | +0,00 (0,00 à 0,00) | +0,00 (0,00 à 0,00) | 64,0 → 48,1 | −25 % | −24 % |
+| à la carte | brigade avec plonge | 27,8 | +0,00 (0,00 à 0,00) | +0,00 (0,00 à 0,00) | 64,0 → 50,0 | −22 % | −23 % |
+| tables | petite | 9,1 | +0,00 (0,00 à 0,00) | +0,00 (0,00 à 0,00) | 64,0 → 50,9 | −20 % | −23 % |
+| tables | en couloir | 0,6 | +0,00 (0,00 à 0,00) | +0,00 (0,00 à 0,00) | 64,0 → 54,8 | −14 % | −15 % |
+| tables | le grand détour | 11,7 | +0,00 (0,00 à 0,00) | +0,00 (0,00 à 0,00) | 64,0 → 49,3 | −23 % | −21 % |
+| tables | grande brigade | 12,3 | +0,00 (0,00 à 0,00) | +0,00 (0,00 à 0,00) | 64,0 → 50,2 | −22 % | −23 % |
+| banquet | petite | 11,1 | +0,00 (0,00 à 0,00) | +0,00 (0,00 à 0,00) | 64,0 → 55,8 | −13 % | −11 % |
+| banquet | grande brigade | 10,0 | +0,00 (0,00 à 0,00) | +0,00 (0,00 à 0,00) | 64,0 → 53,3 | −17 % | −24 % |
+| livraison | grande brigade | 23,1 | +0,00 (0,00 à 0,00) | +0,00 (0,00 à 0,00) | 64,0 → 49,0 | −23 % | −25 % |
+
+- **Les mêmes plats, au service près.** Dans les 16 mesures, aucune paire ne diffère : les plats à temps, les retards
+  et toutes les autres colonnes sont identiques. L'intervalle vaut 0,00 à 0,00.
+- **La raison** : l'arrêt anticipé rend le même coup, et dans la cuisine, chaque décision tire son hasard d'une
+  graine qui ne dépend que du tour et du robot (`searchRule`). Le hasard que la recherche n'a pas consommé ne se
+  reporte pas sur la suite du service.
+- **Ce qu'il épargne** : de 13 à 28 % des itérations, et de 11 à 31 % du temps de la recherche ; 23 % sur l'ensemble
+  (13 521 décisions ; la recherche a pris 493 min au total, contre 380 min).
+  Il épargne le moins au banquet et aux tables en couloir, où le coup en tête se détache plus tard.
+- **Les empreintes ne bougeraient pas.** Une copie de la cuisine avec `earlyStop` allumé par défaut passe
+  `tests/fingerprint.test.js`. Ce test voit pourtant bien un changement de la recherche : `width: 2` fait bouger
+  l'empreinte de la recherche.
+- **Le choix reste à Sami** : l'option est éteinte par défaut.
+
+Les codes de `diagnose` sur ces 30 services, pour la recherche telle qu'elle est (et `fewIterations` avec l'arrêt
+anticipé, qui fait moins d'itérations par décision) :
+
+| Famille | Cuisine | Décisions | `fewIterations` | `flatScore` | `closeCall` | `shallow` | `fewIterations` avec l'arrêt anticipé |
+|---|---|---|---|---|---|---|---|
+| à la carte | petite | 241 | 38 % | 9 % | 76 % | 1 % | 64 % |
+| à la carte | en couloir | 175 | 50 % | 10 % | 72 % | 9 % | 80 % |
+| à la carte | grande brigade | 656 | 66 % | 13 % | 71 % | 1 % | 83 % |
+| à la carte | passe-plats | 129 | 15 % | 9 % | 74 % | 1 % | 60 % |
+| à la carte | postes | 277 | 24 % | 13 % | 70 % | 1 % | 65 % |
+| à la carte | coupée en deux | 362 | 27 % | 16 % | 71 % | 4 % | 64 % |
+| à la carte | le grand détour | 216 | 47 % | 12 % | 69 % | 0 % | 75 % |
+| à la carte | dark kitchen | 738 | 21 % | 2 % | 87 % | 0 % | 53 % |
+| à la carte | brigade avec plonge | 656 | 64 % | 13 % | 71 % | 2 % | 82 % |
+| tables | petite | 879 | 47 % | 23 % | 62 % | 0 % | 73 % |
+| tables | en couloir | 383 | 54 % | 29 % | 62 % | 0 % | 74 % |
+| tables | le grand détour | 2083 | 16 % | 21 % | 56 % | 0 % | 53 % |
+| tables | grande brigade | 1811 | 54 % | 19 % | 63 % | 0 % | 76 % |
+| banquet | petite | 843 | 84 % | 45 % | 44 % | 0 % | 85 % |
+| banquet | grande brigade | 2472 | 84 % | 46 % | 34 % | 0 % | 87 % |
+| livraison | grande brigade | 1600 | 33 % | 1 % | 87 % | 0 % | 62 % |
+
+- **`closeCall` domine** à la carte, aux tables et à la livraison (56 à 87 %), comme dans le bench.
+- **Au banquet, c'est `fewIterations`** (84 %) et **`flatScore`** (45 et 46 %) : la recherche y a beaucoup de coups,
+  et près d'une décision sur deux ne voit aucune différence entre eux à l'horizon. Pour le banquet, le levier serait
+  le score (un retard d'envoi gradué), plus que le budget.
+- **`shallow`** ne dépasse 4 % qu'à la carte en couloir (9 %) : `widening` ne vaut pas d'être essayé.
+- Avec l'arrêt anticipé, `fewIterations` monte (53 à 87 %) : il compte les itérations faites. Ce n'est pas un défaut,
+  puisque le coup est déjà décidé quand il s'arrête.
+
+### Les cases réservées deux fois
+
+Les traces de la file, au 27/10 vers 18 h :
+- **les 32 jobs de cuisine lancés depuis 11 h** (les essais de la file, les compléments de jour), sur le code corrigé
+  le matin (`87a775c`, « Plus de cuisiniers l'un sur l'autre ») : `grid.overbooked` vaut 0 partout, et
+  `overbookedInClone` aussi ;
+- **les jobs de la référence lancés vers 9 h**, avant ce correctif, en comptaient 873. Le compteur des clones n'existait
+  pas encore (mcts-commun `8ef17c6`, 10 h 23). Le balayage de 9 000 services du matin les avait placés dans le vrai
+  service : c'était le défaut du modèle de cuisine (`holdHere`), 14 cases réservées deux fois avant, 0 après.
+
+Plus aucune réservation double, ni dans le service ni dans les mondes de la recherche.
