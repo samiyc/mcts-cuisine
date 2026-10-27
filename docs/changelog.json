@@ -4,7 +4,7 @@
   "intro": "Des robots et un cuisinier se partagent les commandes ; les robots choisissent par une recherche (ISMCTS) qui imagine les commandes à venir et ce que fera le cuisinier.",
   "repo": "mcts-cuisine",
   "gainsTitle": "Ce que gagne la recherche (ISMCTS)",
-  "gainsNote": "Plats servis à temps par service, 50 services par cuisine, mêmes services pour tous ; le cuisinier « au hasard », la cuisson sans surveillance, deux cases par tour, deux passes (les réglages par défaut). Les mesures de nuit du 26/10, jouées par l'ordonnanceur commun (mcts-backlog, night.json) ; avec les autres cuisiniers simulés et sans humain, la recherche gagne aussi partout (docs/metiers.md).",
+  "gainsNote": "Plats servis à temps par service, 50 services par cuisine, mêmes services pour tous ; le cuisinier « au hasard », la cuisson sans surveillance, deux cases par tour, deux passes (les réglages par défaut). Les mesures de nuit du 26/10, jouées par l'ordonnanceur commun (mcts-backlog, night.json) ; avec les autres cuisiniers simulés et sans humain, la recherche gagne aussi partout (docs/metiers.md). Avant la correction du 26/10 au soir (le robot qui barrait le fourneau) : ce tableau sera refait avec la référence en cours ; les mesures refaites des tables, du banquet et de la livraison sont dans docs/mesures-27-10.md.",
   "gainsHead": [
     "Cuisine",
     "la plus ancienne",
@@ -65,6 +65,18 @@
   ],
   "versions": [
     {
+      "version": "0.25",
+      "title": "Les mesures refaites après la correction",
+      "date": "27/10",
+      "items": [
+        "Toute la file de nuit refaite sur le code corrigé (87 mesures, 30 services chacune) : la recherche est la meilleure, ou à égalité avec la meilleure règle, dans 82 mesures sur 87 ; les cinq autres sont à 0,2 plat près.",
+        "Au banquet, elle double les règles dans la grande brigade et avec la coupe en série (les deux envois à l'heure dans le passe-plats et les postes) ; elle sert deux à trois fois plus de tables à temps ; elle perd moins de livraisons que toutes les règles.",
+        "Les règles sont fragiles : au banquet de 8 couverts, la table sert 0,2 plat au grand détour et le rétroplanning 0 au passe-plats, alors que chacune est la meilleure ailleurs ; la recherche sert 11,7 à 15,9 plats sur 16 partout.",
+        "Le détail, avec l'avant et l'après sur les mêmes services : docs/mesures-27-10.md. La référence (le service à la carte des neuf cuisines) est dans la file."
+      ],
+      "commits": []
+    },
+    {
       "version": "0.24",
       "title": "Le robot qui barrait le fourneau",
       "date": "26/10",
@@ -73,7 +85,9 @@
         "Corrigé : une soupe brûlée après être passée par un comptoir ne pouvait plus y repasser ; le robot des planches attendait, ses oignons en main, un fourneau hors de sa portée jusqu'à la fin du service.",
         "Toutes les cuisines y gagnent : la plupart des soupes brûlées venaient de là ; la coupée en deux passe de 12,2 à 16,3 plats à temps avec la plus ancienne commande. Les mesures du soir sont refaites dans la file."
       ],
-      "commits": []
+      "commits": [
+        "ac78832"
+      ]
     },
     {
       "version": "0.23",

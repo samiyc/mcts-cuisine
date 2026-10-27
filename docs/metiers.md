@@ -5,6 +5,10 @@ faites et mesurées le 26/10 (les tables, le passe et la rupture ; marcher plus 
 mesures de nuit ; l'humain qui suit sa table ; les derniers indicateurs). Ce qui manque est dans
 [recherche/oublis.md](recherche/oublis.md).
 
+**Les chiffres de ce journal sont d'avant la correction du 26/10 au soir** (le robot qui barrait le fourneau, en fin
+de fichier) : elle a supprimé la plupart des soupes brûlées. Les mesures refaites sur le code corrigé sont dans
+[mesures-27-10.md](mesures-27-10.md).
+
 ## Les tables, le passe et la rupture (26/10, étape 1 de la feuille de route des métiers)
 
 Les choix de Sami (26/10) : une table est **un groupe de commandes** ; un plat attend sa table **10 tours** au passe,
@@ -616,7 +620,8 @@ brûlées sur les 9 services) :
 
 - **La plupart des soupes brûlées venaient de là** : le robot qui veillait sa marmite gênait celui qui venait la
   prendre. Les règles y gagnent jusqu'à quatre plats ; **les mesures du soir sont refaites** dans la file (le tag
-  `2026-10-26-correctif`), les chiffres plus haut sont d'avant la correction.
+  `2026-10-26-correctif`), les chiffres plus haut sont d'avant la correction. Les résultats :
+  [mesures-27-10.md](mesures-27-10.md).
 - Le test des croisements comparait le début et la fin d'un tour : à deux cases par tour, deux cuisiniers qui font le
   tour d'un carré de quatre cases, chacun par son côté, finissaient l'un à la place de l'autre sans s'être croisés. Il
   regarde désormais pas à pas (`tests/service.test.js`).

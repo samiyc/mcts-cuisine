@@ -76,4 +76,9 @@ Les oublis réglés quittent cette liste et vont dans [modele.md](../modele.md) 
 - **Le robot qui barrait le fourneau, le relais oublié** (26/10, la nuit, trouvé par Sami dans la cuisine coupée en
   deux) : un robot qui surveillait sa marmite restait devant le fourneau quand un autre venait la retirer ; une soupe
   rouverte gardait la marque de son relais et ne pouvait plus repasser par un comptoir. Corrigés ; toutes les
-  cuisines y gagnent, les mesures du soir sont refaites (`docs/metiers.md`, « Le robot qui barrait le fourneau »).
+  cuisines y gagnent, les mesures du soir sont refaites (`docs/mesures-27-10.md`).
+- **La référence après la correction** (27/10) : le service à la carte des neuf cuisines, les tables de la petite
+  cuisine et du grand détour, le banquet sans série de trois cuisines : dans la file (`night-reference.json`). Sans
+  elle, on ne sait pas encore ce que coûtent l'emballage, la plonge, les limites de l'humain et les pannes, ni ce
+  qu'apportent la mise en place, l'aboyeur et la série depuis la correction. Ni la rupture, ni les tables de la
+  grande brigade avec « le plus urgent », ne sont remesurées.

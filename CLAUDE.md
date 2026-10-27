@@ -31,7 +31,8 @@ where the ISMCTS was built and measured). The plan and the reasons live in lopin
 - **The changelog** is data, `docs/changelog.json`: a new version is a new first entry, then `npm run changelog`.
 - **The page is in tabs** (lopin's layout): a tab's settings in the panel on the left (`web/tabs/`), its view beside.
 - **The trades' roadmap** is `docs/recherche/feuille-de-route.md`: the restaurants' words and measures, step by step.
-  What each step did, with its measures: `docs/metiers.md` (the model before them: `docs/modele.md`).
+  What each step did, with its measures: `docs/metiers.md` (the model before them: `docs/modele.md`); the measures
+  redone after the fix of 26/10 (the robot that barred the stove): `docs/mesures-27-10.md`.
 - **Every figure is sourced or marked a hypothesis** (Sami, 26/10): search the web first; what cannot be found goes to
   `docs/recherche/questions-specialiste.md` (the question, the assumption meanwhile, whom to ask).
 - **Long measures go through the machine's queue** (`mcts-backlog`, a job or `night.json`), never beside it; by hand,
