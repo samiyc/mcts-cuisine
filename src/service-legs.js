@@ -29,12 +29,28 @@ export function planLeg(state, cook, target) {
   return true;
 }
 
-/** `cook` holds the cell it stands on from now: its reservations released, its path that one cell. */
+/**
+ * `cook` holds the cell it stands on from now: its reservations released, its path that one cell. The robots due
+ * there later plan again around it (27/10/2026: a robot stopped on a cell another was to pass two steps later, and
+ * both stood on it; one case in about 600 services).
+ */
 export function holdHere(state, cook) {
   const here = [{ x: cook.x, y: cook.y, t: stepAt(state) }];
   state.reservations.release(cook.id);
   state.reservations.reserve(cook.id, here, { stay: true });
+  cook.path = here;
+  makeWay(state, cook, here[0], here[0].t - 1);
   return here;
+}
+
+/** The robots adapt: a planned path through `cook`'s cell `to` after step `after` is planned again, or they stop where they are. */
+export function makeWay(state, cook, to, after) {
+  for (const robot of state.cooks) {
+    if (robot === cook || !robot.target) continue;
+    if (!(robot.path ?? []).some((step) => step.t > after && standsOn(step, to))) continue;
+    state.replans = (state.replans ?? 0) + 1;
+    if (!planLeg(state, robot, robot.target)) holdHere(state, robot);
+  }
 }
 
 /** The cells other cooks stand on or walk to: a station's side taken there is taken. */

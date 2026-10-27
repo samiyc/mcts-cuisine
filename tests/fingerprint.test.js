@@ -15,7 +15,7 @@ import { measuresOf, runService } from "../src/simulate.js";
  */
 const EXPECTED = {
   rules: "262c9a88240e739b",
-  variants: "dbd81da56a182dde",
+  variants: "803b7bbc28bc552c",
   replay: "165960bd12b38780",
   search: "976ec2207dff02a8",
   added: "fb30b3733e4da0c8",

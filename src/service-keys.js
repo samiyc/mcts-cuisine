@@ -3,7 +3,7 @@ import { packFirst } from "./service-delivery.js";
 import { plateFor } from "./service-plates.js";
 import { useBoard } from "./service-hygiene.js";
 import { PUT, collectSteps, isWorkStation, keyOf, orderOf, pickupSteps, standsOn, stepsOf } from "./service-basics.js";
-import { drop, holdHere, paceOf, planLeg, stepAt, turnsOf, unfit } from "./service-legs.js";
+import { drop, makeWay, paceOf, stepAt, turnsOf, unfit } from "./service-legs.js";
 import { isOut, useSupply } from "./service-supply.js";
 
 /**
@@ -49,16 +49,6 @@ function startOf(state, cook) {
   return { from: { x: cook.x, y: cook.y }, step: now, path: [{ x: cook.x, y: cook.y, t: now }] };
 }
 
-/** The robots adapt: a planned path through the chef's new cell `to` after step `after` is planned again, or they stop where they are. */
-function replanAround(state, cook, to, after) {
-  for (const robot of state.cooks) {
-    if (robot === cook || !robot.target) continue;
-    if (!(robot.path ?? []).some((step) => step.t > after && standsOn(step, to))) continue;
-    state.replans = (state.replans ?? 0) + 1;
-    if (!planLeg(state, robot, robot.target)) robot.path = holdHere(state, robot);
-  }
-}
-
 /**
  * Moves the chef one cell (`dx`, `dy`) during the coming turn, if the cell is floor and nobody holds it then.
  * The robots whose path crosses his new cell later plan again around him. Returns what happened, in words.
@@ -75,7 +65,7 @@ export function steer(state, dx, dy) {
   state.reservations.release(cook.id);
   state.reservations.reserve(cook.id, path, { stay: true });
   Object.assign(cook, { path, target: null });
-  replanAround(state, cook, to, start.step);
+  makeWay(state, cook, to, start.step);
   return null;
 }
 

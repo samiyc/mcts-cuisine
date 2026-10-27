@@ -65,6 +65,17 @@
   ],
   "versions": [
     {
+      "version": "0.26",
+      "title": "Plus de cuisiniers l'un sur l'autre, des chemins plus vite",
+      "date": "27/10",
+      "items": [
+        "Corrigé (lu dans les traces de la file) : un robot qui s'arrêtait où il était (en panne, son plat parti, sa place cédée) gardait sa case sans voir qu'un autre devait y passer ; les deux finissaient sur la même case, une fois sur 600 services environ. Ceux qui devaient passer cherchent maintenant un autre chemin.",
+        "L'effet sur les mesures est nul : 35 services sur 9 000 changent, 75 158 plats à temps avant, 75 154 après.",
+        "Les chemins sont trouvés plus vite : quand la case visée est murée par un cuisinier garé, la recherche de chemin s'arrête tout de suite au lieu de tout explorer. 14 fois plus rapide en couloir, deux fois au grand détour, les mêmes résultats."
+      ],
+      "commits": []
+    },
+    {
       "version": "0.25",
       "title": "Les mesures refaites après la correction",
       "date": "27/10",
@@ -74,7 +85,9 @@
         "Les règles sont fragiles : au banquet de 8 couverts, la table sert 0,2 plat au grand détour et le rétroplanning 0 au passe-plats, alors que chacune est la meilleure ailleurs ; la recherche sert 11,7 à 15,9 plats sur 16 partout.",
         "Le détail, avec l'avant et l'après sur les mêmes services : docs/mesures-27-10.md. La référence (le service à la carte des neuf cuisines) est dans la file."
       ],
-      "commits": []
+      "commits": [
+        "a0de831"
+      ]
     },
     {
       "version": "0.24",

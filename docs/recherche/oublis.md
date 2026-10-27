@@ -82,3 +82,12 @@ Les oublis réglés quittent cette liste et vont dans [modele.md](../modele.md) 
   elle, on ne sait pas encore ce que coûtent l'emballage, la plonge, les limites de l'humain et les pannes, ni ce
   qu'apportent la mise en place, l'aboyeur et la série depuis la correction. Ni la rupture, ni les tables de la
   grande brigade avec « le plus urgent », ne sont remesurées.
+- **Deux cuisiniers sur une case** (27/10, lu dans les traces de la file : des cases réservées deux fois hors de la
+  recherche) : un robot qui s'arrête où il est (`holdHere` : en panne, son plat parti, sa place cédée) gardait sa case
+  pour de bon, sans voir qu'un autre devait y passer deux pas plus tard ; les deux se retrouvaient dessus. Une fois
+  sur 600 services environ (14 sur 9 000, règles seules). Corrigé : ceux qui devaient y passer replanifient, comme
+  autour du chef au clavier. 35 services sur 9 000 changent, 75 158 plats à temps avant, 75 154 après ; plus aucune
+  case réservée deux fois (`tests/overlap.test.js`).
+- **A* qui cherchait jusqu'à son horizon** (27/10) : en couloir, un appel sur deux ne trouvait pas de chemin, la cible
+  murée par un cuisinier garé. `mcts-commun` s'arrête maintenant dès qu'elle est hors d'atteinte : A* 14 fois plus
+  rapide en couloir, deux fois au grand détour, les mêmes résultats.

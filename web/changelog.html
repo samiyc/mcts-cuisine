@@ -34,6 +34,16 @@
         <h2>Les versions</h2>
 
       <article class="version">
+        <h3><span class="tag">0.26</span> Plus de cuisiniers l'un sur l'autre, des chemins plus vite <span class="date">27/10</span></h3>
+        <ul>
+          <li>Corrigé (lu dans les traces de la file) : un robot qui s'arrêtait où il était (en panne, son plat parti, sa place cédée) gardait sa case sans voir qu'un autre devait y passer ; les deux finissaient sur la même case, une fois sur 600 services environ. Ceux qui devaient passer cherchent maintenant un autre chemin.</li>
+          <li>L'effet sur les mesures est nul : 35 services sur 9 000 changent, 75 158 plats à temps avant, 75 154 après.</li>
+          <li>Les chemins sont trouvés plus vite : quand la case visée est murée par un cuisinier garé, la recherche de chemin s'arrête tout de suite au lieu de tout explorer. 14 fois plus rapide en couloir, deux fois au grand détour, les mêmes résultats.</li>
+        </ul>
+        <p class="commits"></p>
+      </article>
+
+      <article class="version">
         <h3><span class="tag">0.25</span> Les mesures refaites après la correction <span class="date">27/10</span></h3>
         <ul>
           <li>Toute la file de nuit refaite sur le code corrigé (87 mesures, 30 services chacune) : la recherche est la meilleure, ou à égalité avec la meilleure règle, dans 82 mesures sur 87 ; les cinq autres sont à 0,2 plat près.</li>
@@ -41,7 +51,7 @@
           <li>Les règles sont fragiles : au banquet de 8 couverts, la table sert 0,2 plat au grand détour et le rétroplanning 0 au passe-plats, alors que chacune est la meilleure ailleurs ; la recherche sert 11,7 à 15,9 plats sur 16 partout.</li>
           <li>Le détail, avec l'avant et l'après sur les mêmes services : docs/mesures-27-10.md. La référence (le service à la carte des neuf cuisines) est dans la file.</li>
         </ul>
-        <p class="commits"></p>
+        <p class="commits"><code>a0de831</code></p>
       </article>
 
       <article class="version">
