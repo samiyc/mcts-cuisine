@@ -46,6 +46,11 @@ au fil des jobs (« les derniers jobs en ont pris ×0,12 »).
   peut plus être rattrapé) : 87 % de `closeCall` et 94 % d'arrêts tôt dans la dark kitchen. Avec 128 itérations
   (plus bas), `closeCall` ne baisse presque pas (74 → 64 % au plus). Ce sont des coups presque équivalents, où le choix
   importe peu ; le signal est envoyé à commun, qui tient `diagnose`.
+- **La réponse de commun (28/10, 20 h)** : ce n'est pas un bug. `settled` parle des visites (le coup en tête ne peut
+  plus être rattrapé), `closeCall` de la valeur (l'écart des deux premiers coups, par paires, n'est pas sûr) : UCT peut
+  concentrer ses visites sur un coup à peine meilleur. Ce qui trompe, c'est le conseil « plus d'itérations ». Commun
+  propose à Sami un autre texte pour un `closeCall` arrêté tôt (« coups presque équivalents, le choix compte peu »), et
+  un champ `settled` compté à part ; la lib ne change qu'avec son accord.
 
 ## Les cuisiniers se croisent (30 services, deux par case d'allée)
 
