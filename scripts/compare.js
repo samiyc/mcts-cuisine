@@ -17,7 +17,7 @@ import { searchLines } from "./compare-search.js";
 import { searchTally } from "./search-tally.js";
 
 /**
- * `npm run compare -- [--kitchen petite|couloir|brigade] [--services 100] [--de 1] [--lignes] [--search [budget]] [--tables] [--rupture [n]] [--banquet] [--livraison] [--serie [k]] [--couverts n] [--chaud m] [--mise-en-place] [--aboyeur] [--hygiene] [--fatigue] [--pauses] [--erreurs] [--pannes] [--croisement] [--humain urgent]`: the
+ * `npm run compare -- [--kitchen petite|couloir|brigade] [--services 100] [--de 1] [--lignes] [--search [budget]] [--arret-anticipe] [--contre key=value,…] [--tables] [--rupture [n]] [--banquet] [--livraison] [--serie [k]] [--couverts n] [--chaud m] [--mise-en-place] [--aboyeur] [--hygiene] [--fatigue] [--pauses] [--erreurs] [--pannes] [--croisement] [--humain urgent]`: the
  * robots' rules on the same drawn services, with each simulated human the service may have (src/rules.js, `humansOf`)
  * and with none, or only `--humain` (a name of HUMANS, or none); every kitchen when none is named.
  * `--search` adds the search (src/search.js, ~1 to 3 s a service). Since step 0 of the trades' roadmap (26/10), each
@@ -38,10 +38,14 @@ const budget = searching && /^\d+$/.test(args[args.indexOf("--search") + 1] ?? "
 // evening of 27/10) beside the search with it (`earlyStop`, the default since), on the same services. Each search
 // counts its decisions, iterations, ms and `diagnose`'s codes (scripts/search-tally.js), written with its service.
 const early = searching && args.includes("--arret-anticipe");
-const tallies = searching ? { search: searchTally(), ...(early ? { earlyStop: searchTally() } : {}) } : {};
+// `--contre key=value,…` (28/10/2026): the search with these settings (`variant`, e.g. `budget=128` or `grace=30`) beside the
+// search as it is, on the same services, by pairs.
+const against = searching && args.includes("--contre") ? args[args.indexOf("--contre") + 1] : null;
+const settingsOf = (text) => Object.fromEntries(text.split(",").map((pair) => pair.split("=")).map(([key, value]) => [key, Number(value)]));
+const tallies = searching ? { search: searchTally(), ...(early ? { earlyStop: searchTally() } : {}), ...(against ? { variant: searchTally() } : {}) } : {};
 const searchOf = (name, extra) => searchRule({ ...(budget ? { budget } : {}), ...extra, onResult: tallies[name].onResult });
-const rules = searching ? { ...RULES, search: searchOf("search", early ? { earlyStop: false } : {}), ...(early ? { earlyStop: searchOf("earlyStop", { earlyStop: true }) } : {}) } : RULES;
-const LABELS = { ...RULE_LABELS, earlyStop: "recherche, arrêt anticipé" };
+const rules = searching ? { ...RULES, search: searchOf("search", early ? { earlyStop: false } : {}), ...(early ? { earlyStop: searchOf("earlyStop", { earlyStop: true }) } : {}), ...(against ? { variant: searchOf("variant", settingsOf(against)) } : {}) } : RULES;
+const LABELS = { ...RULE_LABELS, earlyStop: "recherche, arrêt anticipé", variant: `recherche, ${against}` };
 // `--rupture [n]`: every crate holds n ingredients (6 by default, service-supply.js), the orders refused once it is empty.
 function ruptureOf() {
   if (!args.includes("--rupture")) return 0;
@@ -115,7 +119,7 @@ function tick(setup, humanName, seed, found) {
   if (!found) console.error(`service ${done}/${total} (${setup.label}, ${HUMAN_LABELS[humanName]}, n° ${seed})`);
 }
 for (const [id, setup] of setups) {
-  const lines = linesOn ? openLines(measureKey({ setup, rules: Object.keys(rules), budget: budget ?? null }), `${id}-${onlyHuman ?? "tous"}-${first}`) : null;
+  const lines = linesOn ? openLines(measureKey({ setup, rules: Object.keys(rules), budget: budget ?? null, ...(against ? { against } : {}) }), `${id}-${onlyHuman ?? "tous"}-${first}`) : null;
   const from = first > 1 ? `, à partir du n° ${first}` : "";
   console.log(`
 ${setup.label} : ${services} services${from}`);

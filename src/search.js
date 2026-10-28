@@ -24,9 +24,11 @@ import { advance, choose, cloneService } from "./simulate.js";
  * worth, never what the robots know.
  *
  * A world is scored against the quickest-dish rule's from the same point: ½ for as many dishes served in time
- * (a dish still in time at the horizon counts half), a dish more or less worth `1 / spread`.
+ * (a dish still in time at the horizon counts half), a dish more or less worth `1 / spread`. With `grace` (turns, 0 by
+ * default; Sami, 28/10/2026, to try: the banquet's scores were flat in 45 % of its decisions), a dish served late still
+ * counts, less and less, nothing once `grace` turns late: a graded reward rather than 1 or 0 (mcts-commun's `flatScore`).
  */
-export const SEARCH_SETTINGS = Object.freeze({ budget: 64, depth: 2, explore: 0.3, width: 4, spread: 3, horizon: 60, seed: 1, earlyStop: true });
+export const SEARCH_SETTINGS = Object.freeze({ budget: 64, depth: 2, explore: 0.3, width: 4, spread: 3, horizon: 60, seed: 1, earlyStop: true, grace: 0 });
 
 /**
  * The orders still to come, drawn again from turn `t` at the service's pace (setup's `every`), ids after those `come`;
@@ -82,16 +84,19 @@ export function drawWorld(state, rng, horizon = SEARCH_SETTINGS.horizon, human =
   return world;
 }
 
-/** Dishes served in time, and half of those still in time, among the orders come by now. */
-export function valueOf(world) {
+/** Dishes served in time, and half of those still in time, among the orders come by now; with `grace`, those late in part. */
+export function valueOf(world, grace = 0) {
   let value = 0;
   for (const order of world.upcoming) {
     if (order.arrival > world.t) continue;
-    if (order.status === "served") value += order.servedAt <= order.deadline ? 1 : 0;
+    if (order.status === "served") value += lateValue(order.servedAt - order.deadline, grace);
     else if (order.deadline > world.t && !LOST.has(order.status)) value += 0.5;
   }
   return value;
 }
+
+/** A dish served `late` turns after its deadline (0 or less: in time): 1 in time, then down to 0 at `grace` turns late. */
+const lateValue = (late, grace) => (late <= 0 ? 1 : Math.max(0, 1 - late / (grace || late)));
 
 /** The rule the worlds are played with: the quickest dish; with tables the table's (the quickest would leave the long dishes behind); at a banquet the backward planning. */
 function rolloutRule(world) {
@@ -135,7 +140,7 @@ function shortlistOf(world, moves, width) {
   return [...new Map(ranked.map((move) => [move.key, move])).values()].slice(0, width);
 }
 
-function problemFor(base, { width, spread, horizon, human }) {
+function problemFor(base, { width, spread, horizon, human, grace }) {
   return {
     sample: (state, rng) => drawWorld(state, rng, horizon, human),
     actor: () => "robots",
@@ -149,14 +154,14 @@ function problemFor(base, { width, spread, horizon, human }) {
     },
     over: (world) => !world.choice,
     rollout: rollOut,
-    score: (world) => Math.min(1, Math.max(0, 0.5 + (valueOf(world) - base) / spread)),
+    score: (world) => Math.min(1, Math.max(0, 0.5 + (valueOf(world, grace) - base) / spread)),
   };
 }
 
 /** The quickest-dish rule's mean value over a few drawn worlds: the scores' middle. */
-function baseOf(state, rng, { horizon, human }, runs = 4) {
+function baseOf(state, rng, { horizon, human, grace }, runs = 4) {
   let total = 0;
-  for (let i = 0; i < runs; i += 1) total += valueOf(rollOut(drawWorld(state, rng, horizon, human)));
+  for (let i = 0; i < runs; i += 1) total += valueOf(rollOut(drawWorld(state, rng, horizon, human)), grace);
   return total / runs;
 }
 
@@ -172,12 +177,12 @@ function baseOf(state, rng, { horizon, human }, runs = 4) {
  * saw (`diagnose`); it changes nothing.
  */
 export function searchRule(options = {}) {
-  const { budget, depth, explore, width, spread, horizon, seed, earlyStop, human = null, onResult = null } = { ...SEARCH_SETTINGS, ...options };
+  const { budget, depth, explore, width, spread, horizon, seed, earlyStop, grace, human = null, onResult = null } = { ...SEARCH_SETTINGS, ...options };
   return (open, { state }) => {
     if (open.length === 1 && !mayHold(state.setup)) return open[0];
     const robot = state.cooks[state.cursor];
     const rng = createRng((Math.imul(seed, 0x9e3779b1) + state.t * 131 + robot.id * 7 + open.length) >>> 0);
-    const found = search(state, problemFor(baseOf(state, rng, { horizon, human }), { width, spread, horizon, human }), { budget, rng, depth, explore, common: true, earlyStop });
+    const found = search(state, problemFor(baseOf(state, rng, { horizon, human, grace }), { width, spread, horizon, human, grace }), { budget, rng, depth, explore, common: true, earlyStop });
     onResult?.(found, depth);
     if (found.move && found.move.order === null) return undefined;
     return open.find((order) => order.id === found.move?.id) ?? RULES.quickest(open);

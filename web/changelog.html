@@ -34,12 +34,22 @@
         <h2>Les versions</h2>
 
       <article class="version">
+        <h3><span class="tag">0.34</span> Plus de budget et une note graduée, à l'essai <span class="date">28/10</span></h3>
+        <ul>
+          <li>npm run compare -- --search --contre budget=128 (ou grace=30) joue une variante de la recherche à côté de celle par défaut, sur les mêmes services, et donne l'écart par paires.</li>
+          <li>Une note graduée pour la recherche (grace, désactivée par défaut) : un plat en retard compte encore, de moins en moins. Sur 2 services du banquet dur au grand détour : 12,5 plats à temps au lieu de 8,5. À confirmer.</li>
+          <li>Dans la file (tag budget-grace-2026-10-28) : 128 itérations contre 64 sur quinze cuisines et services, et la note graduée sur les banquets et deux tables.</li>
+        </ul>
+        <p class="commits"></p>
+      </article>
+
+      <article class="version">
         <h3><span class="tag">0.33</span> Le cuisinier enfermé ne cherche plus son chemin <span class="date">28/10</span></h3>
         <ul>
           <li>Un cuisinier au fond d'un cul-de-sac, un autre garé à sa sortie : il cherchait un chemin à chaque tour, et A* explorait jusqu'à son horizon avant d'abandonner. Quand le cuisinier ou sa cible est muré de tous côtés, la simulation conclut tout de suite qu'il n'y a pas de chemin. Les empreintes ne changent pas ; le couloir avec la recherche va près de 4 fois plus vite (11,6 s → 3,0 s sur 2 services).</li>
           <li>Le hook de commit passe par les créneaux de la machine (4 fils) : il ne prend plus les fils de la file.</li>
         </ul>
-        <p class="commits"></p>
+        <p class="commits"><code>8e6dc96</code></p>
       </article>
 
       <article class="version">

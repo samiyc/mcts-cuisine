@@ -1,0 +1,173 @@
+{
+  "about": "Deux essais de la recherche par paires, sur les mêmes 30 services avec « le plus urgent » (Sami, 28/10) : le budget de 128 itérations contre 64 (--contre budget=128 ; « mcts adore avoir plus de budget, ça élimine le bruit »), sur les neuf cuisines à la carte, trois tables, deux banquets et la livraison ; la note graduée (--contre grace=30 : un plat en retard compte encore, de moins en moins, plus rien à 30 tours) sur les banquets, le banquet dur (8 couverts, 30 tours au chaud, en série) et deux tables. Estimations : celles des essais du 27/10 (deux recherches, avant les gains de vitesse du 28/10, donc prudentes), une fois et demie pour le budget 128. Ajout : npx mcts-backlog --add-file essais-budget-grace.tranches.json --tag budget-grace-2026-10-28.",
+  "jobs": [
+    {
+      "id": "cuis-carte-petite-urgent-budget128",
+      "command": "npm run compare -- --kitchen petite --services 30 --search --humain urgent --contre budget=128",
+      "estimate": "8 min",
+      "priority": 1
+    },
+    {
+      "id": "cuis-carte-couloir-urgent-budget128",
+      "command": "npm run compare -- --kitchen couloir --services 30 --search --humain urgent --contre budget=128",
+      "estimate": "20 min",
+      "priority": 1
+    },
+    {
+      "id": "cuis-carte-brigade-urgent-budget128",
+      "command": "npm run compare -- --kitchen brigade --services 30 --search --humain urgent --contre budget=128",
+      "estimate": "38 min",
+      "priority": 1
+    },
+    {
+      "id": "cuis-carte-comptoirs-urgent-budget128",
+      "command": "npm run compare -- --kitchen comptoirs --services 30 --search --humain urgent --contre budget=128",
+      "estimate": "8 min",
+      "priority": 1
+    },
+    {
+      "id": "cuis-carte-postes-urgent-budget128",
+      "command": "npm run compare -- --kitchen postes --services 30 --search --humain urgent --contre budget=128",
+      "estimate": "8 min",
+      "priority": 1
+    },
+    {
+      "id": "cuis-carte-separee-urgent-budget128",
+      "command": "npm run compare -- --kitchen separee --services 30 --search --humain urgent --contre budget=128",
+      "estimate": "8 min",
+      "priority": 1
+    },
+    {
+      "id": "cuis-carte-detour-urgent-budget128",
+      "command": "npm run compare -- --kitchen detour --services 30 --search --humain urgent --contre budget=128",
+      "estimate": "8 min",
+      "priority": 1
+    },
+    {
+      "id": "cuis-carte-dark-urgent-budget128",
+      "command": "npm run compare -- --kitchen dark --services 30 --search --humain urgent --contre budget=128",
+      "estimate": "23 min",
+      "priority": 1
+    },
+    {
+      "id": "cuis-carte-plonge-urgent-budget128",
+      "command": "npm run compare -- --kitchen plonge --services 30 --search --humain urgent --contre budget=128",
+      "estimate": "38 min",
+      "priority": 1
+    },
+    {
+      "id": "cuis-tables-petite-urgent-budget128",
+      "command": "npm run compare -- --kitchen petite --tables --services 30 --search --humain urgent --contre budget=128",
+      "estimate": "30 min",
+      "priority": 1
+    },
+    {
+      "id": "cuis-tables-detour-urgent-budget128",
+      "command": "npm run compare -- --kitchen detour --tables --services 30 --search --humain urgent --contre budget=128",
+      "estimate": "1 h 15",
+      "priority": 1
+    },
+    {
+      "id": "cuis-tables-brigade-urgent-budget128",
+      "command": "npm run compare -- --kitchen brigade --tables --services 30 --search --humain urgent --contre budget=128",
+      "estimate": "2 h 20",
+      "priority": 1
+    },
+    {
+      "id": "cuis-banquet-petite-urgent-budget128",
+      "command": "npm run compare -- --kitchen petite --banquet --services 30 --search --humain urgent --contre budget=128",
+      "estimate": "38 min",
+      "priority": 1
+    },
+    {
+      "id": "cuis-banquet-brigade-urgent-budget128",
+      "command": "npm run compare -- --kitchen brigade --banquet --services 30 --search --humain urgent --contre budget=128",
+      "estimate": "4 h 50",
+      "priority": 1
+    },
+    {
+      "id": "cuis-livraison-brigade-urgent-budget128",
+      "command": "npm run compare -- --kitchen brigade --livraison --services 30 --search --humain urgent --contre budget=128",
+      "estimate": "2 h 15",
+      "priority": 1
+    },
+    {
+      "id": "cuis-banquet-petite-urgent-grace30",
+      "command": "npm run compare -- --kitchen petite --banquet --services 30 --search --humain urgent --contre grace=30",
+      "estimate": "25 min",
+      "priority": 1
+    },
+    {
+      "id": "cuis-banquet-comptoirs-urgent-grace30",
+      "command": "npm run compare -- --kitchen comptoirs --banquet --services 30 --search --humain urgent --contre grace=30",
+      "estimate": "25 min",
+      "priority": 1
+    },
+    {
+      "id": "cuis-banquet-postes-urgent-grace30",
+      "command": "npm run compare -- --kitchen postes --banquet --services 30 --search --humain urgent --contre grace=30",
+      "estimate": "25 min",
+      "priority": 1
+    },
+    {
+      "id": "cuis-banquet-detour-urgent-grace30",
+      "command": "npm run compare -- --kitchen detour --banquet --services 30 --search --humain urgent --contre grace=30",
+      "estimate": "30 min",
+      "priority": 1
+    },
+    {
+      "id": "cuis-banquet-brigade-urgent-grace30",
+      "command": "npm run compare -- --kitchen brigade --banquet --services 30 --search --humain urgent --contre grace=30",
+      "estimate": "3 h 15",
+      "priority": 1
+    },
+    {
+      "id": "cuis-dur-petite-urgent-grace30",
+      "command": "npm run compare -- --kitchen petite --banquet --couverts 8 --chaud 30 --serie 3 --services 30 --search --humain urgent --contre grace=30",
+      "estimate": "25 min",
+      "priority": 1
+    },
+    {
+      "id": "cuis-dur-comptoirs-urgent-grace30",
+      "command": "npm run compare -- --kitchen comptoirs --banquet --couverts 8 --chaud 30 --serie 3 --services 30 --search --humain urgent --contre grace=30",
+      "estimate": "25 min",
+      "priority": 1
+    },
+    {
+      "id": "cuis-dur-postes-urgent-grace30",
+      "command": "npm run compare -- --kitchen postes --banquet --couverts 8 --chaud 30 --serie 3 --services 30 --search --humain urgent --contre grace=30",
+      "estimate": "25 min",
+      "priority": 1
+    },
+    {
+      "id": "cuis-dur-separee-urgent-grace30",
+      "command": "npm run compare -- --kitchen separee --banquet --couverts 8 --chaud 30 --serie 3 --services 30 --search --humain urgent --contre grace=30",
+      "estimate": "25 min",
+      "priority": 1
+    },
+    {
+      "id": "cuis-dur-detour-urgent-grace30",
+      "command": "npm run compare -- --kitchen detour --banquet --couverts 8 --chaud 30 --serie 3 --services 30 --search --humain urgent --contre grace=30",
+      "estimate": "30 min",
+      "priority": 1
+    },
+    {
+      "id": "cuis-dur-brigade-urgent-grace30",
+      "command": "npm run compare -- --kitchen brigade --banquet --couverts 8 --chaud 30 --serie 3 --services 30 --search --humain urgent --contre grace=30",
+      "estimate": "3 h 15",
+      "priority": 1
+    },
+    {
+      "id": "cuis-tables-detour-urgent-grace30",
+      "command": "npm run compare -- --kitchen detour --tables --services 30 --search --humain urgent --contre grace=30",
+      "estimate": "50 min",
+      "priority": 1
+    },
+    {
+      "id": "cuis-tables-brigade-urgent-grace30",
+      "command": "npm run compare -- --kitchen brigade --tables --services 30 --search --humain urgent --contre grace=30",
+      "estimate": "1 h 35",
+      "priority": 1
+    }
+  ]
+}
