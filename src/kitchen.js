@@ -37,8 +37,21 @@ export function readKitchen(text) {
   return { plan, floor: (char) => FLOOR.has(char), stations, robots, human };
 }
 
-/** Floor distances from `from` (a breadth-first search): a Map "x,y" → steps. */
+/**
+ * Floor distances from `from` (a breadth-first search): a Map "x,y" → steps, not to be changed. The floor never
+ * changes in a service, so each kitchen keeps its maps by cell (28/10/2026: the search asked again and again for the
+ * same ones, near half its time in a brigade with tables).
+ */
+const DISTANCES = new WeakMap();
 export function distancesFrom(kitchen, from) {
+  if (!DISTANCES.has(kitchen)) DISTANCES.set(kitchen, new Map());
+  const known = DISTANCES.get(kitchen);
+  const at = `${from.x},${from.y}`;
+  if (!known.has(at)) known.set(at, floorDistances(kitchen, from));
+  return known.get(at);
+}
+
+function floorDistances(kitchen, from) {
   const distances = new Map([[`${from.x},${from.y}`, 0]]);
   const queue = [from];
   for (let i = 0; i < queue.length; i += 1) {

@@ -65,6 +65,17 @@
   ],
   "versions": [
     {
+      "version": "0.30",
+      "title": "La recherche deux à trois fois plus rapide",
+      "date": "28/10",
+      "items": [
+        "Les distances au sol d'une case sont calculées une fois par cuisine, puis gardées : le sol ne change pas pendant un service, et la recherche les redemandait sans cesse (près de la moitié de son temps dans la grande brigade avec toutes les options).",
+        "Mêmes services au plat près, empreintes inchangées. Avec la recherche, sur 2 ou 3 services : la brigade avec tables, mise en place, hygiène, fatigue, pauses, erreurs, pannes et rupture passe de 73 s à 22 s ; le détour avec tables de 82 s à 40 s ; la dark kitchen de 39 s à 22 s ; le banquet de la petite cuisine de 50 s à 34 s.",
+        "Le temps restant va surtout à A* (dans la bibliothèque commune) : la piste suivante est à voir avec elle."
+      ],
+      "commits": []
+    },
+    {
       "version": "0.29",
       "title": "La recherche s'arrête quand son choix est fait",
       "date": "27/10",
