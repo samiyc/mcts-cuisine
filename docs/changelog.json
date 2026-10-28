@@ -65,6 +65,16 @@
   ],
   "versions": [
     {
+      "version": "0.32",
+      "title": "Le trajet direct pour tous",
+      "date": "28/10",
+      "items": [
+        "Que les cuisiniers se croisent ou non, un trajet suit d'abord les distances au sol, et A* ne sert que si une case du trajet est prise (Sami : d'accord pour le changement de modèle).",
+        "Les quatre règles, 50 services dans les neuf cuisines : les mêmes plats à temps au dixième près, en 19 s au lieu de 35 s. L'empreinte des règles change (à longueur égale, le chemin n'est pas toujours celui d'A*), les autres non."
+      ],
+      "commits": []
+    },
+    {
       "version": "0.31",
       "title": "Les cuisiniers se croisent",
       "date": "28/10",
@@ -74,7 +84,7 @@
         "Avec l'option, un trajet suit d'abord les distances au sol, sans A* : 2 services de la grande brigade avec tables passent de 55 s à 20 s, le grand détour de 19 s à 7,5 s, mêmes plats à temps. Le temps venait du nombre d'appels à A*, pas des collisions.",
         "Les mesures avec et sans l'option sont dans la file (tag croisement-2026-10-28)."
       ],
-      "commits": []
+      "commits": ["fec157f"]
     },
     {
       "version": "0.30",

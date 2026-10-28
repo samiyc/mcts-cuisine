@@ -654,9 +654,12 @@ taille ? À 1 m², deux cuisiniers sur une même case seraient-ils réalistes ?
 | grande brigade | 55 s | 20 s | 296 000 → 30 000 |
 | le grand détour | 19 s | 7,5 s | 167 000 → 8 400 |
 
-  Les plats à temps sont les mêmes que sans le trajet direct. Le même trajet direct sans l'option irait aussi 1,8 à
-  2,2 fois plus vite, mêmes plats à temps sur ces essais, mais il change l'empreinte des règles (à longueur égale, il
-  ne prend pas toujours le même chemin qu'A*) : à décider par Sami.
+  Les plats à temps sont les mêmes que sans le trajet direct.
+- **Le trajet direct pour tous** (Sami, 28/10 : d'accord pour le changement de modèle) : avec ou sans l'option, un
+  trajet suit d'abord les distances au sol, A* seulement si une case y est prise. À longueur égale, il ne prend pas
+  toujours le chemin d'A* : l'empreinte des règles change (`262c9a88…` → `f4c62a4f…`), les autres non. Avant et après,
+  les quatre règles, 50 services, « le plus urgent », dans les neuf cuisines : les plats à temps sont les mêmes au
+  dixième près partout (de 7,4 au couloir à 26,3 dans la grande brigade), et la mesure passe de 35 s à 19 s.
 - **Deux au plus par case** est demandé à mcts-commun (une capacité dans les réservations), par le tableau des
   sessions. Les mesures de l'option, avec et sans, sont dans la file (`essais-croisement.json`, tag
   `croisement-2026-10-28`) : on y regarde ce que le modèle perd de la congestion, au couloir et au détour.

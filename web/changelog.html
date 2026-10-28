@@ -34,6 +34,15 @@
         <h2>Les versions</h2>
 
       <article class="version">
+        <h3><span class="tag">0.32</span> Le trajet direct pour tous <span class="date">28/10</span></h3>
+        <ul>
+          <li>Que les cuisiniers se croisent ou non, un trajet suit d'abord les distances au sol, et A* ne sert que si une case du trajet est prise (Sami : d'accord pour le changement de modèle).</li>
+          <li>Les quatre règles, 50 services dans les neuf cuisines : les mêmes plats à temps au dixième près, en 19 s au lieu de 35 s. L'empreinte des règles change (à longueur égale, le chemin n'est pas toujours celui d'A*), les autres non.</li>
+        </ul>
+        <p class="commits"></p>
+      </article>
+
+      <article class="version">
         <h3><span class="tag">0.31</span> Les cuisiniers se croisent <span class="date">28/10</span></h3>
         <ul>
           <li>Une option « Les cuisiniers se croisent » (onglet Cuisine ; npm run compare -- --croisement), désactivée par défaut : plusieurs cuisiniers peuvent passer sur une même case d'allée, mais une case d'où l'on travaille une station reste à un seul.</li>
@@ -41,7 +50,7 @@
           <li>Avec l'option, un trajet suit d'abord les distances au sol, sans A* : 2 services de la grande brigade avec tables passent de 55 s à 20 s, le grand détour de 19 s à 7,5 s, mêmes plats à temps. Le temps venait du nombre d'appels à A*, pas des collisions.</li>
           <li>Les mesures avec et sans l'option sont dans la file (tag croisement-2026-10-28).</li>
         </ul>
-        <p class="commits"></p>
+        <p class="commits"><code>fec157f</code></p>
       </article>
 
       <article class="version">

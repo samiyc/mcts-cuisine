@@ -58,7 +58,8 @@ Ce qui l'a vérifié, en plus des empreintes :
   les anomalies ;
 - **la recherche** : un service de la petite cuisine à 16 itérations.
 
-Elles ont été prises avant de toucher au code (commit `4280b5d`), et aucune n'a changé depuis.
+Elles ont été prises avant de toucher au code (commit `4280b5d`). Le 28/10, l'empreinte des règles a changé exprès : un
+trajet suit d'abord les distances au sol, A* ensuite (`docs/metiers.md`, « Les cuisiniers se croisent »).
 
 Une refonte ne doit changer **aucune** empreinte. Un changement fait exprès pour modifier le modèle met à jour son
 hachage. Son commit le dit, avec les mesures avant et après. Une empreinte qui change sans qu'on l'ait voulu est un

@@ -14,7 +14,8 @@ import { measuresOf, runService } from "../src/simulate.js";
  * does updates its hash here, and its commit says so, with the measures before and after.
  */
 const EXPECTED = {
-  rules: "262c9a88240e739b",
+  // 28/10/2026 (Sami): a leg follows the floor's distances before A* (src/service-crossing.js, directPath).
+  rules: "f4c62a4ffd45ec59",
   variants: "803b7bbc28bc552c",
   replay: "165960bd12b38780",
   search: "976ec2207dff02a8",

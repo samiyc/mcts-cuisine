@@ -37,10 +37,11 @@ function nextStep(reservations, cell, distances, unit) {
 }
 
 /**
- * When the cooks cross (28/10/2026), a leg's path straight down the floor's distances to `target`, without A*: the
- * aisles are shared, so it is mostly free; null when a step is taken (a station's cell, a swap) or the target is not
- * free from the arrival on, and A* plans it then. Each A* call explored 9 to 15 cells, but a search made some 120 000 a
- * service: their fixed cost, not the collisions, was the time.
+ * A leg's path straight down the floor's distances to `target`, without A* (28/10/2026; every leg since Sami's
+ * choice of 28/10, the cooks crossing or not): null when a step is taken (a cook's cell, a station's, a swap) or the
+ * target is not free from the arrival on, and A* plans it then. Each A* call explored 9 to 15 cells, but a search made
+ * some 120 000 a service: their fixed cost, not the collisions, was the time. A shortest path like A*'s, but not always
+ * the same one where two are as short: the fingerprints of 28/10.
  */
 export function directPath({ kitchen, reservations }, cook, target, start) {
   const distances = distancesFrom(kitchen, target);
