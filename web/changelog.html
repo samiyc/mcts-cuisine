@@ -34,12 +34,21 @@
         <h2>Les versions</h2>
 
       <article class="version">
+        <h3><span class="tag">0.33</span> Le cuisinier enfermé ne cherche plus son chemin <span class="date">28/10</span></h3>
+        <ul>
+          <li>Un cuisinier au fond d'un cul-de-sac, un autre garé à sa sortie : il cherchait un chemin à chaque tour, et A* explorait jusqu'à son horizon avant d'abandonner. Quand le cuisinier ou sa cible est muré de tous côtés, la simulation conclut tout de suite qu'il n'y a pas de chemin. Les empreintes ne changent pas ; le couloir avec la recherche va près de 4 fois plus vite (11,6 s → 3,0 s sur 2 services).</li>
+          <li>Le hook de commit passe par les créneaux de la machine (4 fils) : il ne prend plus les fils de la file.</li>
+        </ul>
+        <p class="commits"></p>
+      </article>
+
+      <article class="version">
         <h3><span class="tag">0.32</span> Le trajet direct pour tous <span class="date">28/10</span></h3>
         <ul>
           <li>Que les cuisiniers se croisent ou non, un trajet suit d'abord les distances au sol, et A* ne sert que si une case du trajet est prise (Sami : d'accord pour le changement de modèle).</li>
           <li>Les quatre règles, 50 services dans les neuf cuisines : les mêmes plats à temps au dixième près, en 19 s au lieu de 35 s. L'empreinte des règles change (à longueur égale, le chemin n'est pas toujours celui d'A*), les autres non.</li>
         </ul>
-        <p class="commits"></p>
+        <p class="commits"><code>4edd196</code></p>
       </article>
 
       <article class="version">

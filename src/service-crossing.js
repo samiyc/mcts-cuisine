@@ -36,6 +36,27 @@ function nextStep(reservations, cell, distances, unit) {
   return null;
 }
 
+/** Is `cell` a wall for `unit` from step `t` on, for good: no floor, or another unit parked there by then? */
+function walled({ kitchen, reservations }, cell, unit, t) {
+  if (!kitchen.floor(kitchen.plan.at(cell.x, cell.y))) return true;
+  const stay = reservations.stayAt(cell.x, cell.y);
+  return Boolean(stay) && stay.unit !== unit && stay.from <= t;
+}
+
+/**
+ * Is `cell` shut in for `cook` from the next step on, every side a wall for good (28/10/2026, the corridor: a cook in a
+ * dead end, another parked at its mouth)? A cook shut in has no leg but to its own cell, a target shut in none but from
+ * it: A* found none either, but after exploring every wait up to its horizon (60 000 of the corridor's 82 000 calls in
+ * 2 services with the search, 55 cells each).
+ */
+const shut = (state, cell, cook, t) => STEPS.every(([dx, dy]) => walled(state, { x: cell.x + dx, y: cell.y + dy }, cook.id, t + 1));
+
+/** No leg from `cook` to `target` but A* would search in vain: one of them shut in, `cook` not on `target`. */
+export function shutOut(state, cook, target, t) {
+  if (cook.x === target.x && cook.y === target.y) return false;
+  return shut(state, cook, cook, t) || shut(state, target, cook, t);
+}
+
 /**
  * A leg's path straight down the floor's distances to `target`, without A* (28/10/2026; every leg since Sami's
  * choice of 28/10, the cooks crossing or not): null when a step is taken (a cook's cell, a station's, a swap) or the

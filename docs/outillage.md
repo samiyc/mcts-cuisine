@@ -79,7 +79,10 @@ faute : un `onTurn` par défaut typé sans ses arguments, et les moyennes d'un r
 
 `.githooks/pre-commit` lance le lint, les types et les tests, ces derniers en bref. Un échec arrête le commit : on
 corrige, on ne contourne pas le hook. `npm install` l'active par le script `prepare` (`git config core.hooksPath
-.githooks`). Il a été essayé sur un commit avec une variable inutilisée : le commit a été refusé.
+.githooks`). Il a été essayé sur un commit avec une variable inutilisée : le commit a été refusé. Depuis le 28/10, il
+passe par les créneaux de la machine (`npx mcts-backlog --slot 4`, la recommandation 9 de mcts-commun) : il attend
+que 4 des 18 fils soient libres, la file comprise, puis lance les tests 4 fichiers à la fois ; le code de sortie de la
+commande est rendu, un échec arrête toujours le commit.
 
 ## Les fichiers
 

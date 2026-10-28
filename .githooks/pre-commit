@@ -1,5 +1,6 @@
 #!/bin/sh
 # Before each commit (Sami, 26/10/2026): the lint, the types and the tests, as `npm run check`, the tests in short.
 # A failure stops the commit: fix it, never skip it. Enabled by `git config core.hooksPath .githooks`, which
-# `npm install` sets (the prepare script).
-npm run --silent lint && npm run --silent types && node --test --test-reporter=dot
+# `npm install` sets (the prepare script). In 4 of the machine's 18 threads (Sami, 28/10/2026: mcts-commun's slots,
+# its recommendation 9): it waits for them while the queue holds them, then the tests run 4 files at once.
+exec npx --no-install mcts-backlog --slot 4 -- "npm run --silent lint && npm run --silent types && node --test --test-reporter=dot --test-concurrency=4"
