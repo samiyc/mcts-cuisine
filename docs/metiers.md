@@ -670,7 +670,7 @@ taille ? À 1 m², deux cuisiniers sur une même case seraient-ils réalistes ?
   répètent pas d'un tour à l'autre, mais d'un monde de la recherche à l'autre.
 - **Deux au plus par case** est demandé à mcts-commun (une capacité dans les réservations), par le tableau des
   sessions. Les mesures de l'option, avec et sans, sont dans la file (`essais-croisement.json`, tag
-  `croisement-2026-10-28`) : on y regarde ce que le modèle perd de la congestion, au couloir et au détour.
+  `croisement-2026-10-28-p2`) : on y regarde ce que le modèle perd de la congestion, au couloir et au détour.
 
 [nkba]: https://www.jlconline.com/remodeling/guidlines-for-kitchen-island-functionality
 
@@ -690,6 +690,6 @@ taille ? À 1 m², deux cuisiniers sur une même case seraient-ils réalistes ?
     services pour conclure.
 - **`npm run compare -- --search --contre réglage=valeur`** joue une variante de la recherche à côté de celle par
   défaut, sur les mêmes services, et donne l'écart par paires (plats à temps, en retard, itérations, durée).
-- Dans la file : `essais-budget-grace.json`, tag `budget-grace-2026-10-28`, 28 mesures de 30 services (87 jobs une fois
+- Dans la file : `essais-budget-grace.json`, tag `budget-grace-2026-10-28-p2`, 28 mesures de 30 services (87 jobs une fois
   coupés) : le budget sur les neuf cuisines à la carte, trois tables, deux banquets et la livraison ; la note graduée
   sur cinq banquets, six banquets durs et deux tables.
