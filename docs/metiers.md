@@ -723,3 +723,8 @@ rapide au banc, avec les mêmes chemins. Mesuré sur 2 services de neuf réglage
 - Dans la file : `essais-budget-grace.json`, tag `budget-grace-2026-10-28-p2`, 28 mesures de 30 services (87 jobs une fois
   coupés) : le budget sur les neuf cuisines à la carte, trois tables, deux banquets et la livraison ; la note graduée
   sur cinq banquets, six banquets durs et deux tables.
+- **Le palier** (commun, 28/10 au soir ; `docs/mesures-palier-28-10.md`) : 256 itérations, 8 coups à la racine, la
+  profondeur 3, puis tout ensemble, contre les réglages par défaut sur 30 services de 13 réglages. Seul l'ensemble
+  (E) gagne un peu (+0,4 à +0,6 plat à la carte dans 4 cuisines, +3 aux tables de la grande brigade), pour 3,7 fois
+  le temps ; 256 itérations seules ne paient qu'aux tables de la grande brigade ; 8 coups à la racine et la profondeur
+  3 seules, rien.

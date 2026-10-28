@@ -96,5 +96,7 @@ Les oublis réglés quittent cette liste et vont dans [modele.md](../modele.md) 
   diffère de 192 itérations, puis les trois soupes de la table 3 arrivent au passe une à une, à plus de 10 tours
   d'écart : chacune y meurt, est refaite, et meurt encore, sept fois. 8 plats à temps au lieu de 19, 12 morts au
   passe au lieu de 0. Rien ne remet en phase une table dont un plat est déjà mort : les autres partent au passe dès
-  qu'ils sont prêts. Les paires du palier (`essais-palier.json`) diront ce que ça pèse sur 30 services ; une piste,
-  à décider avec Sami : ne pas envoyer au passe le plat d'une table qui ne pourra pas être complète avant qu'il meure.
+  qu'ils sont prêts. Sur les 30 services du palier (`docs/mesures-palier-28-10.md`), aux tables de la grande brigade :
+  11,7 plats meurent au passe par service avec la recherche (17,2 avec la règle de la table), 9,5 avec le palier E ; au
+  grand détour, 1,7. Une piste, à décider avec Sami : ne pas envoyer au passe le plat d'une table qui ne pourra pas
+  être complète avant qu'il meure.

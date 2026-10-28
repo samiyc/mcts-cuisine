@@ -79,6 +79,17 @@
   ],
   "versions": [
     {
+      "version": "0.39",
+      "title": "Le palier de la recherche, lu",
+      "date": "28/10",
+      "items": [
+        "Le palier lu sur 30 services de 13 cuisines : seul l'ensemble (256 itérations, 8 coups à la racine, 5 en dessous, la profondeur 3, l'élargissement) gagne un peu, +0,4 à +0,6 plat à la carte dans quatre cuisines et +3 aux tables de la grande brigade, pour 3,7 fois le temps.",
+        "256 itérations seules ne paient qu'aux tables de la grande brigade ; 8 coups à la racine ou la profondeur 3 seules ne changent rien. Les réglages par défaut ne bougent pas : à Sami de décider.",
+        "Les plats qui meurent au passe pèsent surtout aux tables de la grande brigade : 11,7 par service avec la recherche."
+      ],
+      "commits": []
+    },
+    {
       "version": "0.38",
       "title": "Le palier de la recherche, en file",
       "date": "28/10",
@@ -87,7 +98,10 @@
         "Dans la file (tag palier-2026-10-28) : 256 itérations, 8 coups à la racine, la profondeur 3, puis tout ensemble, chacun contre les réglages d'aujourd'hui sur les mêmes 30 services, dans treize cuisines.",
         "Vu en le préparant : une table dont les plats meurent au passe l'un après l'autre, refaits sept fois. Noté dans les oublis, à peser avec les mesures."
       ],
-      "commits": ["240879f", "24eadd0"]
+      "commits": [
+        "240879f",
+        "24eadd0"
+      ]
     },
     {
       "version": "0.37",
@@ -101,7 +115,9 @@
         "Les décisions de Sami : le budget reste à 64, la note graduée et le croisement restent désactivés (le croisement jusqu'à ce qu'un spécialiste dise la taille d'une case).",
         "Le détail : docs/mesures-28-10.md."
       ],
-      "commits": ["d2fadc9"]
+      "commits": [
+        "d2fadc9"
+      ]
     },
     {
       "version": "0.36",
@@ -113,7 +129,9 @@
         "Mesuré sans rien changer : le filtre du cuisinier enfermé rapporte encore (au couloir, sept fois moins de chemins cherchés en vain), il est gardé ; la copie des mondes de la recherche donne la même recherche mais plus lente, elle n'est pas prise.",
         "Node 24.22.1 sur la machine : tous les tests passent."
       ],
-      "commits": ["7226edd"]
+      "commits": [
+        "7226edd"
+      ]
     },
     {
       "version": "0.35",
@@ -125,7 +143,9 @@
         "Les tables de la grande brigade avec « le plus urgent » : 12,3 plats à temps pour la recherche, 6,7 pour la règle de la table. À 8 ingrédients, le stock décide de tout : environ 15 plats à temps quelle que soit la règle.",
         "docs/mesures-27-10.md est complet."
       ],
-      "commits": ["97b28bf"]
+      "commits": [
+        "97b28bf"
+      ]
     },
     {
       "version": "0.34",
@@ -136,7 +156,10 @@
         "Une note graduée pour la recherche (grace, désactivée par défaut) : un plat en retard compte encore, de moins en moins. Sur 2 services du banquet dur au grand détour : 12,5 plats à temps au lieu de 8,5. À confirmer.",
         "Dans la file (tag budget-grace-2026-10-28-p2) : 128 itérations contre 64 sur quinze cuisines et services, et la note graduée sur les banquets et deux tables."
       ],
-      "commits": ["725c783", "6d2f2a9"]
+      "commits": [
+        "725c783",
+        "6d2f2a9"
+      ]
     },
     {
       "version": "0.33",
@@ -146,7 +169,9 @@
         "Un cuisinier au fond d'un cul-de-sac, un autre garé à sa sortie : il cherchait un chemin à chaque tour, et A* explorait jusqu'à son horizon avant d'abandonner. Quand le cuisinier ou sa cible est muré de tous côtés, la simulation conclut tout de suite qu'il n'y a pas de chemin. Les empreintes ne changent pas ; le couloir avec la recherche va près de 4 fois plus vite (11,6 s → 3,0 s sur 2 services).",
         "Le hook de commit passe par les créneaux de la machine (4 fils) : il ne prend plus les fils de la file."
       ],
-      "commits": ["8e6dc96"]
+      "commits": [
+        "8e6dc96"
+      ]
     },
     {
       "version": "0.32",
@@ -156,7 +181,9 @@
         "Que les cuisiniers se croisent ou non, un trajet suit d'abord les distances au sol, et A* ne sert que si une case du trajet est prise (Sami : d'accord pour le changement de modèle).",
         "Les quatre règles, 50 services dans les neuf cuisines : les mêmes plats à temps au dixième près, en 19 s au lieu de 35 s. L'empreinte des règles change (à longueur égale, le chemin n'est pas toujours celui d'A*), les autres non."
       ],
-      "commits": ["4edd196"]
+      "commits": [
+        "4edd196"
+      ]
     },
     {
       "version": "0.31",
@@ -168,7 +195,9 @@
         "Avec l'option, un trajet suit d'abord les distances au sol, sans A* : 2 services de la grande brigade avec tables passent de 55 s à 20 s, le grand détour de 19 s à 7,5 s, mêmes plats à temps. Le temps venait du nombre d'appels à A*, pas des collisions.",
         "Les mesures avec et sans l'option sont dans la file (tag croisement-2026-10-28-p2)."
       ],
-      "commits": ["fec157f"]
+      "commits": [
+        "fec157f"
+      ]
     },
     {
       "version": "0.30",
@@ -179,7 +208,9 @@
         "Mêmes services au plat près, empreintes inchangées. Avec la recherche, sur 2 ou 3 services : la brigade avec tables, mise en place, hygiène, fatigue, pauses, erreurs, pannes et rupture passe de 73 s à 22 s ; le détour avec tables de 82 s à 40 s ; la dark kitchen de 39 s à 22 s ; le banquet de la petite cuisine de 50 s à 34 s.",
         "Le temps restant va surtout à A* (dans la bibliothèque commune) : la piste suivante est à voir avec elle."
       ],
-      "commits": ["f5cd9f8"]
+      "commits": [
+        "f5cd9f8"
+      ]
     },
     {
       "version": "0.29",
@@ -192,7 +223,9 @@
         "npx mcts-backlog et npx mcts-board marchent depuis la cuisine (npm install).",
         "28/10 : diagnose est corrigé dans la bibliothèque commune (la marge se mesure par paires). Le compte des codes dit aussi quelle part des décisions l'arrêt anticipé a tranchées ; une petite série de 10 services par cuisine est dans la file (tag diagnose-2026-10-28) pour la nouvelle répartition."
       ],
-      "commits": ["06f4d03"]
+      "commits": [
+        "06f4d03"
+      ]
     },
     {
       "version": "0.28",
