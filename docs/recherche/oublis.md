@@ -91,3 +91,10 @@ Les oublis réglés quittent cette liste et vont dans [modele.md](../modele.md) 
 - **A* qui cherchait jusqu'à son horizon** (27/10) : en couloir, un appel sur deux ne trouvait pas de chemin, la cible
   murée par un cuisinier garé. `mcts-commun` s'arrête maintenant dès qu'elle est hors d'atteinte : A* 14 fois plus
   rapide en couloir, deux fois au grand détour, les mêmes résultats.
+- **La table dont les plats meurent l'un après l'autre** (28/10, ouvert, vu à la main en préparant le palier) : un
+  service des tables de la grande brigade, la recherche à 224 itérations ou plus. Une seule décision du tour 45
+  diffère de 192 itérations, puis les trois soupes de la table 3 arrivent au passe une à une, à plus de 10 tours
+  d'écart : chacune y meurt, est refaite, et meurt encore, sept fois. 8 plats à temps au lieu de 19, 12 morts au
+  passe au lieu de 0. Rien ne remet en phase une table dont un plat est déjà mort : les autres partent au passe dès
+  qu'ils sont prêts. Les paires du palier (`essais-palier.json`) diront ce que ça pèse sur 30 services ; une piste,
+  à décider avec Sami : ne pas envoyer au passe le plat d'une table qui ne pourra pas être complète avant qu'il meure.
