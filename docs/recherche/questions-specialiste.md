@@ -21,7 +21,9 @@ qualité, hygiène (HACCP) ; **R** un intégrateur de robots de cuisine.
    modèle fait deux cases par tour (une case ≈ un pas). Une allée de cuisine professionnelle fait-elle 1 m à 1,2 m, comme le
    disent les repères domestiques (NKBA : 1,07 m pour un, 1,22 m pour deux qui se croisent) ? Deux cuisiniers s'y
    croisent-ils sans s'arrêter, ou l'un attend-il l'autre (« chaud derrière ») ? (28/10 : l'option « les cuisiniers se
-   croisent », docs/metiers.md.)
+   croisent », docs/metiers.md.) Sami (28/10) : l'option, deux cuisiniers par case d'allée, reste désactivée jusqu'à
+   cette réponse : réaliste si une case fait environ 1 m, pas si elle fait 0,75 m. L'activer change toutes les
+   empreintes, la référence serait alors refaite en une fois.
 3. **Combien de commandes par heure, et combien de temps un client attend son plat avant de s'impatienter ?** (C) Le
    modèle : une commande toutes les 9 tours environ (4,5 min) dans la petite cuisine, patience 60 tours (30 min).
 

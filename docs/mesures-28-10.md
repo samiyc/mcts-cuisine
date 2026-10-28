@@ -1,5 +1,15 @@
 # Les mesures de la file du 28/10
 
+**Les décisions de Sami (28/10, au soir)**, sur ces mesures :
+- **le budget reste à 64 itérations** ;
+- **la note graduée reste désactivée** (`grace: 0`), le code gardé ;
+- **le croisement reste désactivé** jusqu'à la réponse du spécialiste sur la taille d'une case (question 2 de
+  `docs/recherche/questions-specialiste.md`) ;
+- **pas de job pour confirmer le +2,2 des tables de la grande brigade à 128 itérations** : le gain semble faible, Sami
+  veut d'abord tester davantage les simulations lui-même ;
+- **`closeCall`** : d'accord pour la proposition de commun (un autre texte quand la décision est arrêtée tôt, un champ
+  `settled`), à faire dans la lib.
+
 La file de jour lancée par Sami le 28/10 à 18 h 31, après le passage de tous les projets à la lib du 28/10 (commun
 `684c3ad`, puis `6ad78f0`) et à Node 24.22.1 (`docs/metiers.md`, « La lib du 28/10 »). Les 130 jobs de cuisine ont
 fini vers 19 h 05, sans échec, sur le code de `1757299`. Trois fichiers, trois tags :

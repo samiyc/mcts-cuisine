@@ -678,7 +678,7 @@ taille ? À 1 m², deux cuisiniers sur une même case seraient-ils réalistes ?
   congestion, au couloir et au détour.
 - **Lu le 28/10 au soir** (`docs/mesures-28-10.md`) : sur 30 services, l'option change au plus un demi-plat (le
   couloir y gagne +0,3 à +0,6), ne fait gagner aucun temps, et le couloir et le détour restent les plus durs.
-  Elle reste désactivée par défaut ; la mettre par défaut, pour le réalisme, revient à Sami.
+  Elle reste désactivée par défaut (Sami, 28/10 au soir) jusqu'à la réponse du spécialiste sur la taille d'une case.
 
 ### La lib du 28/10 (commun `2f5554f`, `684c3ad`), sous Node 24
 
@@ -708,6 +708,7 @@ rapide au banc, avec les mêmes chemins. Mesuré sur 2 services de neuf réglage
   sur les mêmes services, est dans la file avant tout changement par défaut. Lu le 28/10 au soir
   (`docs/mesures-28-10.md`) : le double de temps, et rien de gagné, sauf peut-être les tables de la grande brigade
   (+2,2, l'intervalle touchant zéro). La note graduée n'aide pas, et met 2 à 4 plats de plus en retard avec des
+  tables. Sami (28/10 au soir) : le budget reste à 64, la note graduée désactivée, pas de mesure de plus pour les
   tables.
 - **La note graduée** (`grace`, `src/search.js`, 0 par défaut) : un plat servi en retard compte encore, de moins en moins,
   plus rien à `grace` tours de retard, au lieu de 0 dès le premier tour (la « récompense graduée » que conseille
