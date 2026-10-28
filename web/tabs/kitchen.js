@@ -86,12 +86,13 @@ function laterFields(setup) {
   ];
 }
 
-/** The limits of the human and the robots (26/10, the evening), each a box to tick. */
+/** The limits of the human and the robots (26/10, the evening), and the cooks crossing (28/10), each a box to tick. */
 const limitFields = (setup) => [
   check("fatigue", setup.fatigue, `La fatigue : après le tour ${FATIGUE.after}, les gestes du cuisinier simulé durent ${Math.round(100 * FATIGUE.slower)} % de plus`),
   check("pauses", setup.pauses, `Les pauses : ${PAUSES.count} pause de ${PAUSES.length} tours par service, il finit son plat d'abord`),
   check("errors", setup.errors, `Les erreurs : ${Math.round(100 * ERRORS.rate)} % de ses plats à refaire, ${Math.round(100 * ERRORS.tired)} % fatigué`),
   check("breakdowns", setup.breakdowns, `Les pannes : un robot s'arrête ${BREAKDOWNS.repair} tours, une fois tous les ${BREAKDOWNS.every} tours en moyenne`),
+  check("crossing", setup.crossing, "Les cuisiniers se croisent : plusieurs peuvent passer sur une même case d'allée ; une case d'où l'on travaille une station reste à un seul"),
 ];
 
 const fieldsOf = (setup) => el("div", { class: "fields" }, ...serviceFields(setup), ...optionFields(setup), ...limitFields(setup));
@@ -115,6 +116,7 @@ const OPTIONS = {
   pauses: () => PAUSES,
   errors: () => ERRORS,
   breakdowns: () => BREAKDOWNS,
+  crossing: () => true,
   hygiene: (_number, data) => ({ ...HYGIENE, every: Math.max(0, Number(data.get("boardEvery")) || 0) }),
 };
 

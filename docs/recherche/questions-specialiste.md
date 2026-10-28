@@ -18,7 +18,10 @@ qualité, hygiène (HACCP) ; **R** un intégrateur de robots de cuisine.
    couper un oignon 3 tours (1 min 30), des tomates 4 (2 min), cuire une soupe 8 (4 min), servir 1. Pèse sur tout : la
    part de la marche et du travail, la place des robots.
 2. **Combien de pas entre les postes, et à quelle vitesse marche-t-on en cuisine pendant le coup de feu ?** (C) Le
-   modèle fait deux cases par tour (une case ≈ un pas).
+   modèle fait deux cases par tour (une case ≈ un pas). Une allée de cuisine professionnelle fait-elle 1 m à 1,2 m, comme le
+   disent les repères domestiques (NKBA : 1,07 m pour un, 1,22 m pour deux qui se croisent) ? Deux cuisiniers s'y
+   croisent-ils sans s'arrêter, ou l'un attend-il l'autre (« chaud derrière ») ? (28/10 : l'option « les cuisiniers se
+   croisent », docs/metiers.md.)
 3. **Combien de commandes par heure, et combien de temps un client attend son plat avant de s'impatienter ?** (C) Le
    modèle : une commande toutes les 9 tours environ (4,5 min) dans la petite cuisine, patience 60 tours (30 min).
 

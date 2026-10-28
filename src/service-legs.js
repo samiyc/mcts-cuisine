@@ -3,6 +3,7 @@ import { distancesFrom } from "./kitchen.js";
 import { FREE, isWorkStation, keyOf, standsOn } from "./service-basics.js";
 import { boardCleaning, useBoard } from "./service-hygiene.js";
 import { slower } from "./service-human.js";
+import { directPath } from "./service-crossing.js";
 
 /**
  * The cooks' legs (split from simulate.js, 26/10/2026): the paths reserved in space and time, the station each step
@@ -21,7 +22,8 @@ export const stepAt = (state, t = state.t) => t * paceOf(state);
 
 /** Plans `cook`'s leg to `target` and reserves it, its last cell kept; false when no path is found. */
 export function planLeg(state, cook, target) {
-  const path = astar(state.kitchen.plan, cook, target, { passable: state.kitchen.floor, reservations: state.reservations, unit: cook.id, start: stepAt(state), horizon: LEG_HORIZON * paceOf(state), park: true });
+  // When the cooks cross, a free path straight down the distances first (service-crossing.js).
+  const path = (state.setup.crossing && directPath(state, cook, target, stepAt(state))) || astar(state.kitchen.plan, cook, target, { passable: state.kitchen.floor, reservations: state.reservations, unit: cook.id, start: stepAt(state), horizon: LEG_HORIZON * paceOf(state), park: true });
   if (!path) return false;
   state.reservations.release(cook.id);
   state.reservations.reserve(cook.id, path, { stay: true });

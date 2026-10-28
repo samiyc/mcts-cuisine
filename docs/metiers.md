@@ -628,3 +628,37 @@ brûlées sur les 9 services) :
 - Reste, vu au passage : avec la règle du plat le plus rapide, les trois comptoirs de la cuisine coupée peuvent se
   remplir d'oignons coupés pendant que les autres enchaînent les salades ; le robot des planches attend alors qu'un
   comptoir se libère (45 tours au service 8). Ce n'est pas un blocage, c'est la règle ; la recherche les cuit.
+
+## Les cuisiniers se croisent (28/10, Sami)
+
+Sami : gagnerait-on du temps sans les collisions entre cuisiniers, une station restant à un seul ? Une case, quelle
+taille ? À 1 m², deux cuisiniers sur une même case seraient-ils réalistes ?
+
+- **La taille d'une case** : le modèle dit « une case ≈ un pas » (0,75 m environ), sans source (question 2 au
+  spécialiste). Les repères publiés sont ceux de la NKBA, l'association américaine des cuisinistes, pour des cuisines
+  domestiques : 42 pouces (1,07 m) d'allée pour un cuisinier, 48 pouces (1,22 m) quand deux s'y croisent
+  ([JLC][nkba]). Deux personnes qui se croisent de profil sur une case d'un mètre, oui ; deux qui y restent ou y
+  travaillent, non.
+- **L'option `setup.crossing`** (« Les cuisiniers se croisent » dans l'onglet Cuisine, `npm run compare --
+  --croisement`), désactivée par défaut, `src/service-crossing.js` : les cases d'allée sont partagées (`shared` des
+  réservations de mcts-commun), celles d'où l'on travaille une station restent à un seul, la station à celui qui la
+  prend (et la place cédée au plus proche, `claimFromAfar`, 23/10). Deux cuisiniers ne se croisent pas de face d'un
+  pas à l'autre : l'un attend un pas sur la case de l'autre, puis ils passent.
+- **Où partait le temps** : sans l'option, 2 services de la grande brigade avec tables font 244 000 appels à A*, de 9
+  à 15 cases explorées chacun. C'est leur coût fixe qui pèse, pas les collisions : avec l'option seule, autant d'appels
+  et le même temps. Avec l'option, un trajet suit donc d'abord les distances au sol déjà gardées (`directPath`), et
+  A* ne sert que si une case y est prise :
+
+| 2 services, tables, la plus rapide et la recherche | sans l'option | avec | appels à A* |
+|---|---|---|---|
+| grande brigade | 55 s | 20 s | 296 000 → 30 000 |
+| le grand détour | 19 s | 7,5 s | 167 000 → 8 400 |
+
+  Les plats à temps sont les mêmes que sans le trajet direct. Le même trajet direct sans l'option irait aussi 1,8 à
+  2,2 fois plus vite, mêmes plats à temps sur ces essais, mais il change l'empreinte des règles (à longueur égale, il
+  ne prend pas toujours le même chemin qu'A*) : à décider par Sami.
+- **Deux au plus par case** est demandé à mcts-commun (une capacité dans les réservations), par le tableau des
+  sessions. Les mesures de l'option, avec et sans, sont dans la file (`essais-croisement.json`, tag
+  `croisement-2026-10-28`) : on y regarde ce que le modèle perd de la congestion, au couloir et au détour.
+
+[nkba]: https://www.jlconline.com/remodeling/guidlines-for-kitchen-island-functionality

@@ -13,7 +13,7 @@ commande, `npm run check`, que le hook relance avant chaque commit.
 | `npm run lint` (`lint:fix`) | eslint, avec le budget de complexité de lopin |
 | `npm run types` | tsc vérifie le JavaScript d'après ses commentaires JSDoc, sans rien compiler |
 | `npm test` (`test:coverage`) | les tests de `node --test`, dont les empreintes et la longueur des `.md` |
-| `npm run compare` | les règles (et `--search`, la recherche) sur les mêmes services |
+| `npm run compare` | les règles (et `--search`, la recherche) sur les mêmes services ; `--croisement` : les cuisiniers se croisent dans les allées |
 | `npm run bench` | `scripts/search-bench.js` : la recherche contre les règles, par paires (`--diagnose` : les codes de `diagnose` à chaque décision) |
 | `npm run replay -- fichier.json` | rejoue un service du chef au clavier, dit ce qui a semblé anormal (`--gaps` : les écarts) |
 | `npm run changelog` | refait `web/changelog.html` à partir de `docs/changelog.json` |

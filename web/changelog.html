@@ -34,13 +34,24 @@
         <h2>Les versions</h2>
 
       <article class="version">
+        <h3><span class="tag">0.31</span> Les cuisiniers se croisent <span class="date">28/10</span></h3>
+        <ul>
+          <li>Une option « Les cuisiniers se croisent » (onglet Cuisine ; npm run compare -- --croisement), désactivée par défaut : plusieurs cuisiniers peuvent passer sur une même case d'allée, mais une case d'où l'on travaille une station reste à un seul.</li>
+          <li>Une case ≈ un pas : les repères publiés donnent 1,07 m d'allée pour un cuisinier et 1,22 m pour deux qui se croisent ; la question va au spécialiste. Deux au plus par case est demandé à la bibliothèque commune.</li>
+          <li>Avec l'option, un trajet suit d'abord les distances au sol, sans A* : 2 services de la grande brigade avec tables passent de 55 s à 20 s, le grand détour de 19 s à 7,5 s, mêmes plats à temps. Le temps venait du nombre d'appels à A*, pas des collisions.</li>
+          <li>Les mesures avec et sans l'option sont dans la file (tag croisement-2026-10-28).</li>
+        </ul>
+        <p class="commits"></p>
+      </article>
+
+      <article class="version">
         <h3><span class="tag">0.30</span> La recherche deux à trois fois plus rapide <span class="date">28/10</span></h3>
         <ul>
           <li>Les distances au sol d'une case sont calculées une fois par cuisine, puis gardées : le sol ne change pas pendant un service, et la recherche les redemandait sans cesse (près de la moitié de son temps dans la grande brigade avec toutes les options).</li>
           <li>Mêmes services au plat près, empreintes inchangées. Avec la recherche, sur 2 ou 3 services : la brigade avec tables, mise en place, hygiène, fatigue, pauses, erreurs, pannes et rupture passe de 73 s à 22 s ; le détour avec tables de 82 s à 40 s ; la dark kitchen de 39 s à 22 s ; le banquet de la petite cuisine de 50 s à 34 s.</li>
           <li>Le temps restant va surtout à A* (dans la bibliothèque commune) : la piste suivante est à voir avec elle.</li>
         </ul>
-        <p class="commits"></p>
+        <p class="commits"><code>f5cd9f8</code></p>
       </article>
 
       <article class="version">

@@ -1,0 +1,149 @@
+{
+  "about": "Les cuisiniers se croisent (Sami, 28/10) : les règles et la recherche avec et sans l'option --croisement, sur les mêmes 30 services avec « le plus urgent », dans les neuf cuisines à la carte et les tables du couloir, du détour et de la grande brigade : ce que le modèle perd de la congestion, et le temps gagné. Estimations : les durées des essais du 27/10 pour une recherche, sans le cache des distances (prudentes) ; avec l'option, 60 % de cela. Ajout : npx mcts-backlog --add-file essais-croisement.tranches.json --tag croisement-2026-10-28.",
+  "jobs": [
+    {
+      "id": "cuis-carte-petite-urgent",
+      "command": "npm run compare -- --kitchen petite --services 30 --search --humain urgent",
+      "estimate": "3 min",
+      "priority": 1
+    },
+    {
+      "id": "cuis-carte-petite-urgent-croisement",
+      "command": "npm run compare -- --kitchen petite --services 30 --search --humain urgent --croisement",
+      "estimate": "2 min",
+      "priority": 1
+    },
+    {
+      "id": "cuis-carte-couloir-urgent",
+      "command": "npm run compare -- --kitchen couloir --services 30 --search --humain urgent",
+      "estimate": "15 min",
+      "priority": 1
+    },
+    {
+      "id": "cuis-carte-couloir-urgent-croisement",
+      "command": "npm run compare -- --kitchen couloir --services 30 --search --humain urgent --croisement",
+      "estimate": "9 min",
+      "priority": 1
+    },
+    {
+      "id": "cuis-carte-brigade-urgent",
+      "command": "npm run compare -- --kitchen brigade --services 30 --search --humain urgent",
+      "estimate": "13 min",
+      "priority": 1
+    },
+    {
+      "id": "cuis-carte-brigade-urgent-croisement",
+      "command": "npm run compare -- --kitchen brigade --services 30 --search --humain urgent --croisement",
+      "estimate": "8 min",
+      "priority": 1
+    },
+    {
+      "id": "cuis-carte-comptoirs-urgent",
+      "command": "npm run compare -- --kitchen comptoirs --services 30 --search --humain urgent",
+      "estimate": "3 min",
+      "priority": 1
+    },
+    {
+      "id": "cuis-carte-comptoirs-urgent-croisement",
+      "command": "npm run compare -- --kitchen comptoirs --services 30 --search --humain urgent --croisement",
+      "estimate": "2 min",
+      "priority": 1
+    },
+    {
+      "id": "cuis-carte-postes-urgent",
+      "command": "npm run compare -- --kitchen postes --services 30 --search --humain urgent",
+      "estimate": "3 min",
+      "priority": 1
+    },
+    {
+      "id": "cuis-carte-postes-urgent-croisement",
+      "command": "npm run compare -- --kitchen postes --services 30 --search --humain urgent --croisement",
+      "estimate": "2 min",
+      "priority": 1
+    },
+    {
+      "id": "cuis-carte-separee-urgent",
+      "command": "npm run compare -- --kitchen separee --services 30 --search --humain urgent",
+      "estimate": "3 min",
+      "priority": 1
+    },
+    {
+      "id": "cuis-carte-separee-urgent-croisement",
+      "command": "npm run compare -- --kitchen separee --services 30 --search --humain urgent --croisement",
+      "estimate": "2 min",
+      "priority": 1
+    },
+    {
+      "id": "cuis-carte-detour-urgent",
+      "command": "npm run compare -- --kitchen detour --services 30 --search --humain urgent",
+      "estimate": "3 min",
+      "priority": 1
+    },
+    {
+      "id": "cuis-carte-detour-urgent-croisement",
+      "command": "npm run compare -- --kitchen detour --services 30 --search --humain urgent --croisement",
+      "estimate": "2 min",
+      "priority": 1
+    },
+    {
+      "id": "cuis-carte-dark-urgent",
+      "command": "npm run compare -- --kitchen dark --services 30 --search --humain urgent",
+      "estimate": "8 min",
+      "priority": 1
+    },
+    {
+      "id": "cuis-carte-dark-urgent-croisement",
+      "command": "npm run compare -- --kitchen dark --services 30 --search --humain urgent --croisement",
+      "estimate": "5 min",
+      "priority": 1
+    },
+    {
+      "id": "cuis-carte-plonge-urgent",
+      "command": "npm run compare -- --kitchen plonge --services 30 --search --humain urgent",
+      "estimate": "13 min",
+      "priority": 1
+    },
+    {
+      "id": "cuis-carte-plonge-urgent-croisement",
+      "command": "npm run compare -- --kitchen plonge --services 30 --search --humain urgent --croisement",
+      "estimate": "8 min",
+      "priority": 1
+    },
+    {
+      "id": "cuis-tables-couloir-urgent",
+      "command": "npm run compare -- --kitchen couloir --tables --services 30 --search --humain urgent",
+      "estimate": "5 min",
+      "priority": 1
+    },
+    {
+      "id": "cuis-tables-couloir-urgent-croisement",
+      "command": "npm run compare -- --kitchen couloir --tables --services 30 --search --humain urgent --croisement",
+      "estimate": "3 min",
+      "priority": 1
+    },
+    {
+      "id": "cuis-tables-detour-urgent",
+      "command": "npm run compare -- --kitchen detour --tables --services 30 --search --humain urgent",
+      "estimate": "25 min",
+      "priority": 1
+    },
+    {
+      "id": "cuis-tables-detour-urgent-croisement",
+      "command": "npm run compare -- --kitchen detour --tables --services 30 --search --humain urgent --croisement",
+      "estimate": "15 min",
+      "priority": 1
+    },
+    {
+      "id": "cuis-tables-brigade-urgent",
+      "command": "npm run compare -- --kitchen brigade --tables --services 30 --search --humain urgent",
+      "estimate": "48 min",
+      "priority": 1
+    },
+    {
+      "id": "cuis-tables-brigade-urgent-croisement",
+      "command": "npm run compare -- --kitchen brigade --tables --services 30 --search --humain urgent --croisement",
+      "estimate": "29 min",
+      "priority": 1
+    }
+  ]
+}
