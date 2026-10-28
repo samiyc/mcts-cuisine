@@ -1,4 +1,4 @@
-import { parsePlan } from "mcts-commun/grid.js";
+import { createDistances, parsePlan } from "mcts-commun/grid.js";
 
 /**
  * A kitchen read from its plan (kitchens.js): the floor, each station (crate, board, stove, pass) with the
@@ -49,6 +49,16 @@ export function distancesFrom(kitchen, from) {
   const at = `${from.x},${from.y}`;
   if (!known.has(at)) known.set(at, floorDistances(kitchen, from));
   return known.get(at);
+}
+
+/**
+ * The floor's distances to each target as mcts-commun keeps them (`createDistances`), one per kitchen: A* follows them
+ * down when a leg's way is free (`direct`, 28/10/2026: the kitchen's own direct path, taken into the library).
+ */
+const WAYS = new WeakMap();
+export function floorWays(kitchen) {
+  if (!WAYS.has(kitchen)) WAYS.set(kitchen, createDistances(kitchen.plan, kitchen.floor));
+  return WAYS.get(kitchen);
 }
 
 function floorDistances(kitchen, from) {

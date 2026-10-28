@@ -17,7 +17,7 @@ import { deliveryOrders } from "./service-delivery.js";
 import { refuseIfOut } from "./service-supply.js";
 import { drawTables, watchPass } from "./service-tables.js";
 import { adoptStock, finishWork, watchPots } from "./service-work.js";
-import { sharedCells } from "./service-crossing.js";
+import { reservationsOf } from "./service-crossing.js";
 
 /** @typedef {import("./types.js").Measures} Measures */
 /** @typedef {import("./types.js").Rule} Rule */
@@ -122,8 +122,8 @@ export function createService(setup, orders, { human = "urgent", seed = 1, manua
   const cook = (id, kind, at, role = null) => ({ id, kind, role, x: at.x, y: at.y, home: at, order: null, steps: null, step: 0, phase: "idle", station: null, target: null, path: null, until: null, moves: 0, waits: 0, stalled: 0 });
   const cooks = kitchen.robots.map((at, i) => cook(i + 1, "robot", at, setup.roles?.[i] || null));
   if (human || manual) cooks.push({ ...cook(cooks.length + 1, "human", kitchen.human), manual });
-  // With `setup.crossing`, the aisles shared and the stations' cells kept one cook's (service-crossing.js).
-  const reservations = createReservations({ shared: sharedCells(kitchen, setup) });
+  // With `setup.crossing`, two cooks to an aisle's cell and the stations' cells kept one cook's (service-crossing.js).
+  const reservations = createReservations(reservationsOf(kitchen, setup));
   // Every cook holds its place from the start: nobody plans through a cook standing still.
   for (const one of cooks) reservations.reserve(one.id, [{ x: one.x, y: one.y, t: 0 }], { stay: true });
   return { kitchen, setup, human, rng: createRng(seed + 7_919), t: 0, cooks, upcoming: orders.map((order) => ({ ...order, status: "upcoming", cook: null, servedAt: null })), claims: new Map(), shelf: new Map(), pots: new Map(), dirty: new Set(), burnt: 0, reservations, log: [], cursor: null, tally: createTally(), supply: supplyOf(setup), plates: platesOf(setup), boards: boardsOf(setup), person: personOf(setup, seed), breakdowns: breakdownsOf(setup, cooks, seed) };
