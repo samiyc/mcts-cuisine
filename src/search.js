@@ -28,7 +28,7 @@ import { advance, choose, cloneService } from "./simulate.js";
  * default; Sami, 28/10/2026, to try: the banquet's scores were flat in 45 % of its decisions), a dish served late still
  * counts, less and less, nothing once `grace` turns late: a graded reward rather than 1 or 0 (mcts-commun's `flatScore`).
  */
-export const SEARCH_SETTINGS = Object.freeze({ budget: 64, depth: 2, explore: 0.3, width: 4, spread: 3, horizon: 60, seed: 1, earlyStop: true, grace: 0 });
+export const SEARCH_SETTINGS = Object.freeze({ budget: 64, depth: 2, explore: 0.3, width: 4, rootWidth: 0, widening: 0, spread: 3, horizon: 60, seed: 1, earlyStop: true, grace: 0 });
 
 /**
  * The orders still to come, drawn again from turn `t` at the service's pace (setup's `every`), ids after those `come`;
@@ -140,12 +140,13 @@ function shortlistOf(world, moves, width) {
   return [...new Map(ranked.map((move) => [move.key, move])).values()].slice(0, width);
 }
 
-function problemFor(base, { width, spread, horizon, human, grace }) {
+function problemFor(base, { width, rootWidth, spread, horizon, human, grace }) {
   return {
     sample: (state, rng) => drawWorld(state, rng, horizon, human),
     actor: () => "robots",
     moves: movesOf,
-    shortlist: (world, moves) => shortlistOf(world, moves, width),
+    // `rootWidth` moves at the root when set, `width` below (mcts-commun's `{ root }`, 28/10/2026: lopin keeps 8 and 7).
+    shortlist: (world, moves, where) => shortlistOf(world, moves, where?.root && rootWidth ? rootWidth : width),
     key: (move) => move.key,
     play(world, move) {
       choose(world, world.choice, move.id);
@@ -175,14 +176,18 @@ function baseOf(state, rng, { horizon, human, grace }, runs = 4) {
  * randomness being seeded from its turn and robot, with 23 % less search time (docs/mesures-27-10.md); the
  * fingerprints did not move. `onResult(found, depth)` is told every search's result, for the benches to count what it
  * saw (`diagnose`); it changes nothing.
+ *
+ * The step up to measure (Sami, 28/10/2026: the settings very low against lopin's 2 000 iterations, depth 5, 8 moves):
+ * `rootWidth` moves at the root when not 0 (`width` below), and `widening`, mcts-commun's progressive widening below
+ * the root; both off by default, nothing changed.
  */
 export function searchRule(options = {}) {
-  const { budget, depth, explore, width, spread, horizon, seed, earlyStop, grace, human = null, onResult = null } = { ...SEARCH_SETTINGS, ...options };
+  const { budget, depth, explore, width, rootWidth, widening, spread, horizon, seed, earlyStop, grace, human = null, onResult = null } = { ...SEARCH_SETTINGS, ...options };
   return (open, { state }) => {
     if (open.length === 1 && !mayHold(state.setup)) return open[0];
     const robot = state.cooks[state.cursor];
     const rng = createRng((Math.imul(seed, 0x9e3779b1) + state.t * 131 + robot.id * 7 + open.length) >>> 0);
-    const found = search(state, problemFor(baseOf(state, rng, { horizon, human, grace }), { width, spread, horizon, human, grace }), { budget, rng, depth, explore, common: true, earlyStop });
+    const found = search(state, problemFor(baseOf(state, rng, { horizon, human, grace }), { width, rootWidth, spread, horizon, human, grace }), { budget, rng, depth, explore, common: true, earlyStop, widening });
     onResult?.(found, depth);
     if (found.move && found.move.order === null) return undefined;
     return open.find((order) => order.id === found.move?.id) ?? RULES.quickest(open);

@@ -1,0 +1,317 @@
+{
+  "about": "Le palier de réglages de la recherche (Sami, 28/10 : « les valeurs sont très basses en comparaison de lopin ; trouver les bons réglages pour un palier raisonnable », mcts-commun/docs/reglages.md) : quatre variantes contre les réglages d'aujourd'hui (A : 64 itérations, profondeur 2, 4 coups), par paires sur les mêmes 30 services avec « le plus urgent » : B budget ×4 (256) ; C 8 coups à la racine ; D profondeur 3 et budget ×2 ; E tout ensemble (256, 8 à la racine, 5 plus bas, profondeur 3, élargissement 1). Neuf cuisines à la carte, deux tables, deux banquets. Estimations : le temps de la recherche à 64 itérations dans la file du 28/10, fois ce que coûte chaque variante (l'essai d'un service des tables de la grande brigade), avec 30 % de marge : 816 min sur un fil en tout, environ 45 min de la machine entière. Ajout : npm run tranches -- essais-palier.json, puis npx mcts-backlog --add-file essais-palier.tranches.json --tag palier-2026-10-28.",
+  "jobs": [
+    {
+      "id": "cuis-carte-petite-urgent-palierB",
+      "command": "npm run compare -- --kitchen petite --services 30 --search --humain urgent --contre budget=256",
+      "estimate": "2 min",
+      "priority": 2
+    },
+    {
+      "id": "cuis-carte-petite-urgent-palierC",
+      "command": "npm run compare -- --kitchen petite --services 30 --search --humain urgent --contre rootWidth=8",
+      "estimate": "2 min",
+      "priority": 2
+    },
+    {
+      "id": "cuis-carte-petite-urgent-palierD",
+      "command": "npm run compare -- --kitchen petite --services 30 --search --humain urgent --contre depth=3,budget=128",
+      "estimate": "2 min",
+      "priority": 2
+    },
+    {
+      "id": "cuis-carte-petite-urgent-palierE",
+      "command": "npm run compare -- --kitchen petite --services 30 --search --humain urgent --contre budget=256,rootWidth=8,width=5,depth=3,widening=1",
+      "estimate": "2 min",
+      "priority": 2
+    },
+    {
+      "id": "cuis-carte-couloir-urgent-palierB",
+      "command": "npm run compare -- --kitchen couloir --services 30 --search --humain urgent --contre budget=256",
+      "estimate": "3 min",
+      "priority": 2
+    },
+    {
+      "id": "cuis-carte-couloir-urgent-palierC",
+      "command": "npm run compare -- --kitchen couloir --services 30 --search --humain urgent --contre rootWidth=8",
+      "estimate": "2 min",
+      "priority": 2
+    },
+    {
+      "id": "cuis-carte-couloir-urgent-palierD",
+      "command": "npm run compare -- --kitchen couloir --services 30 --search --humain urgent --contre depth=3,budget=128",
+      "estimate": "2 min",
+      "priority": 2
+    },
+    {
+      "id": "cuis-carte-couloir-urgent-palierE",
+      "command": "npm run compare -- --kitchen couloir --services 30 --search --humain urgent --contre budget=256,rootWidth=8,width=5,depth=3,widening=1",
+      "estimate": "3 min",
+      "priority": 2
+    },
+    {
+      "id": "cuis-carte-brigade-urgent-palierB",
+      "command": "npm run compare -- --kitchen brigade --services 30 --search --humain urgent --contre budget=256",
+      "estimate": "16 min",
+      "priority": 2
+    },
+    {
+      "id": "cuis-carte-brigade-urgent-palierC",
+      "command": "npm run compare -- --kitchen brigade --services 30 --search --humain urgent --contre rootWidth=8",
+      "estimate": "7 min",
+      "priority": 2
+    },
+    {
+      "id": "cuis-carte-brigade-urgent-palierD",
+      "command": "npm run compare -- --kitchen brigade --services 30 --search --humain urgent --contre depth=3,budget=128",
+      "estimate": "10 min",
+      "priority": 2
+    },
+    {
+      "id": "cuis-carte-brigade-urgent-palierE",
+      "command": "npm run compare -- --kitchen brigade --services 30 --search --humain urgent --contre budget=256,rootWidth=8,width=5,depth=3,widening=1",
+      "estimate": "17 min",
+      "priority": 2
+    },
+    {
+      "id": "cuis-carte-comptoirs-urgent-palierB",
+      "command": "npm run compare -- --kitchen comptoirs --services 30 --search --humain urgent --contre budget=256",
+      "estimate": "3 min",
+      "priority": 2
+    },
+    {
+      "id": "cuis-carte-comptoirs-urgent-palierC",
+      "command": "npm run compare -- --kitchen comptoirs --services 30 --search --humain urgent --contre rootWidth=8",
+      "estimate": "2 min",
+      "priority": 2
+    },
+    {
+      "id": "cuis-carte-comptoirs-urgent-palierD",
+      "command": "npm run compare -- --kitchen comptoirs --services 30 --search --humain urgent --contre depth=3,budget=128",
+      "estimate": "2 min",
+      "priority": 2
+    },
+    {
+      "id": "cuis-carte-comptoirs-urgent-palierE",
+      "command": "npm run compare -- --kitchen comptoirs --services 30 --search --humain urgent --contre budget=256,rootWidth=8,width=5,depth=3,widening=1",
+      "estimate": "3 min",
+      "priority": 2
+    },
+    {
+      "id": "cuis-carte-postes-urgent-palierB",
+      "command": "npm run compare -- --kitchen postes --services 30 --search --humain urgent --contre budget=256",
+      "estimate": "3 min",
+      "priority": 2
+    },
+    {
+      "id": "cuis-carte-postes-urgent-palierC",
+      "command": "npm run compare -- --kitchen postes --services 30 --search --humain urgent --contre rootWidth=8",
+      "estimate": "2 min",
+      "priority": 2
+    },
+    {
+      "id": "cuis-carte-postes-urgent-palierD",
+      "command": "npm run compare -- --kitchen postes --services 30 --search --humain urgent --contre depth=3,budget=128",
+      "estimate": "2 min",
+      "priority": 2
+    },
+    {
+      "id": "cuis-carte-postes-urgent-palierE",
+      "command": "npm run compare -- --kitchen postes --services 30 --search --humain urgent --contre budget=256,rootWidth=8,width=5,depth=3,widening=1",
+      "estimate": "3 min",
+      "priority": 2
+    },
+    {
+      "id": "cuis-carte-separee-urgent-palierB",
+      "command": "npm run compare -- --kitchen separee --services 30 --search --humain urgent --contre budget=256",
+      "estimate": "5 min",
+      "priority": 2
+    },
+    {
+      "id": "cuis-carte-separee-urgent-palierC",
+      "command": "npm run compare -- --kitchen separee --services 30 --search --humain urgent --contre rootWidth=8",
+      "estimate": "3 min",
+      "priority": 2
+    },
+    {
+      "id": "cuis-carte-separee-urgent-palierD",
+      "command": "npm run compare -- --kitchen separee --services 30 --search --humain urgent --contre depth=3,budget=128",
+      "estimate": "4 min",
+      "priority": 2
+    },
+    {
+      "id": "cuis-carte-separee-urgent-palierE",
+      "command": "npm run compare -- --kitchen separee --services 30 --search --humain urgent --contre budget=256,rootWidth=8,width=5,depth=3,widening=1",
+      "estimate": "6 min",
+      "priority": 2
+    },
+    {
+      "id": "cuis-carte-detour-urgent-palierB",
+      "command": "npm run compare -- --kitchen detour --services 30 --search --humain urgent --contre budget=256",
+      "estimate": "4 min",
+      "priority": 2
+    },
+    {
+      "id": "cuis-carte-detour-urgent-palierC",
+      "command": "npm run compare -- --kitchen detour --services 30 --search --humain urgent --contre rootWidth=8",
+      "estimate": "2 min",
+      "priority": 2
+    },
+    {
+      "id": "cuis-carte-detour-urgent-palierD",
+      "command": "npm run compare -- --kitchen detour --services 30 --search --humain urgent --contre depth=3,budget=128",
+      "estimate": "3 min",
+      "priority": 2
+    },
+    {
+      "id": "cuis-carte-detour-urgent-palierE",
+      "command": "npm run compare -- --kitchen detour --services 30 --search --humain urgent --contre budget=256,rootWidth=8,width=5,depth=3,widening=1",
+      "estimate": "4 min",
+      "priority": 2
+    },
+    {
+      "id": "cuis-carte-dark-urgent-palierB",
+      "command": "npm run compare -- --kitchen dark --services 30 --search --humain urgent --contre budget=256",
+      "estimate": "9 min",
+      "priority": 2
+    },
+    {
+      "id": "cuis-carte-dark-urgent-palierC",
+      "command": "npm run compare -- --kitchen dark --services 30 --search --humain urgent --contre rootWidth=8",
+      "estimate": "5 min",
+      "priority": 2
+    },
+    {
+      "id": "cuis-carte-dark-urgent-palierD",
+      "command": "npm run compare -- --kitchen dark --services 30 --search --humain urgent --contre depth=3,budget=128",
+      "estimate": "6 min",
+      "priority": 2
+    },
+    {
+      "id": "cuis-carte-dark-urgent-palierE",
+      "command": "npm run compare -- --kitchen dark --services 30 --search --humain urgent --contre budget=256,rootWidth=8,width=5,depth=3,widening=1",
+      "estimate": "10 min",
+      "priority": 2
+    },
+    {
+      "id": "cuis-carte-plonge-urgent-palierB",
+      "command": "npm run compare -- --kitchen plonge --services 30 --search --humain urgent --contre budget=256",
+      "estimate": "14 min",
+      "priority": 2
+    },
+    {
+      "id": "cuis-carte-plonge-urgent-palierC",
+      "command": "npm run compare -- --kitchen plonge --services 30 --search --humain urgent --contre rootWidth=8",
+      "estimate": "7 min",
+      "priority": 2
+    },
+    {
+      "id": "cuis-carte-plonge-urgent-palierD",
+      "command": "npm run compare -- --kitchen plonge --services 30 --search --humain urgent --contre depth=3,budget=128",
+      "estimate": "9 min",
+      "priority": 2
+    },
+    {
+      "id": "cuis-carte-plonge-urgent-palierE",
+      "command": "npm run compare -- --kitchen plonge --services 30 --search --humain urgent --contre budget=256,rootWidth=8,width=5,depth=3,widening=1",
+      "estimate": "16 min",
+      "priority": 2
+    },
+    {
+      "id": "cuis-tables-detour-urgent-palierB",
+      "command": "npm run compare -- --kitchen detour --tables --services 30 --search --humain urgent --contre budget=256",
+      "estimate": "33 min",
+      "priority": 2
+    },
+    {
+      "id": "cuis-tables-detour-urgent-palierC",
+      "command": "npm run compare -- --kitchen detour --tables --services 30 --search --humain urgent --contre rootWidth=8",
+      "estimate": "15 min",
+      "priority": 2
+    },
+    {
+      "id": "cuis-tables-detour-urgent-palierD",
+      "command": "npm run compare -- --kitchen detour --tables --services 30 --search --humain urgent --contre depth=3,budget=128",
+      "estimate": "20 min",
+      "priority": 2
+    },
+    {
+      "id": "cuis-tables-detour-urgent-palierE",
+      "command": "npm run compare -- --kitchen detour --tables --services 30 --search --humain urgent --contre budget=256,rootWidth=8,width=5,depth=3,widening=1",
+      "estimate": "37 min",
+      "priority": 2
+    },
+    {
+      "id": "cuis-tables-brigade-urgent-palierB",
+      "command": "npm run compare -- --kitchen brigade --tables --services 30 --search --humain urgent --contre budget=256",
+      "estimate": "45 min",
+      "priority": 2
+    },
+    {
+      "id": "cuis-tables-brigade-urgent-palierC",
+      "command": "npm run compare -- --kitchen brigade --tables --services 30 --search --humain urgent --contre rootWidth=8",
+      "estimate": "20 min",
+      "priority": 2
+    },
+    {
+      "id": "cuis-tables-brigade-urgent-palierD",
+      "command": "npm run compare -- --kitchen brigade --tables --services 30 --search --humain urgent --contre depth=3,budget=128",
+      "estimate": "27 min",
+      "priority": 2
+    },
+    {
+      "id": "cuis-tables-brigade-urgent-palierE",
+      "command": "npm run compare -- --kitchen brigade --tables --services 30 --search --humain urgent --contre budget=256,rootWidth=8,width=5,depth=3,widening=1",
+      "estimate": "50 min",
+      "priority": 2
+    },
+    {
+      "id": "cuis-banquet-petite-urgent-palierB",
+      "command": "npm run compare -- --kitchen petite --banquet --services 30 --search --humain urgent --contre budget=256",
+      "estimate": "24 min",
+      "priority": 2
+    },
+    {
+      "id": "cuis-banquet-petite-urgent-palierC",
+      "command": "npm run compare -- --kitchen petite --banquet --services 30 --search --humain urgent --contre rootWidth=8",
+      "estimate": "11 min",
+      "priority": 2
+    },
+    {
+      "id": "cuis-banquet-petite-urgent-palierD",
+      "command": "npm run compare -- --kitchen petite --banquet --services 30 --search --humain urgent --contre depth=3,budget=128",
+      "estimate": "15 min",
+      "priority": 2
+    },
+    {
+      "id": "cuis-banquet-petite-urgent-palierE",
+      "command": "npm run compare -- --kitchen petite --banquet --services 30 --search --humain urgent --contre budget=256,rootWidth=8,width=5,depth=3,widening=1",
+      "estimate": "26 min",
+      "priority": 2
+    },
+    {
+      "id": "cuis-banquet-brigade-urgent-palierB",
+      "command": "npm run compare -- --kitchen brigade --banquet --services 30 --search --humain urgent --contre budget=256",
+      "estimate": "94 min",
+      "priority": 2
+    },
+    {
+      "id": "cuis-banquet-brigade-urgent-palierC",
+      "command": "npm run compare -- --kitchen brigade --banquet --services 30 --search --humain urgent --contre rootWidth=8",
+      "estimate": "42 min",
+      "priority": 2
+    },
+    {
+      "id": "cuis-banquet-brigade-urgent-palierD",
+      "command": "npm run compare -- --kitchen brigade --banquet --services 30 --search --humain urgent --contre depth=3,budget=128",
+      "estimate": "57 min",
+      "priority": 2
+    },
+    {
+      "id": "cuis-banquet-brigade-urgent-palierE",
+      "command": "npm run compare -- --kitchen brigade --banquet --services 30 --search --humain urgent --contre budget=256,rootWidth=8,width=5,depth=3,widening=1",
+      "estimate": "105 min",
+      "priority": 2
+    }
+  ]
+}
