@@ -79,6 +79,18 @@
   ],
   "versions": [
     {
+      "version": "0.36",
+      "title": "La dernière lib, sous Node 24",
+      "date": "28/10",
+      "items": [
+        "Le trajet direct de cuisine est maintenant celui de mcts-commun, dont l'A* va de 7 à 20 fois plus vite : les mêmes trajets, les mêmes mesures, aucune empreinte ne bouge.",
+        "Les cuisiniers qui se croisent (l'option) sont maintenant deux au plus par case d'allée, comme dans une allée de 1,22 m. Ils peuvent se croiser de face, et une case de station reste à un seul.",
+        "Mesuré sans rien changer : le filtre du cuisinier enfermé rapporte encore (au couloir, sept fois moins de chemins cherchés en vain), il est gardé ; la copie des mondes de la recherche donne la même recherche mais plus lente, elle n'est pas prise.",
+        "Node 24.22.1 sur la machine : tous les tests passent."
+      ],
+      "commits": ["7226edd"]
+    },
+    {
       "version": "0.35",
       "title": "La référence lue",
       "date": "28/10",
@@ -88,7 +100,7 @@
         "Les tables de la grande brigade avec « le plus urgent » : 12,3 plats à temps pour la recherche, 6,7 pour la règle de la table. À 8 ingrédients, le stock décide de tout : environ 15 plats à temps quelle que soit la règle.",
         "docs/mesures-27-10.md est complet."
       ],
-      "commits": []
+      "commits": ["97b28bf"]
     },
     {
       "version": "0.34",

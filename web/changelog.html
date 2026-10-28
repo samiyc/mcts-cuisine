@@ -36,6 +36,17 @@
         <h2>Les versions</h2>
 
       <article class="version">
+        <h3><span class="tag">0.36</span> La dernière lib, sous Node 24 <span class="date">28/10</span></h3>
+        <ul>
+          <li>Le trajet direct de cuisine est maintenant celui de mcts-commun, dont l'A* va de 7 à 20 fois plus vite : les mêmes trajets, les mêmes mesures, aucune empreinte ne bouge.</li>
+          <li>Les cuisiniers qui se croisent (l'option) sont maintenant deux au plus par case d'allée, comme dans une allée de 1,22 m. Ils peuvent se croiser de face, et une case de station reste à un seul.</li>
+          <li>Mesuré sans rien changer : le filtre du cuisinier enfermé rapporte encore (au couloir, sept fois moins de chemins cherchés en vain), il est gardé ; la copie des mondes de la recherche donne la même recherche mais plus lente, elle n'est pas prise.</li>
+          <li>Node 24.22.1 sur la machine : tous les tests passent.</li>
+        </ul>
+        <p class="commits"><code>7226edd</code></p>
+      </article>
+
+      <article class="version">
         <h3><span class="tag">0.35</span> La référence lue <span class="date">28/10</span></h3>
         <ul>
           <li>Le service à la carte du 27/10 (50 services, neuf cuisines, trois cuisiniers simulés) : la recherche est la meilleure dans les 27 mesures, de +0,4 au couloir à +3,7 dans la grande brigade sans humain, sur la meilleure règle. Le tableau des gains de cette page en vient (le cuisinier « au hasard »).</li>
@@ -43,7 +54,7 @@
           <li>Les tables de la grande brigade avec « le plus urgent » : 12,3 plats à temps pour la recherche, 6,7 pour la règle de la table. À 8 ingrédients, le stock décide de tout : environ 15 plats à temps quelle que soit la règle.</li>
           <li>docs/mesures-27-10.md est complet.</li>
         </ul>
-        <p class="commits"></p>
+        <p class="commits"><code>97b28bf</code></p>
       </article>
 
       <article class="version">

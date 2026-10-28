@@ -640,10 +640,12 @@ taille ? À 1 m², deux cuisiniers sur une même case seraient-ils réalistes ?
   ([JLC][nkba]). Deux personnes qui se croisent de profil sur une case d'un mètre, oui ; deux qui y restent ou y
   travaillent, non.
 - **L'option `setup.crossing`** (« Les cuisiniers se croisent » dans l'onglet Cuisine, `npm run compare --
-  --croisement`), désactivée par défaut, `src/service-crossing.js` : les cases d'allée sont partagées (`shared` des
-  réservations de mcts-commun), celles d'où l'on travaille une station restent à un seul, la station à celui qui la
-  prend (et la place cédée au plus proche, `claimFromAfar`, 23/10). Deux cuisiniers ne se croisent pas de face d'un
-  pas à l'autre : l'un attend un pas sur la case de l'autre, puis ils passent.
+  --croisement`), désactivée par défaut, `src/service-crossing.js` : une case d'allée tient deux cuisiniers à la fois,
+  celles d'où l'on travaille une station restent à un seul, la station à celui qui la prend (et la place cédée au plus
+  proche, `claimFromAfar`, 23/10). Un cuisinier qui se gare garde sa case pour lui seul. Jusqu'au 28/10 après-midi,
+  les cases d'allée étaient partagées sans limite (`shared` des réservations) et deux cuisiniers ne se croisaient pas
+  de face. Depuis, c'est la capacité que mcts-commun a ajoutée à la demande de cuisine (`capacity: 2`, les cases des
+  stations en `single`, commun `2f5554f`) : deux cuisiniers se croisent de face entre deux cases d'allée.
 - **Où partait le temps** : sans l'option, 2 services de la grande brigade avec tables font 244 000 appels à A*, de 9
   à 15 cases explorées chacun. C'est leur coût fixe qui pèse, pas les collisions : avec l'option seule, autant d'appels
   et le même temps. Avec l'option, un trajet suit donc d'abord les distances au sol déjà gardées (`directPath`), et
@@ -668,9 +670,30 @@ taille ? À 1 m², deux cuisiniers sur une même case seraient-ils réalistes ?
   3,0 s ; le détour et la brigade n'y gagnent rien (leurs chemins introuvables sont d'une autre sorte). Un essai qui
   gardait en mémoire le dernier chemin introuvable tant que rien n'était réservé ne gagnait que 3 % : les échecs ne se
   répètent pas d'un tour à l'autre, mais d'un monde de la recherche à l'autre.
-- **Deux au plus par case** est demandé à mcts-commun (une capacité dans les réservations), par le tableau des
-  sessions. Les mesures de l'option, avec et sans, sont dans la file (`essais-croisement.json`, tag
-  `croisement-2026-10-28-p2`) : on y regarde ce que le modèle perd de la congestion, au couloir et au détour.
+- **Deux au plus par case**, avec la lib du 28/10 : sur 2 services (la plus rapide et la recherche, « le plus
+  urgent »), aucune case réservée deux fois ; la recherche fait 19 plats à temps au lieu de 17,5 dans la grande
+  brigade avec tables, 9,5 au lieu de 10,5 au couloir, la même chose au détour. Sur si peu de services, c'est du
+  bruit. Les mesures de l'option, avec et sans, sont dans la file (`essais-croisement.json`, tag
+  `croisement-2026-10-28-p2`) et mesurent maintenant les deux par case : on y regarde ce que le modèle perd de la
+  congestion, au couloir et au détour.
+
+### La lib du 28/10 (commun `2f5554f`, `684c3ad`), sous Node 24
+
+Sami (28/10) : chaque projet prend la lib la plus rapide là où elle sert, vérifie qu'il n'y a pas d'écart imprévu,
+puis la file de jour se lance d'un commun accord (`mcts-commun/docs/projets.md`). A* y est de 7 à 20 fois plus
+rapide au banc, avec les mêmes chemins. Mesuré sur 2 services de neuf réglages (la plus rapide et la recherche,
+« le plus urgent »), Node 24.22.1 :
+
+- **Le trajet direct de la lib** (`direct`, repris du `directPath` de cuisine) remplace le nôtre : mêmes trajets,
+  mêmes mesures champ par champ, aucune empreinte ne bouge, 0 à 7 % de temps en moins. A* ne pèse plus que 10 à 15 %
+  du temps de la recherche (1,5 s sur 10 s dans la grande brigade avec tables).
+- **`shutOut` est gardé** : sans lui, les mêmes mesures, mais au couloir A* abandonne 6 109 fois au lieu de 856, et
+  son temps passe de 143 à 264 ms ; ailleurs, 0,1 à 0,4 s d'A* en plus.
+- **`copy` n'est pas pris** : les mondes copiés donnent exactement la même recherche, mais plus lente (la grande
+  brigade avec tables, 12,9 s → 20,3 s) ; chez cuisine, copier un monde coûte autant que le tirer.
+- **Les durées** : 3 services avec la recherche prennent 1,2 s au couloir, 5 s dans la grande brigade, 10 s au
+  détour avec tables, 16 s dans la grande brigade avec tables. Les estimations des jobs en file, apprises avant ces
+  gains, sont 8 à 20 fois trop longues ; la file les apprend du rythme du projet.
 
 [nkba]: https://www.jlconline.com/remodeling/guidlines-for-kitchen-island-functionality
 
