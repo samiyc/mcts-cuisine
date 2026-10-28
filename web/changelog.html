@@ -36,6 +36,18 @@
         <h2>Les versions</h2>
 
       <article class="version">
+        <h3><span class="tag">0.37</span> La file du 28/10 lue <span class="date">28/10</span></h3>
+        <ul>
+          <li>La recherche à 128 itérations au lieu de 64 prend deux fois plus de temps et ne gagne rien, sauf peut-être aux tables de la grande brigade (+2,2 plats, à confirmer). Le budget reste à 64.</li>
+          <li>La note graduée (un plat en retard compte encore un peu) n'aide pas : elle met 2 à 4 plats de plus en retard avec des tables, et en perd 2,4 à temps dans le banquet dur de la grande brigade. Elle reste désactivée.</li>
+          <li>Les cuisiniers qui se croisent, deux par case d'allée : au plus un demi-plat d'écart, pas de temps gagné. L'option reste désactivée par défaut.</li>
+          <li>La répartition des codes de diagnose, envoyée à mcts-commun : les décisions sont arrêtées tôt 3 fois sur 4, mais souvent données comme serrées.</li>
+          <li>Le détail : docs/mesures-28-10.md.</li>
+        </ul>
+        <p class="commits"></p>
+      </article>
+
+      <article class="version">
         <h3><span class="tag">0.36</span> La dernière lib, sous Node 24 <span class="date">28/10</span></h3>
         <ul>
           <li>Le trajet direct de cuisine est maintenant celui de mcts-commun, dont l'A* va de 7 à 20 fois plus vite : les mêmes trajets, les mêmes mesures, aucune empreinte ne bouge.</li>

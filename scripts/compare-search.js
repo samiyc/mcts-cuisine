@@ -13,8 +13,13 @@ const pairText = ({ mean, low, high }) => `${mean >= 0 ? "+" : ""}${fixed(mean, 
 function pairLine(seen, name, words) {
   const of = (rule, key) => seen.map((one) => one[rule][key]);
   const [search, other] = ["search", name].map((rule) => sumOf(seen.map((one) => one[rule].search)));
-  const spared = (key) => `${Math.round(100 * (1 - other[key] / Math.max(search[key], 1)))} %`;
-  const counted = other.decisions ? `, itérations −${spared("iterations")}, durée de la recherche −${spared("ms")}` : "";
+  // The change against the search as it is, signed (28/10/2026: budget=128 printed « −-93 % » for 93 % more).
+  const change = (key) => {
+    const percent = Math.round(100 * (other[key] / Math.max(search[key], 1) - 1));
+    const sign = Math.sign(percent);
+    return `${["−", "", "+"][sign + 1]}${Math.abs(percent)} %`;
+  };
+  const counted = other.decisions ? `, itérations ${change("iterations")}, durée de la recherche ${change("ms")}` : "";
   return `${words} contre la recherche, par paires : à temps ${pairText(paired(of(name, "onTime"), of("search", "onTime")))}, en retard ${pairText(paired(of(name, "late"), of("search", "late")))}${counted}`;
 }
 
