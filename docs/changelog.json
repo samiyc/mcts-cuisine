@@ -79,6 +79,17 @@
   ],
   "versions": [
     {
+      "version": "0.38",
+      "title": "Le palier de la recherche, en file",
+      "date": "28/10",
+      "items": [
+        "Deux réglages de la recherche, désactivés par défaut : plus de coups à la racine qu'en dessous, et l'élargissement progressif. Le diagnose dit aussi les décisions serrées que l'arrêt anticipé a tranchées, et le rang du coup joué.",
+        "Dans la file (tag palier-2026-10-28) : 256 itérations, 8 coups à la racine, la profondeur 3, puis tout ensemble, chacun contre les réglages d'aujourd'hui sur les mêmes 30 services, dans treize cuisines.",
+        "Vu en le préparant : une table dont les plats meurent au passe l'un après l'autre, refaits sept fois. Noté dans les oublis, à peser avec les mesures."
+      ],
+      "commits": ["240879f", "24eadd0"]
+    },
+    {
       "version": "0.37",
       "title": "La file du 28/10 lue",
       "date": "28/10",
