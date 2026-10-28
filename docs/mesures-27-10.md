@@ -38,9 +38,14 @@ Comment lire les tableaux :
   la meilleure règle (le plat le plus rapide).
 - **La brigade avec plonge** donne le plus grand écart mesuré : +10,1 plats sans humain (24,5 contre 14,4), +3,0 sur
   le plat le plus rapide.
-- **Avec un humain fatigué, en pause et qui se trompe, ou des robots en panne**, la recherche garde une avance du
-  même ordre qu'au service ordinaire (mesuré le 26/10, avant la correction) : +5 dans la grande brigade, +2 au grand
-  détour, +0,8 dans la petite cuisine.
+- **Avec un humain fatigué, en pause et qui se trompe, ou des robots en panne**, la recherche garde son avance : +5
+  dans la grande brigade, +2 au grand détour, +0,8 dans la petite cuisine. Contre la référence, les limites de l'humain
+  coûtent environ un plat (près de deux au grand détour), les pannes moins d'un plat, aux règles comme à la recherche.
+- **La référence (27/10, la carte sur 50 services)** : la recherche est la meilleure dans les 27 mesures, de +0,4
+  (couloir) à +3,1 (grande brigade) sur la meilleure règle avec « le plus urgent ».
+- **Ce qui ne paie pas** : l'aboyeur coûte 0,8 plat à la recherche au grand détour, et la mise en place y coûte 1,9
+  plat aux règles comme à la recherche ; elle n'apporte presque rien ailleurs. **Ce qui paie** : la coupe en série au
+  passe-plats (+3,4) et aux postes (+1,8). La plonge coûte 1,2 à 1,5 plat dans la grande brigade.
 
 ## Avant et après la correction, sur les mêmes jobs
 
@@ -219,7 +224,8 @@ services que ceux de la nuit. Écart moyen des plats à temps, de l'ancien code 
   en retard : un plat livré part à temps ou pas du tout.
 - **Brigade avec plonge** : la recherche fait 27,7 avec un humain, 24,5 sans, contre 24,6 et 21,5 pour le plat le plus
   rapide. Elle a presque supprimé les retards (1,4 à 1,7 contre 6,5 à 9,5).
-- Ce que coûtent l'emballage et la plonge se lira contre la référence, le service à la carte des mêmes cuisines.
+- Contre la référence (plus bas) : la plonge coûte 1,2 à 1,5 plat dans la grande brigade ; l'emballage ne s'y lit
+  pas, la dark kitchen ayant son propre plan.
 
 ## La fatigue, les pauses et les erreurs ; les pannes
 
@@ -237,7 +243,8 @@ services que ceux de la nuit. Écart moyen des plats à temps, de l'ancien code 
 
 - La recherche garde son avance : +5,1 à +5,5 dans la grande brigade (+2,6 et +3,1 sur le plat le plus rapide), +2 au
   grand détour, +0,8 dans la petite cuisine. Elle imagine la pause et la panne sans les connaître, et cela suffit.
-- Ce que coûtent ces limites, et si la recherche les supporte mieux que les règles, se lira contre la référence.
+- Contre la référence (plus bas) : les limites de l'humain coûtent environ un plat (près de deux au grand détour), les
+  pannes 0,1 à 0,8 ; la recherche perd autant que les règles, ni plus ni moins.
 
 ## La mise en place
 
@@ -247,8 +254,8 @@ services que ceux de la nuit. Écart moyen des plats à temps, de l'ancien code 
 | postes | le plus urgent | 16,9 | 16,9 | 16,9 | 15,6 | **18,2** | +1,27 (0,49 à 2,04) | 1,6 → 0,5 |
 | le grand détour | le plus urgent | 12,6 | 14,4 | 12,6 | 11,7 | **15,4** | +2,80 (1,37 à 4,23) | 3,0 → 1,4 |
 
-- La recherche gagne +0,7 à +2,8 avec la mise en place. Ce que la mise en place apporte elle-même se lira contre la
-  référence.
+- La recherche gagne +0,7 à +2,8 avec la mise en place. Contre la référence (plus bas), la mise en place elle-même
+  n'apporte rien au passe-plats, presque rien aux postes, et coûte deux plats au grand détour.
 - C'est la famille que la correction a le plus changée (+1,7 pour les règles, +1,3 pour la recherche). Hypothèse : les
   soupes coupées d'avance attendaient souvent un fourneau barré par son veilleur.
 
@@ -260,18 +267,160 @@ services que ceux de la nuit. Écart moyen des plats à temps, de l'ancien code 
 
 - Avec l'aboyeur, la recherche sert 4,5 tables sur 8,3 à temps, et ne laisse mourir que 1,6 plat au passe, contre 11,6
   avec la plus ancienne. La règle de la table fait 8,4 plats à temps.
-- Le grand détour avec tables sans aboyeur est dans la référence : c'est lui qui dira ce que l'aboyeur apporte.
+- Sans l'aboyeur, sur les mêmes services (plus bas) : la recherche fait 11,7, l'aboyeur lui coûte donc 0,8 plat ;
+  la règle de la table y gagne 0,6.
 
-## La référence, dans la file
+## La référence et la file de jour (27/10)
 
-`night-reference.json` : tag `2026-10-27-reference`, 32 jobs, ajoutés le 27/10 au matin.
-- **Le service à la carte** sur le code corrigé, 50 services, dans les neuf cuisines, avec « le plus urgent »,
-  « au hasard » et sans humain. C'est la base pour dire ce que coûtent l'emballage, la plonge, les limites de l'humain
-  et les pannes, ce qu'apporte la mise en place, et pour refaire le tableau des gains du journal.
-- **Les tables** de la petite cuisine et du grand détour (« le plus urgent ») : pour l'aboyeur.
-- **Le banquet sans série** de la petite cuisine, du passe-plats et des postes : pour la coupe en série.
+Deux fichiers de jobs, ajoutés le 27/10 :
+- **`night-reference.json`** (tag `2026-10-27-reference`), 32 mesures. 31 ont fini. Les tables du grand détour ont été
+  annulées le matin : elles étaient lentes, pas bloquées.
+- **`night-complements.json`** (tag `2026-10-27-jour`), 7 mesures :
+  - les tables du grand détour, refaites ;
+  - les tables de la grande brigade avec « le plus urgent » et avec le cuisinier qui suit sa table ;
+  - la rupture à 8 ingrédients dans la grande brigade.
 
-Leurs résultats compléteront ce fichier.
+Les sorties sont dans `~/.mcts-backlog/runs/*_cuis-*-2026-10-27-{reference,jour}.txt`. Ces mesures datent du 27/10 :
+la correction du soir du 26/10 était faite, mais aucun des changements du 28/10 (l'arrêt anticipé par défaut, le
+trajet direct). Ces changements laissent les plats à temps des règles identiques au dixième près ; ceux de la
+recherche peuvent bouger un peu.
+
+Comment comparer :
+- **La carte se joue sur 50 services, les options sur 30.** On compare donc des moyennes, pas des paires, et sans
+  intervalle. Pour donner l'échelle du bruit, la dark kitchen et la brigade avec plonge ont été jouées par la même
+  commande sur 30 services (la nuit) et sur 50 (la référence). Leurs moyennes diffèrent de 0,2 à 0,5 plat. **Un écart
+  de moins d'un demi-plat entre la carte et une option ne dit rien.**
+- **L'aboyeur et la série se comparent sur les mêmes 30 services**, avec et sans : l'écart des moyennes est celui des
+  paires, mais il n'a pas d'intervalle.
+
+### Le service à la carte (50 services)
+
+| Cuisine | Humain | commandes | la plus ancienne | le plus rapide | la table | le rétroplanning | la recherche | gain de la recherche | en retard (anc → rech) | manquées (anc → rech) |
+|---|---|---|---|---|---|---|---|---|---|---|
+| petite | le plus urgent | 19,5 | 18,2 | 18,1 | 18,2 | 18,1 | **18,7** | +0,46 (0,13 à 0,79) | 0,5 → 0,2 | 0,8 → 0,6 |
+| petite | au hasard | 19,5 | 17,2 | 17,3 | 17,2 | 17,4 | **18,5** | +1,34 (0,78 à 1,90) | 1,1 → 0,3 | 1,2 → 0,7 |
+| petite | sans humain | 19,5 | 12,3 | 13,6 | 12,3 | 10,1 | **15,8** | +3,54 (2,64 à 4,44) | 3,4 → 0,5 | 3,8 → 3,2 |
+| en couloir | le plus urgent | 13,0 | 9,0 | 9,4 | 9,0 | 7,4 | **9,8** | +0,80 (0,40 à 1,20) | 1,5 → 1,0 | 2,5 → 2,2 |
+| en couloir | au hasard | 13,0 | 6,3 | 8,0 | 6,3 | 5,4 | **8,4** | +2,14 (1,41 à 2,87) | 2,0 → 0,8 | 4,8 → 3,8 |
+| en couloir | sans humain | 13,0 | 5,1 | 7,4 | 5,1 | 2,7 | **8,2** | +3,12 (2,65 à 3,59) | 2,9 → 0,5 | 5,1 → 4,3 |
+| grande brigade | le plus urgent | 33,7 | 24,8 | 26,3 | 24,8 | 24,1 | **29,4** | +4,56 (3,10 à 6,02) | 5,1 → 1,6 | 3,8 → 2,8 |
+| grande brigade | au hasard | 33,7 | 23,6 | 25,4 | 23,6 | 23,7 | **29,0** | +5,34 (3,87 à 6,81) | 5,8 → 1,3 | 4,3 → 3,5 |
+| grande brigade | sans humain | 33,7 | 18,0 | 22,5 | 18,0 | 17,7 | **26,2** | +8,16 (6,56 à 9,76) | 8,3 → 1,5 | 7,3 → 6,0 |
+| passe-plats | le plus urgent | 14,9 | 13,0 | 13,1 | 13,0 | 12,9 | **13,6** | +0,62 (0,21 à 1,03) | 1,1 → 0,6 | 0,8 → 0,7 |
+| passe-plats | au hasard | 14,9 | 12,2 | 12,6 | 12,2 | 12,2 | **13,2** | +0,96 (0,45 à 1,47) | 1,5 → 0,8 | 1,2 → 0,9 |
+| passe-plats | sans humain | 14,9 | 7,2 | 7,8 | 7,2 | 7,0 | **10,1** | +2,90 (2,25 à 3,55) | 3,4 → 1,5 | 4,3 → 3,2 |
+| postes | le plus urgent | 19,5 | 16,7 | 16,7 | 16,7 | 15,8 | **17,5** | +0,82 (0,39 à 1,25) | 1,3 → 0,7 | 1,5 → 1,2 |
+| postes | au hasard | 19,5 | 16,1 | 16,1 | 16,1 | 15,7 | **17,0** | +0,92 (0,48 à 1,36) | 1,5 → 1,0 | 1,9 → 1,5 |
+| postes | sans humain | 19,5 | 8,8 | 9,2 | 8,8 | 7,5 | **11,9** | +3,14 (2,38 à 3,90) | 4,4 → 1,6 | 6,3 → 5,9 |
+| coupée en deux | le plus urgent | 19,5 | 15,2 | 14,3 | 15,2 | 13,9 | **16,6** | +1,44 (0,93 à 1,95) | 2,1 → 0,6 | 2,1 → 2,2 |
+| coupée en deux | au hasard | 19,5 | 15,1 | 14,4 | 15,1 | 13,4 | **16,3** | +1,24 (0,82 à 1,66) | 2,3 → 0,7 | 2,1 → 2,4 |
+| coupée en deux | sans humain | 19,5 | 6,5 | 10,6 | 6,5 | 3,3 | **11,9** | +5,40 (4,62 à 6,18) | 5,5 → 1,1 | 7,4 → 6,4 |
+| le grand détour | le plus urgent | 19,5 | 15,6 | 16,3 | 15,6 | 14,5 | **17,3** | +1,76 (0,99 à 2,53) | 1,7 → 0,8 | 2,2 → 1,3 |
+| le grand détour | au hasard | 19,5 | 11,9 | 14,0 | 11,9 | 11,1 | **15,5** | +3,62 (2,48 à 4,76) | 3,0 → 1,1 | 4,6 → 2,8 |
+| le grand détour | sans humain | 19,5 | 5,2 | 9,8 | 5,2 | 3,7 | **10,7** | +5,50 (4,85 à 6,15) | 3,0 → 1,8 | 11,3 → 7,0 |
+| dark kitchen | le plus urgent | 19,5 | 11,4 | 12,4 | 11,4 | 11,2 | **13,3** | +1,90 (1,29 à 2,51) | 0,0 → 0,0 | 8,1 → 6,2 |
+| dark kitchen | au hasard | 19,5 | 11,5 | 12,4 | 11,5 | 11,5 | **13,2** | +1,64 (0,94 à 2,34) | 0,0 → 0,0 | 7,9 → 6,3 |
+| dark kitchen | sans humain | 19,5 | 6,7 | 9,9 | 6,7 | 6,1 | **10,8** | +4,10 (3,40 à 4,80) | 0,0 → 0,0 | 12,8 → 8,7 |
+| brigade avec plonge | le plus urgent | 33,7 | 23,4 | 25,1 | 23,4 | 22,7 | **27,9** | +4,46 (3,15 à 5,77) | 5,5 → 1,7 | 4,8 → 4,1 |
+| brigade avec plonge | au hasard | 33,7 | 21,5 | 24,4 | 21,5 | 21,7 | **27,2** | +5,68 (4,25 à 7,11) | 6,0 → 1,3 | 6,1 → 5,1 |
+| brigade avec plonge | sans humain | 33,7 | 15,9 | 21,7 | 15,9 | 15,6 | **24,9** | +9,00 (7,62 à 10,38) | 8,2 → 1,3 | 9,6 → 7,5 |
+
+- **La recherche est la meilleure dans les 27 mesures.** Son avance sur la meilleure règle (le plus souvent le plat
+  le plus rapide), avec « le plus urgent » :
+  - grande brigade : +3,1 ;
+  - brigade avec plonge : +2,8 ;
+  - coupée en deux : +1,4 ;
+  - grand détour : +1,0 ;
+  - dark kitchen : +0,9 ;
+  - postes : +0,8 ;
+  - petite et passe-plats : +0,5 ;
+  - couloir : +0,4.
+- **Sans humain, l'avance est la plus grande** : +2,2 à +3,7, sauf au couloir, au détour, dans la coupée en deux et
+  dans la dark kitchen (+0,8 à +1,3). C'est sans humain que les robots ont le plus à décider.
+- **Les retards fondent avec la recherche** : 1,6 contre 5,1 dans la grande brigade, 0,5 contre 3,4 dans la petite
+  cuisine sans humain.
+
+### Ce que coûtent les options, contre la carte (« le plus urgent »)
+
+| Option | Cuisine | meilleure règle (carte → option) | recherche (carte → option) |
+|---|---|---|---|
+| fatigue, pauses, erreurs | petite | 18,2 → 17,2 (−1,0) | 18,7 → 18,0 (−0,7) |
+| fatigue, pauses, erreurs | le grand détour | 16,3 → 14,5 (−1,8) | 17,3 → 15,9 (−1,4) |
+| fatigue, pauses, erreurs | grande brigade | 26,3 → 25,4 (−0,9) | 29,4 → 28,0 (−1,4) |
+| pannes | petite | 18,2 → 17,9 (−0,3) | 18,7 → 18,6 (−0,1) |
+| pannes | le grand détour | 16,3 → 15,6 (−0,7) | 17,3 → 16,8 (−0,5) |
+| pannes | grande brigade | 26,3 → 25,5 (−0,8) | 29,4 → 28,6 (−0,8) |
+| mise en place | passe-plats | 13,1 → 13,2 (+0,1) | 13,6 → 13,7 (+0,1) |
+| mise en place | postes | 16,7 → 16,9 (+0,2) | 17,5 → 18,2 (+0,7) |
+| mise en place | le grand détour | 16,3 → 14,4 (**−1,9**) | 17,3 → 15,4 (**−1,9**) |
+| la plonge (contre la grande brigade, 50 services chacune) | grande brigade | 26,3 → 25,1 (−1,2) | 29,4 → 27,9 (−1,5) |
+
+- **Les limites de l'humain coûtent un plat environ**, et près de deux au grand détour. La recherche n'y résiste ni
+  mieux ni moins bien que les règles : elle perd autant, et garde son avance.
+- **Les pannes coûtent moins** (−0,1 à −0,8) : un robot arrêté 10 tours tous les 5 services environ.
+- **La mise en place n'apporte rien au passe-plats, presque rien aux postes, et coûte deux plats au grand détour**,
+  aux règles comme à la recherche. L'écart dépasse le bruit (−1,9 contre ±0,5). Hypothèse, à vérifier sur un replay :
+  dans le détour, le robot qui coupe d'avance part loin du feu, et la soupe qu'il prépare occupe un comptoir de relais
+  dont les autres ont besoin. Le 26/10, avant la correction, elle aidait la coupée en deux (+1,4), qui n'a pas été
+  remesurée.
+- **La plonge coûte 1,2 à 1,5 plat** dans la grande brigade. Les deux cuisines ont le même nombre de commandes
+  (33,7 par service).
+- **Ce que coûte l'emballage ne se lit pas ici** : la dark kitchen a son propre plan, et il n'existe pas de service à
+  la carte du même plan sans livraison.
+
+### L'aboyeur et la coupe en série, sur les mêmes 30 services
+
+| Mesure | Cuisine | meilleure règle (sans → avec) | recherche (sans → avec) | indicateur de la recherche (sans → avec) |
+|---|---|---|---|---|
+| l'aboyeur (avec tables) | le grand détour | 7,8 → 8,4 (+0,6, la table) | 11,7 → 10,9 (−0,8) | tables à temps 4,8 → 4,5 sur 8,3 ; morts au passe 1,7 → 1,6 |
+| la série (lots de 3) | petite | 6,5 → 6,3 (−0,2) | 11,1 → 10,4 (−0,7) | envois à l'heure 1,9 → 1,8 sur 2 |
+| la série (lots de 3) | passe-plats | 5,2 → 6,1 (+0,9) | 8,5 → 11,9 (**+3,4**) | envois à l'heure 1,5 → 2,0 sur 2 |
+| la série (lots de 3) | postes | 5,9 → 7,6 (+1,7) | 10,1 → 11,9 (**+1,8**) | envois à l'heure 1,7 → 2,0 sur 2 |
+
+- **L'aboyeur ne rapporte rien à la recherche au grand détour** (−0,8) : un robot de moins aux fourneaux pèse plus
+  que l'appel des plats, que la recherche fait déjà. La règle de la table, elle, y gagne un peu (+0,6).
+- **La coupe en série paie là où l'on coupe loin du feu** : +3,4 au passe-plats et +1,8 aux postes pour la recherche,
+  avec les deux envois à l'heure. Dans la petite cuisine, où tout est proche, elle ne change rien.
+
+### Les tables (30 services)
+
+| Cuisine | Humain | la plus ancienne | le plus rapide | la table | le rétroplanning | la recherche | gain de la recherche | tables à temps (anc → rech) | morts au passe (anc → rech) |
+|---|---|---|---|---|---|---|---|---|---|
+| petite | le plus urgent | 4,9 | 3,6 | 4,4 | 5,7 | **9,1** | +4,13 (2,54 à 5,72) | 2,2 → 3,8 / 8,3 | 12,5 → 7,7 |
+| le grand détour | le plus urgent | 4,1 | 3,5 | 7,8 | 3,7 | **11,7** | +7,60 (5,98 à 9,22) | 1,8 → 4,8 / 8,3 | 11,8 → 1,7 |
+| grande brigade | le plus urgent | 4,7 | 4,1 | 6,7 | 5,1 | **12,3** | +7,53 (5,57 à 9,49) | 2,1 → 5,2 / 14,3 | 19,5 → 11,7 |
+| grande brigade | suit sa table | 3,9 | 4,2 | 7,6 | 4,5 | **11,6** | +7,73 (5,39 à 10,08) | 1,8 → 5,0 / 14,3 | 20,2 → 11,6 |
+
+- **La grande brigade, avec « le plus urgent » et avec le cuisinier qui suit sa table**, manquait à la nuit. La
+  recherche y fait 12,3 et 11,6 plats à temps, contre 6,7 et 7,6 pour la table (+5,6 et +4,0), et sert 5,0 à 5,2
+  tables à temps sur 14,3 au lieu de 1,8 à 2,1.
+- **Le grand détour** : 11,7 contre 7,8 pour la table, et 1,7 plat mort au passe contre 11,8 pour la plus ancienne.
+- **La petite cuisine** : 9,1 contre 5,7 pour le rétroplanning. C'est la seule cuisine mesurée ici où le
+  rétroplanning est la meilleure règle avec des tables.
+
+### Le banquet sans série (30 services)
+
+| Cuisine | Humain | la plus ancienne | le plus rapide | la table | le rétroplanning | la recherche | gain de la recherche | envois à l'heure (anc → rech) |
+|---|---|---|---|---|---|---|---|---|
+| petite | le plus urgent | 5,7 | 5,7 | 6,1 | 6,5 | **11,1** | +5,47 (4,32 à 6,61) | 0,9 → 1,9 / 2 |
+| passe-plats | le plus urgent | 1,3 | 1,3 | 1,7 | 5,2 | **8,5** | +7,13 (5,79 à 8,47) | 0,3 → 1,5 / 2 |
+| postes | le plus urgent | 5,9 | 5,3 | 2,8 | 5,4 | **10,1** | +4,17 (2,71 à 5,62) | 1,0 → 1,7 / 2 |
+
+- **La recherche double les règles** : 11,1 contre 6,5 dans la petite cuisine, 8,5 contre 5,2 au passe-plats, 10,1
+  contre 5,9 aux postes. Au passe-plats, la meilleure règle est le rétroplanning ; les trois autres font 1,3 à 1,7.
+
+### La rupture à 8 ingrédients (grande brigade, 30 services)
+
+| Humain | la plus ancienne | le plus rapide | la table | le rétroplanning | la recherche | gain de la recherche | refusées (anc → rech) | manquées (anc → rech) |
+|---|---|---|---|---|---|---|---|---|
+| le plus proche | 15,4 | 14,8 | 15,4 | 15,5 | **15,7** | +0,37 (0,13 à 0,61) | 18,5 → 18,6 | 0,0 → 0,0 |
+| le plus urgent | 15,4 | 14,9 | 15,4 | 15,5 | **15,7** | +0,27 (0,04 à 0,50) | 18,6 → 18,6 | 0,0 → 0,0 |
+| au hasard | 15,2 | 14,9 | 15,2 | 15,2 | **15,6** | +0,37 (0,06 à 0,67) | 18,7 → 18,7 | 0,0 → 0,0 |
+| sans humain | 14,1 | 13,6 | 14,1 | 14,1 | **15,4** | +1,33 (0,64 à 2,03) | 18,6 → 18,5 | 0,0 → 0,0 |
+
+- **Le stock décide de tout** : 8 oignons et 8 tomates pour 34,3 commandes, 18,6 sont refusées, les mêmes quelle que
+  soit la règle. Il reste environ 16 plats à faire, et toutes les règles en servent 15 environ à temps.
+- La recherche y gagne peu (+0,3), sauf sans humain (+1,3). Ce réglage mesure la rupture, pas la cuisine.
 
 ## Les essais de mcts-commun (27/10 au soir)
 

@@ -77,11 +77,11 @@ Les oublis réglés quittent cette liste et vont dans [modele.md](../modele.md) 
   deux) : un robot qui surveillait sa marmite restait devant le fourneau quand un autre venait la retirer ; une soupe
   rouverte gardait la marque de son relais et ne pouvait plus repasser par un comptoir. Corrigés ; toutes les
   cuisines y gagnent, les mesures du soir sont refaites (`docs/mesures-27-10.md`).
-- **La référence après la correction** (27/10) : le service à la carte des neuf cuisines, les tables de la petite
-  cuisine et du grand détour, le banquet sans série de trois cuisines : dans la file (`night-reference.json`). Sans
-  elle, on ne sait pas encore ce que coûtent l'emballage, la plonge, les limites de l'humain et les pannes, ni ce
-  qu'apportent la mise en place, l'aboyeur et la série depuis la correction. Ni la rupture, ni les tables de la
-  grande brigade avec « le plus urgent », ne sont remesurées.
+- **La référence après la correction** (27/10) : mesurée (`night-reference.json`, `night-complements.json`), avec la
+  rupture et les tables de la grande brigade ; les résultats sont dans `docs/mesures-27-10.md`. Restent ouverts : ce
+  que coûte l'emballage (la dark kitchen n'a pas de service à la carte du même plan sans livraison), pourquoi la mise
+  en place coûte deux plats au grand détour (une hypothèse, à vérifier sur un replay), et la mise en place de la
+  coupée en deux, qui n'a pas été remesurée.
 - **Deux cuisiniers sur une case** (27/10, lu dans les traces de la file : des cases réservées deux fois hors de la
   recherche) : un robot qui s'arrête où il est (`holdHere` : en panne, son plat parti, sa place cédée) gardait sa case
   pour de bon, sans voir qu'un autre devait y passer deux pas plus tard ; les deux se retrouvaient dessus. Une fois
