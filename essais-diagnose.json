@@ -1,0 +1,83 @@
+{
+  "about": "Le diagnose corrigé de mcts-commun (a2c66bd, 27/10 au soir : closeCall jugé sur la marge par paires, fewIterations muet quand l'arrêt anticipé a tranché) rejoué sur la recherche par défaut (arrêt anticipé), 10 services avec « le plus urgent », sur les cuisines des essais du 27/10 : la nouvelle répartition des codes, pour commun et Sami. Estimations : les durées réelles des essais du 27/10 ramenées à 10 services et une recherche. Ajout : npx mcts-backlog --add-file essais-diagnose.tranches.json --tag diagnose-2026-10-28.",
+  "jobs": [
+    {
+      "id": "cuis-diag-carte-petite-urgent",
+      "command": "npm run compare -- --kitchen petite --services 10 --search --humain urgent",
+      "estimate": "2 min",
+      "priority": 1
+    },
+    {
+      "id": "cuis-diag-carte-couloir-urgent",
+      "command": "npm run compare -- --kitchen couloir --services 10 --search --humain urgent",
+      "estimate": "5 min",
+      "priority": 1
+    },
+    {
+      "id": "cuis-diag-carte-brigade-urgent",
+      "command": "npm run compare -- --kitchen brigade --services 10 --search --humain urgent",
+      "estimate": "5 min",
+      "priority": 1
+    },
+    {
+      "id": "cuis-diag-carte-comptoirs-urgent",
+      "command": "npm run compare -- --kitchen comptoirs --services 10 --search --humain urgent",
+      "estimate": "2 min",
+      "priority": 1
+    },
+    {
+      "id": "cuis-diag-carte-postes-urgent",
+      "command": "npm run compare -- --kitchen postes --services 10 --search --humain urgent",
+      "estimate": "2 min",
+      "priority": 1
+    },
+    {
+      "id": "cuis-diag-carte-separee-urgent",
+      "command": "npm run compare -- --kitchen separee --services 10 --search --humain urgent",
+      "estimate": "2 min",
+      "priority": 1
+    },
+    {
+      "id": "cuis-diag-carte-detour-urgent",
+      "command": "npm run compare -- --kitchen detour --services 10 --search --humain urgent",
+      "estimate": "2 min",
+      "priority": 1
+    },
+    {
+      "id": "cuis-diag-carte-dark-urgent",
+      "command": "npm run compare -- --kitchen dark --services 10 --search --humain urgent",
+      "estimate": "3 min",
+      "priority": 1
+    },
+    {
+      "id": "cuis-diag-carte-plonge-urgent",
+      "command": "npm run compare -- --kitchen plonge --services 10 --search --humain urgent",
+      "estimate": "5 min",
+      "priority": 1
+    },
+    {
+      "id": "cuis-diag-tables-detour-urgent",
+      "command": "npm run compare -- --kitchen detour --tables --services 10 --search --humain urgent",
+      "estimate": "10 min",
+      "priority": 1
+    },
+    {
+      "id": "cuis-diag-tables-brigade-urgent",
+      "command": "npm run compare -- --kitchen brigade --tables --services 10 --search --humain urgent",
+      "estimate": "16 min",
+      "priority": 1
+    },
+    {
+      "id": "cuis-diag-banquet-petite-urgent",
+      "command": "npm run compare -- --kitchen petite --banquet --services 10 --search --humain urgent",
+      "estimate": "5 min",
+      "priority": 1
+    },
+    {
+      "id": "cuis-diag-banquet-brigade-urgent",
+      "command": "npm run compare -- --kitchen brigade --banquet --services 10 --search --humain urgent",
+      "estimate": "35 min",
+      "priority": 1
+    }
+  ]
+}
