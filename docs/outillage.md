@@ -104,9 +104,10 @@ La disposition de lopin, telle que mcts-urgences l'a reprise le 26/10 :
   lecture ou la pause, ← → pour 10 tours en arrière ou en avant (50 avec Maj), ↑ ↓ pour la vitesse, 0 à 9 pour aller
   de 0 à 90 % du service (la rangée du haut d'un clavier AZERTY et le pavé numérique comptent aussi). Avancer joue les
   tours entre deux ; reculer rejoue le service depuis le début (ou son replay) jusqu'au tour demandé, puisqu'un service
-  se rejoue de sa graine. Avec le chef au clavier, les flèches et les chiffres restent à lui : seul Espace est au
-  lecteur : c'est la page qui le décide, avant le lecteur (Sami). `web/player-keys.js` lit la touche (pur, testé) ;
-  `web/player.js` choisit les touches qui lui vont et déplace le service ;
+  se rejoue de sa graine. Avec le chef au clavier, la page est un jeu, plus un lecteur : aucune touche ne va au
+  lecteur, Espace compris (Sami, 29/10), il se pilote par ses boutons ; la page le décide avant le lecteur.
+  `web/player-keys.js` lit la touche (pur, testé) ; `web/player.js` choisit les touches qui lui vont et déplace le
+  service ;
 - **le panneau de gauche n'est refait que s'il change** (29/10) : refait à chaque tour, il remplaçait le bouton sous la
   souris entre l'appui et le relâchement, et « Pause » ne répondait pas.
 

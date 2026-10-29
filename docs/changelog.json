@@ -84,9 +84,12 @@
       "date": "29/10",
       "items": [
         "Dans l'onglet Service, les touches d'une vidéo : Espace pour la lecture ou la pause, les flèches gauche et droite pour 10 tours en arrière ou en avant (50 avec Maj), haut et bas pour la vitesse, 0 à 9 pour aller de 0 à 90 % du service.",
-        "Reculer rejoue le service depuis le début, ou son replay, jusqu'au tour demandé : on retrouve le même tour. Avec le chef au clavier, les flèches restent à lui."
+        "Reculer rejoue le service depuis le début, ou son replay, jusqu'au tour demandé : on retrouve le même tour. Avec le chef au clavier, la page est un jeu : aucune touche ne va au lecteur, pas même Espace (Sami), il se pilote par ses boutons."
       ],
-      "commits": []
+      "commits": [
+        "9ca4509",
+        "5bf076d"
+      ]
     },
     {
       "version": "0.40",
