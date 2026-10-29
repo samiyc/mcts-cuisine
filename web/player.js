@@ -10,6 +10,13 @@ import { SPEEDS } from "./tabs/service.js";
  * `manual`, `step`, `restart`, `startReplay`, `play`, `stop`, `render`.
  */
 const breathe = () => new Promise((resolve) => setTimeout(resolve, 0));
+/**
+ * Whether the page hands a key to the player (Sami, 29/10/2026: the game's keys are the page's, before the player's):
+ * with the chef at the keyboard and no replay playing, only space; his arrows are his (keys.js), and the service is
+ * not moved under him, a figure included.
+ */
+export const toThePlayer = (chef, event) => !chef || event.key === " ";
+
 /** While a seek runs: whether the service plays on once there (space while seeking changes it). */
 const seeking = { id: 0, resume: null };
 
@@ -72,9 +79,9 @@ export function wirePlayerKeys(page) {
     seek: (t) => seek(page, t),
     toggle: () => toggle(page),
     faster: (way) => faster(page, way),
-    chef: () => page.manual() && !page.replays.playing,
   };
   document.addEventListener("keydown", (event) => {
-    if (state.tab === "service" && state.service) playerKey(player, event);
+    const chef = page.manual() && !page.replays.playing;
+    if (state.tab === "service" && state.service && toThePlayer(chef, event)) playerKey(player, event);
   });
 }

@@ -2,10 +2,9 @@
  * The keys of the service's player, as on a video (Sami, 29/10/2026, as mcts-urgences' web/replay-keys.js): space plays
  * or pauses; the left and right arrows go 10 turns back or on, 50 with Shift (a service is 200 turns); the up and down
  * arrows play faster or slower; 0 to 9, on the keypad or the row of figures, go to 0 %, 10 %… 90 % of the service.
- * With the chef at the keyboard and no replay playing, the arrows are his (keys.js): only space is the player's.
+ * Which keys reach it is the page's to say (player.js: the chef at the keyboard keeps his), as at the warehouse.
  *
- * `player`: `{ t(), end(), seek(t), toggle(), faster(way), chef() }`, the turn shown, the last one, what the keys do,
- * and whether the chef is at the keyboard.
+ * `player`: `{ t(), end(), seek(t), toggle(), faster(way) }`, the turn shown, the last one, and what the keys do.
  */
 export const PLAYER_HINT = "Espace : lecture ou pause ; ← → : 10 tours, avec Maj : 50 ; ↑ ↓ : plus ou moins vite ; 0 à 9 : de 0 à 90 % du service";
 export const CHEF_PLAYER_HINT = "Espace : lecture ou pause (les flèches sont au chef)";
@@ -48,7 +47,6 @@ export function nextSpeed(speeds, current, way) {
 /** What a key does to the player, or null if it is not the player's: the arrows before the figures (the keypad's). */
 function moveOf(player, event) {
   if (event.key === " ") return () => player.toggle();
-  if (player.chef()) return null;
   if (MOVES[event.key]) return () => MOVES[event.key](player, event);
   const tenth = tenthOf(event);
   return tenth === null ? null : () => player.seek(Math.round((player.end() * tenth) / 10));

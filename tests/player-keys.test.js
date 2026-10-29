@@ -1,12 +1,13 @@
 import { describe, it } from "node:test";
 import assert from "node:assert/strict";
 import { nextSpeed, playerKey, within } from "../web/player-keys.js";
+import { toThePlayer } from "../web/player.js";
 import { SPEEDS } from "../web/tabs/service.js";
 
 /** A player at turn 40 of 200 that writes down what the keys asked. */
-function playerAt(t = 40, chef = false) {
+function playerAt(t = 40) {
   const asked = [];
-  return { asked, t: () => t, end: () => 200, seek: (to) => asked.push(["seek", to]), toggle: () => asked.push(["toggle"]), faster: (way) => asked.push(["faster", way]), chef: () => chef };
+  return { asked, t: () => t, end: () => 200, seek: (to) => asked.push(["seek", to]), toggle: () => asked.push(["toggle"]), faster: (way) => asked.push(["faster", way]) };
 }
 
 /** A keydown on the page (`on`: the tag the focus is in), and whether it was prevented. */
@@ -45,12 +46,9 @@ describe("the player's keys (web/player-keys.js)", () => {
     assert.deepEqual(player.asked, [["seek", 50]]);
   });
 
-  it("with the chef at the keyboard, leaves him the arrows and the figures: only space is the player's", () => {
-    const player = playerAt(40, true);
-    assert.equal(playerKey(player, keydown("ArrowLeft")), false);
-    assert.equal(playerKey(player, keydown("3")), false);
-    assert.equal(playerKey(player, keydown(" ")), true);
-    assert.deepEqual(player.asked, [["toggle"]]);
+  it("gets from the page only space while the chef is at the keyboard (web/player.js): the arrows and the figures stay his", () => {
+    assert.deepEqual([" ", "ArrowLeft", "3", "e"].map((key) => toThePlayer(true, keydown(key))), [true, false, false, false]);
+    assert.deepEqual([" ", "ArrowLeft", "3"].map((key) => toThePlayer(false, keydown(key))), [true, true, true]);
   });
 
   it("keeps a turn within the service and a speed within the list", () => {
