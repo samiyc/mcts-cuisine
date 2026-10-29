@@ -79,6 +79,15 @@
   ],
   "versions": [
     {
+      "version": "0.40",
+      "title": "La page : Pause répond",
+      "date": "29/10",
+      "items": [
+        "Pendant un service, le panneau de gauche n'est plus refait à chaque tour quand rien n'y change : le survol des boutons ne clignote plus, et « Pause » répond au clic (le bouton était remplacé entre l'appui et le relâchement)."
+      ],
+      "commits": []
+    },
+    {
       "version": "0.39",
       "title": "Le palier de la recherche, lu",
       "date": "28/10",
@@ -87,7 +96,9 @@
         "256 itérations seules ne paient qu'aux tables de la grande brigade ; 8 coups à la racine ou la profondeur 3 seules ne changent rien. Les réglages par défaut ne bougent pas : à Sami de décider.",
         "Les plats qui meurent au passe pèsent surtout aux tables de la grande brigade : 11,7 par service avec la recherche."
       ],
-      "commits": []
+      "commits": [
+        "fb47f14"
+      ]
     },
     {
       "version": "0.38",

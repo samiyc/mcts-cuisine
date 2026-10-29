@@ -151,7 +151,10 @@ function play() {
 
 function render() {
   const [panel, view] = TABS[state.tab];
-  sidebar.replaceChildren(panel(ctx));
+  const next = panel(ctx);
+  // A playing service renders every turn: an unchanged panel is kept, or the button under the mouse is replaced
+  // between its press and its release (no click: « Pause » did nothing) and its hover flickers (Sami, 29/10/2026).
+  if (!sidebar.firstElementChild?.isEqualNode(next)) sidebar.replaceChildren(next);
   app.replaceChildren(...view(ctx));
 }
 
