@@ -5,6 +5,7 @@ import { searchRule } from "../src/search.js";
 import { beginTurn, createService, drawOrders, interact, isOver, measuresOf, runService, steer, stepService } from "../src/simulate.js";
 import { firstTab, showTab, wireFold, wireTabs } from "./chrome.js";
 import { turnKeys, wireChefKeys } from "./keys.js";
+import { wirePlayerKeys } from "./player.js";
 import { kitchenFrom, kitchenPanel, kitchenView } from "./tabs/kitchen.js";
 import { download, replayClicked, replayFile, replays, replaysPanel, replaysView } from "./tabs/replays.js";
 import { servicePanel, serviceView } from "./tabs/service.js";
@@ -51,7 +52,7 @@ function startReplay(replay) {
   }
   Object.assign(state, { kitchenId: KITCHENS[replay.kitchenId] ? replay.kitchenId : state.kitchenId, setup: replay.setup, seed: replay.seed, rule: replay.rule, human: "clavier", error: "", compared: null });
   restart();
-  replays.playing = { inputs: [...replay.inputs], format: replay.format };
+  replays.playing = { inputs: [...replay.inputs], format: replay.format, replay };
   keyboard.message = `Replay du ${replay.savedAt.slice(0, 16).replace("T", " à ")} : ${replay.inputs.length} touches.`;
   openTab("service");
 }
@@ -244,6 +245,7 @@ layout.addEventListener("submit", (event) => {
 wireTabs(TAB_NAMES, openTab);
 wireFold(layout);
 wireChefKeys({ state, keyboard, manual, replays, step, render });
+wirePlayerKeys({ state, replays, manual, step, restart, startReplay, play, stop, render });
 restart();
 showTab(state.tab);
 render();

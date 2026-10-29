@@ -100,8 +100,17 @@ La disposition de lopin, telle que mcts-urgences l'a reprise le 26/10 :
 - `web/app.js` garde l'état, joue et écoute ; `web/tabs/` donne à chaque onglet son panneau et sa vue ;
   `board.js` dessine le plan et les commandes, `chrome.js` les onglets et le repli, `keys.js` les touches du chef,
   qui ne jouent que dans *Service*.
+- **les touches du lecteur** (Sami, 29/10, comme sur YouTube et chez urgences) : dans *Service*, Espace pour la
+  lecture ou la pause, ← → pour 10 tours en arrière ou en avant (50 avec Maj), ↑ ↓ pour la vitesse, 0 à 9 pour aller
+  de 0 à 90 % du service (la rangée du haut d'un clavier AZERTY et le pavé numérique comptent aussi). Avancer joue les
+  tours entre deux ; reculer rejoue le service depuis le début (ou son replay) jusqu'au tour demandé, puisqu'un service
+  se rejoue de sa graine. Avec le chef au clavier, les flèches et les chiffres restent à lui : seul Espace est au
+  lecteur. `web/player-keys.js` lit la touche (pur, testé) ; `web/player.js` déplace le service ;
+- **le panneau de gauche n'est refait que s'il change** (29/10) : refait à chaque tour, il remplaçait le bouton sous la
+  souris entre l'appui et le relâchement, et « Pause » ne répondait pas.
 
-Vérifiée dans Chrome : le chef au clavier, chaque onglet, le repli, une comparaison, un replay gardé rejoué jusqu'à
+Vérifiée dans Chrome : le chef au clavier, les touches du lecteur (un retour en arrière retrouve le même tour, un
+replay compris), chaque onglet, le repli, une comparaison, un replay gardé rejoué jusqu'à
 la même fin, une cuisine refusée ; aucune erreur de la page dans la console.
 
 ## Le journal des versions

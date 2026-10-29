@@ -3,6 +3,7 @@ import { HUMAN_LABELS, RULE_LABELS } from "../../src/rules.js";
 import { isOver, measuresOf } from "../../src/simulate.js";
 import { kitchenView } from "../board.js";
 import { el, select } from "../dom.js";
+import { CHEF_PLAYER_HINT, PLAYER_HINT } from "../player-keys.js";
 import { statusLine } from "../view.js";
 
 /**
@@ -10,7 +11,7 @@ import { statusLine } from "../view.js";
  * robots' rule, the cook, the service's number, the speed, and the buttons that play it), the service on its plan in
  * the view. `ctx`: the page's `state`, `keyboard`, `manual`, `replays`.
  */
-const SPEEDS = [
+export const SPEEDS = [
   ["0.5", "très lente (2 s par tour)"],
   ["1", "lente (1 s par tour)"],
   ["2", "2 tours par seconde"],
@@ -39,6 +40,7 @@ export function servicePanel({ state, manual, replays }) {
     el("label", {}, "Vitesse", select("speed", SPEEDS, String(state.speed))),
     el("div", { class: "row-buttons" }, button(playing ? "pause" : "play", playing ? "Pause" : "Jouer", false), button("step", "Un tour"), button("finish", "Jusqu'au bout")),
     el("div", { class: "row-buttons" }, button("restart", "Recommencer"), button("next", "Service suivant")),
+    el("p", { class: "hint" }, manual() && !replays.playing ? CHEF_PLAYER_HINT : PLAYER_HINT),
     replays.playing ? el("p", { class: "hint" }, "Un replay se joue : les touches viennent de lui.") : null,
     el("p", { class: "hint" }, hint),
   );
