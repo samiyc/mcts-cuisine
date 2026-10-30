@@ -13,7 +13,7 @@ commande, `npm run check`, que le hook relance avant chaque commit.
 | `npm run lint` (`lint:fix`) | eslint, avec le budget de complexité de lopin |
 | `npm run types` | tsc vérifie le JavaScript d'après ses commentaires JSDoc, sans rien compiler |
 | `npm test` (`test:coverage`) | les tests de `node --test`, dont les empreintes et la longueur des `.md` |
-| `npm run compare` | les règles (et `--search`, la recherche) sur les mêmes services ; `--croisement` : les cuisiniers se croisent dans les allées ; `--ensemble` (avec `--tables`, à l'essai, 30/10) : les robots ne commencent que les plats qui « marchent » avec leur table ; `--contre budget=128` (ou `grace=30`, `depth=3`, `rootWidth=8` : 8 coups à la racine, `width` plus bas, `widening=1` : l'élargissement progressif ; plusieurs séparés par des virgules) : une variante de la recherche à côté de celle par défaut, par paires ; le diagnose dit aussi les `closeCall` tranchés par l'arrêt anticipé et le rang du coup joué dans la liste de la racine |
+| `npm run compare` | les règles (et `--search`, la recherche) sur les mêmes services ; `--croisement` : les cuisiniers se croisent dans les allées ; `--sans-ensemble` (avec `--tables`) : les robots commencent n'importe quel plat d'une table, comme avant le 30/10 (la table part ensemble par défaut depuis) ; `--contre budget=128` (ou `grace=30`, `depth=3`, `rootWidth=8` : 8 coups à la racine, `width` plus bas, `widening=1` : l'élargissement progressif ; plusieurs séparés par des virgules) : une variante de la recherche à côté de celle par défaut, par paires ; le diagnose dit aussi les `closeCall` tranchés par l'arrêt anticipé et le rang du coup joué dans la liste de la racine |
 | `npm run bench` | `scripts/search-bench.js` : la recherche contre les règles, par paires (`--diagnose` : les codes de `diagnose` à chaque décision) |
 | `npm run replay -- fichier.json` | rejoue un service du chef au clavier, dit ce qui a semblé anormal (`--gaps` : les écarts) |
 | `npm run changelog` | refait `web/changelog.html` à partir de `docs/changelog.json` |
@@ -126,8 +126,9 @@ d'abord, avec ses commits. `npm run changelog` en fait `web/changelog.html` ; le
 ## mcts-commun
 
 La cuisine en dépend par `"mcts-commun": "file:../mcts-commun"` : le code vivant, sans version figée. Elle utilise
-`createRng`, `search`, `paired`, `astar`, `createReservations` et `parsePlan`, ainsi que le serveur de la page
-(`bin/serve.js`, les replays), `web/theme.css` et `mcts-backlog` (par `night.json`). Le contrôle de mcts-commun
+`createRng`, `search` et `diagnose`, `paired`, `progress`, `astar`, `createReservations` et `parsePlan`, les touches du
+lecteur (`replay-keys.js`, depuis le 30/10), ainsi que le serveur de la page (`bin/serve.js`, les replays),
+`web/theme.css`, `mcts-backlog` (la file) et `mcts-board` (le tableau des sessions). Le contrôle de mcts-commun
 lui-même (son lint, ses types, son hook) appartient à sa propre session, comme le prévoit urgences.
 
 À proposer à mcts-commun, plus tard : la disposition en onglets et son CSS sont maintenant écrits deux fois (urgences
@@ -150,6 +151,8 @@ côté de la file tournaient pendant qu'elle occupait déjà tous les fils : tou
     `--services`, ids `<id>-t1`, `<id>-t2`…). Il ajoute ensuite le job de la mesure, sous son propre id, qui
     attend les tranches (`after`) et imprime le tableau ; sa sortie reste `runs/*_<id>-<série>.txt`.
   - Chaque `limit` vaut trois fois l'estimation, 30 min au moins.
+  - Une mesure qui commence plus loin (`--de 31`, une confirmation sur d'autres services) est coupée à partir de là
+    (30/10).
   - `night.json` fait 284 jobs pour 87 mesures, `night-reference.json` 65 jobs pour 32 mesures.
 - **Les résultats au fil de l'eau** : `--lignes` (`scripts/compare-lines.js`) écrit une ligne JSON par service
   joué dans `resultats/<empreinte du code>/`. L'empreinte est celle des `src/` de la cuisine et de mcts-commun.
@@ -187,6 +190,11 @@ côté de la file tournaient pendant qu'elle occupait déjà tous les fils : tou
   mcts-backlog` cherchait le paquet sur le registre npm (404) : le lien `file:` avait été installé avant que
   mcts-commun ait ces binaires. `npm install` puis `npm rebuild mcts-commun` les ont mis dans `node_modules/.bin`.
   À refaire quand mcts-commun ajoute un binaire.
+- **Le lanceur permanent** (mcts-commun, 30/10, accord de Sami) : la file démarre avec le PC et prend un job dès
+  qu'il arrive, de jour aussi, 18 fils au plus. Il n'y a plus à attendre la nuit ni à la lancer. Un job qui doit
+  attendre la nuit prend `--not-before`. Un job demande un diviseur de 18 fils (les nôtres : 1).
+- **Les essais courts hors file passent par un créneau** : `npx mcts-backlog --slot N -- commande`, 4 fils et 15 min au
+  plus.
 - **À la main**, seulement les essais courts : moins de 10 services, un cuisinier, quelques minutes.
 - **Pendant qu'une file tourne**, le dépôt reste utilisable à chaque instant : un job démarre avec le code tel qu'il
   est sur le disque.

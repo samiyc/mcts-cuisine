@@ -84,3 +84,31 @@ au banquet de la grande brigade) : la variante joue davantage les coups que les 
 - **La table dont les plats meurent** : la corriger dans le modèle (ne pas envoyer au passe le plat d'une table qui
   ne pourra pas être complète avant qu'il meure) changerait les empreintes, et sans doute ce que le budget gagne
   aux tables.
+
+## La confirmation sur d'autres services, et les tables qui partent ensemble (30/10)
+
+Sami (30/10) : « ok pour les jobs dans la file A vs E », et la correction des tables à tester. Deux séries dans la
+file, sur le code de `3fe63f4` puis `6c07fa2` (sans changement du modèle entre les deux).
+
+**E contre A sur les services 31 à 60** (`essais-ae-31.json`, tag `confirmation-ae-2026-10-30`), par paires :
+
+| Réglage | palier (services 1 à 30) | confirmation (31 à 60) |
+|---|---|---|
+| grande brigade, carte | **+0,57** | −0,07 (−0,48 à 0,34) |
+| postes, carte | **+0,40** | +0,03 (−0,17 à 0,23) |
+| grand détour, carte | **+0,37** | +0,07 (−0,06 à 0,20) |
+| brigade avec plonge, carte | **+0,40** | +0,67 (−0,06 à 1,39) |
+| dark kitchen, comptoirs, couloir, coupée, petite | de −0,03 à +0,27 | de 0 à +0,23, aucun hors de zéro |
+| petite, banquet | +0,17 | +0,53 (−0,22 à 1,28) |
+| grande brigade, banquet | +0,97 | **+2,27 (0,92 à 3,61)**, 2,4 fois le temps |
+
+**Les tables, avec la table qui part ensemble** (`essais-ensemble.json`, tag `ensemble-2026-10-30`, services 1 à 30) :
+E contre A, +0,70 (−1,14 à 2,54) dans la grande brigade, **+1,20 (0,17 à 2,23)** au grand détour.
+
+**Ce qu'on en lit** : à la carte, le gain de E ne se confirme pas. Les quatre réglages significatifs du palier
+retombent à zéro sur d'autres services ; c'étaient, pour l'essentiel, les faux positifs attendus. Le gain de E aux
+tables de la grande brigade (+3,0) tenait aux plats qui mouraient au passe : la table partant ensemble, il n'en reste
+rien de net. E ne paie que là où il faut prévoir loin : le banquet de la grande brigade et les tables du détour.
+
+**À décider (Sami)** : rester à A par défaut. Passer à E seulement pour les banquets, où il gagne 2,3 plats pour 2,4 fois
+le temps, ou ne rien changer.

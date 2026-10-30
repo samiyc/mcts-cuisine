@@ -120,5 +120,12 @@ Les oublis réglés quittent cette liste et vont dans [modele.md](../modele.md) 
 
   Une marge de 5 ou 6 tours faisait mieux dans la brigade avec le plus rapide (14,7 morts) et moins bien au détour
   (7 à 10) : la marge de la règle de la table reste, sans réglage sur ces services. Dans la brigade, il reste
-  autant de morts qu'avec la règle de la table : là, c'est l'engorgement, et l'humain qui n'obéit pas. La recherche,
-  sans et avec l'option, et le palier E avec, sont dans la file (`essais-ensemble.json`, tag `ensemble-2026-10-30`).
+  autant de morts qu'avec la règle de la table : là, c'est l'engorgement, et l'humain qui n'obéit pas.
+
+  **Mesuré dans la file** (`essais-ensemble.json`, tag `ensemble-2026-10-30`, par paires sur les mêmes 30 services,
+  avec moins sans) : les règles gagnent 2 à 4,6 plats à temps (le plus rapide : +4,0 dans la brigade, +4,6 au
+  détour), la règle de la table rien. La recherche, elle, ne change pas nettement : +2,5 (−0,3 à 5,3) dans la brigade,
+  −0,7 (−2,1 à 0,7) au détour ; ses morts au passe 11,7 → 10,4 et 1,7 → 1,1. **Par défaut depuis le 30/10 (Sami : « ok
+  pour --ensemble »)** ; `--sans-ensemble` rejoue l'ancien modèle. Les empreintes des sept cuisines ne bougent pas : elles
+  ne jouaient aucune option. Une empreinte des options (tables, banquet, livraison, rupture) est ajoutée :
+  `62484b7698721c1d` sans l'option, `2bf8be9b82db32d8` avec. Fermé.

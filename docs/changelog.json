@@ -79,6 +79,17 @@
   ],
   "versions": [
     {
+      "version": "0.44",
+      "title": "La table part ensemble, par défaut",
+      "date": "30/10",
+      "items": [
+        "La table part ensemble par défaut (Sami) : un robot ne commence que les plats qui arriveront au passe avec leur table. Sur 30 services, les règles gagnent 2 à 4,6 plats à temps aux tables ; la recherche ne change pas nettement. --sans-ensemble rejoue l'ancien modèle. Une empreinte nouvelle tient les options (tables, banquet, livraison, rupture), qui n'en avaient pas.",
+        "A contre E confirmé sur d'autres services : à la carte, le gain de E ne tient pas (les écarts du palier retombent à zéro). E ne gagne qu'au banquet de la grande brigade (+2,3 plats) et aux tables du détour (+1,2). Les réglages par défaut restent ceux de A.",
+        "Les docs remises à jour : le statut du README, la file et ses créneaux dans l'outillage."
+      ],
+      "commits": []
+    },
+    {
       "version": "0.43",
       "title": "La table part ensemble, à l'essai",
       "date": "30/10",
@@ -86,7 +97,10 @@
         "Une option pour les tables dont les plats meurent au passe l'un après l'autre (accord de Sami) : avec --ensemble, un robot ne commence que les plats qui arriveront au passe avec leur table, comme le fait la règle de la table, quelle que soit sa règle, recherche comprise. Désactivée par défaut : les empreintes ne bougent pas.",
         "Règles seules, sur 30 services : au grand détour, 10 à 14 plats morts au passe par service tombent à 3 environ, et les plats à temps doublent ; dans la grande brigade, le gain est plus petit (le plus rapide : 27,6 → 18,0 morts). La recherche est mesurée dans la file."
       ],
-      "commits": []
+      "commits": [
+        "3fe63f4",
+        "6c07fa2"
+      ]
     },
     {
       "version": "0.42",

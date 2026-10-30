@@ -68,21 +68,21 @@ describe("the tables (src/service-tables.js)", () => {
     assert.equal(RULES.table([salad], { state: { ...busy, cooks: [{ ...cook, step: 2 }] } }), salad);
   });
 
-  it("with the table out together, gives a robot only the dishes fired, the human all of them; off by default", () => {
+  it("with the table out together (the default), gives a robot only the dishes fired, the human all of them", () => {
     const soup = { id: 1, recipe: "soupe", arrival: 5, deadline: 65, table: 1, status: "open" };
     const salad = { id: 2, recipe: "salade", arrival: 5, deadline: 65, table: 1, status: "open" };
     const alone = { id: 3, recipe: "salade", arrival: 6, deadline: 66, status: "open" };
     const open = [soup, salad, alone];
-    const state = { t: 10, upcoming: open, cooks: [], pots: new Map(), setup: { tables: { ...TABLES, together: true } } };
+    const state = { t: 10, upcoming: open, cooks: [], pots: new Map(), setup: { tables: TABLES } };
     // The salad would wait at the pass for the soup's eleven turns: not to a robot (the quickest rule would take it).
     assert.deepEqual(together(state, { kind: "robot" }, open), [soup, alone]);
     assert.deepEqual(together(state, { kind: "human" }, open), open);
-    assert.deepEqual(together({ ...state, setup: { tables: TABLES } }, { kind: "robot" }, open), open);
+    assert.deepEqual(together({ ...state, setup: { tables: { ...TABLES, together: false } } }, { kind: "robot" }, open), open);
   });
 
   it("with the table out together, lets fewer dishes die at the pass in the brigade, the quickest rule's robots", () => {
     const died = (tables) => [1, 2, 3, 4, 5].reduce((sum, seed) => sum + runService(withTables("brigade", tables), seed, RULES.quickest, HUMANS.urgent).measures.died, 0);
-    assert.ok(died({ ...TABLES, together: true }) < died(TABLES));
+    assert.ok(died(TABLES) < died({ ...TABLES, together: false }));
   });
 
   it("is off by default: a kitchen without tables has no table measures, and the search plays with tables", () => {

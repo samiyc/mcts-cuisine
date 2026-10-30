@@ -12,9 +12,10 @@ import { refuseIfOut } from "./service-supply.js";
  * banquet (service-banquet.js) uses the same pass: a course is a table, sent at its turn (`sendAt`) and not before.
  *
  * The pace: a table comes every `every` turns times its mean size, so that a service has about as many dishes with
- * tables as without (a hypothesis, not a source).
+ * tables as without (a hypothesis, not a source). `together`: the table goes out together, the robots start only the
+ * dishes fired with it (service-firing.js; Sami, 30/10/2026, on by default since).
  */
-export const TABLES = Object.freeze({ min: 2, max: 3, pass: 10 });
+export const TABLES = Object.freeze({ min: 2, max: 3, pass: 10, together: true });
 
 /** The turns before the next table, drawn at the service's pace. */
 const gapOf = (setup, rng) => Math.max(1, Math.round(-setup.every * ((setup.tables.min + setup.tables.max) / 2) * Math.log(1 - rng.next())));

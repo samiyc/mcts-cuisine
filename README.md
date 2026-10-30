@@ -5,18 +5,24 @@ arrivent. Les recettes s'enchaînent : couper, cuire, dresser, servir. Les robot
 cuisinier : ils devinent ce qu'il va faire, comme le bot de Lopin devine la main adverse, et montrent la
 tâche qu'ils visent.
 
-Statut (22/10/2026) : le simulateur d'un service sur trois cuisines, deux règles pour les robots et trois
-cuisiniers simulés, comparés par paires (`npm run compare`, [`docs/modele.md`](docs/modele.md)), et la page
-(`npm run page`, http://127.0.0.1:4803/web/) où l'on regarde le service et où l'on dessine sa cuisine.
-Depuis le soir du 22/10, les robots choisissent par la recherche (`src/search.js`,
-`npm run compare -- --search`) : un plat à temps de plus par service environ, dans les trois cuisines.
-Le 23/10, les comptoirs (`_`, les murs restent `#`), où des oignons coupés attendent la cuisson, et des rôles
-pour les robots (l'un coupe, l'autre cuit, avec un coup de main quand le travail s'empile) ; dans la page, des
-vitesses lentes, la couleur et l'âge des commandes, une barre de patience, et **le chef au clavier** (Z Q S D
-pour bouger, E pour travailler au poste d'à côté). Le soir, en option, la soupe qui cuit seule : laissée trop longtemps
-prête, elle brûle, la commande est à refaire et le fourneau à nettoyer. Tard le soir, les comptoirs en relais
-(un tableau des demandes : « il faut un fourneau », « je prends »), le rôle « passe », l'avance au clavier, et
-deux cuisines de Sami : coupée en deux, et le grand détour.
+Statut (30/10/2026) :
+- **Neuf cuisines**, de la petite cuisine à la dark kitchen et à la brigade avec plonge, dont trois dessinées par Sami.
+- **Quatre règles pour les robots** : la plus ancienne, le plat le plus rapide, la table et le rétroplanning.
+- **La recherche** (`src/search.js`, ISMCTS de `mcts-commun`), qui les bat toutes.
+- **Quatre cuisiniers simulés**, et le chef au clavier (Z Q S D pour bouger, E pour travailler).
+- **Les options des métiers de la cuisine** (`docs/metiers.md`) :
+  - les tables, qui partent ensemble ;
+  - le banquet et la livraison ;
+  - la rupture et la mise en place ;
+  - l'aboyeur, les assiettes et la plonge ;
+  - le ménage et les allergènes ;
+  - les pauses, la fatigue et les erreurs de l'humain ;
+  - les pannes des robots.
+- **Les comparaisons par paires** (`npm run compare`), les mesures longues dans la file de la machine
+  (`docs/outillage.md`).
+- **La page** (`npm run page`), en onglets : Service, avec les touches d'un lecteur ; Cuisine ; Replays ; Stats.
+
+Le modèle de départ : [`docs/modele.md`](docs/modele.md).
 Étape 3 de la
 [feuille de route](https://github.com/samiyc/lopin/blob/main/docs/ismcts-ailleurs/feuille-de-route.md),
 après l'entrepôt, dont elle reprend le moteur de grille (`grid` de `mcts-commun`) et ajoute les

@@ -6,6 +6,9 @@ import { KITCHENS } from "../src/kitchens.js";
 import { playReplay } from "../src/replay.js";
 import { HUMANS, RULES, humansOf } from "../src/rules.js";
 import { searchRule } from "../src/search.js";
+import { BANQUET } from "../src/service-banquet.js";
+import { SUPPLY } from "../src/service-supply.js";
+import { TABLES } from "../src/service-tables.js";
 import { measuresOf, runService } from "../src/simulate.js";
 
 /**
@@ -20,6 +23,8 @@ const EXPECTED = {
   replay: "165960bd12b38780",
   search: "976ec2207dff02a8",
   added: "fb30b3733e4da0c8",
+  // 30/10/2026 (Sami): the options had none; added with the table out together by default (62484b7698721c1d without it).
+  options: "2bf8be9b82db32d8",
 };
 
 const digest = (value) => createHash("sha256").update(JSON.stringify(value)).digest("hex").slice(0, 16);
@@ -58,6 +63,15 @@ const FINGERPRINTS = {
   },
   // The kitchens added since, under the quickest dish and the backward planning, the urgent cook, two services each.
   added: () => ADDED.flatMap((id) => [1, 2].flatMap((seed) => [RULES.quickest, RULES.retro].map((rule) => played(KITCHENS[id], seed, rule, "urgent")))),
+  // The options a kitchen may take (tables, a banquet, delivery, a supply that runs out), two rules, the urgent cook.
+  options: () =>
+    [
+      { ...KITCHENS.brigade, tables: TABLES },
+      { ...KITCHENS.detour, tables: TABLES },
+      { ...KITCHENS.petite, banquet: BANQUET },
+      { ...KITCHENS.dark, delivery: KITCHENS.dark.delivery },
+      { ...KITCHENS.petite, supply: SUPPLY },
+    ].flatMap((setup) => [1, 2].flatMap((seed) => [RULES.quickest, RULES.table].map((rule) => played(setup, seed, rule, "urgent")))),
   // A service played by the search, at a small budget.
   search: () => played(KITCHENS.petite, 1, searchRule({ budget: 16 }), "urgent"),
 };
