@@ -1,6 +1,6 @@
 import { KITCHENS } from "../src/kitchens.js";
 import { MOVES, REPLAY_FORMATS, pressKey, replayOf, startsFirst } from "../src/replay.js";
-import { HUMANS, RULES, compareRules, summaryOf } from "../src/rules.js";
+import { HUMANS, RULES, compareRules, humansOf, summaryOf } from "../src/rules.js";
 import { searchRule } from "../src/search.js";
 import { beginTurn, createService, drawOrders, interact, isOver, measuresOf, runService, steer, stepService } from "../src/simulate.js";
 import { firstTab, showTab, wireFold, wireTabs } from "./chrome.js";
@@ -59,6 +59,8 @@ function startReplay(replay) {
 
 function restart() {
   stop();
+  // A kitchen without tables has no cook who follows his table: the urgent one instead.
+  if (state.human === "table" && !humansOf(state.setup).includes("table")) state.human = "urgent";
   keepReplay();
   Object.assign(replays, { inputs: [], playing: null, startedAt: new Date().toISOString() });
   Object.assign(state, { run: state.run + 1, busy: "" });

@@ -113,7 +113,8 @@ La disposition de lopin, telle que mcts-urgences l'a reprise le 26/10 :
 - **le panneau de gauche n'est refait que s'il change** (29/10) : refait à chaque tour, il remplaçait le bouton sous la
   souris entre l'appui et le relâchement, et « Pause » ne répondait pas.
 
-Vérifiée dans Chrome : le chef au clavier, les touches du lecteur (un retour en arrière retrouve le même tour, un
+Revue le 30/10, onglet par onglet (Service, Cuisine avec les tables, Replays et l'analyse des écarts, Stats, le
+journal des versions), sans erreur dans la console. Vérifiée dans Chrome : le chef au clavier, les touches du lecteur (un retour en arrière retrouve le même tour, un
 replay compris), chaque onglet, le repli, une comparaison, un replay gardé rejoué jusqu'à
 la même fin, une cuisine refusée ; aucune erreur de la page dans la console.
 

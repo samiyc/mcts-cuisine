@@ -1,6 +1,6 @@
 import { replayHint } from "mcts-commun/replay-keys.js";
 import { KITCHENS } from "../../src/kitchens.js";
-import { HUMAN_LABELS, RULE_LABELS } from "../../src/rules.js";
+import { HUMAN_LABELS, RULE_LABELS, humansOf } from "../../src/rules.js";
 import { isOver, measuresOf } from "../../src/simulate.js";
 import { kitchenView } from "../board.js";
 import { el, select } from "../dom.js";
@@ -27,7 +27,8 @@ export const CHEF_PLAYER_HINT = "En jeu, les touches sont au chef : le service s
 export const sharedKnobs = (state) => [
   el("label", {}, "Cuisine", select("kitchen", Object.entries(KITCHENS).map(([id, kitchen]) => [id, kitchen.label]), state.kitchenId)),
   el("label", {}, "Les robots prennent", select("rule", Object.entries(RULE_LABELS), state.rule)),
-  el("label", {}, "Le cuisinier", select("human", Object.entries(HUMAN_LABELS), state.human)),
+  // The cook who follows his table only where there are tables (as `npm run compare`); the keyboard and none always.
+  el("label", {}, "Le cuisinier", select("human", Object.entries(HUMAN_LABELS).filter(([name]) => name !== "table" || humansOf(state.setup).includes(name)), state.human)),
   el("label", {}, "Service n°", el("input", { type: "number", min: "1", value: String(state.seed), "data-knob": "seed", inputmode: "numeric" })),
 ];
 

@@ -1,4 +1,4 @@
-import { HUMAN_LABELS, RULE_LABELS } from "../../src/rules.js";
+import { HUMANS, HUMAN_LABELS, RULE_LABELS } from "../../src/rules.js";
 import { bottleneckOf } from "../../src/service-measures.js";
 import { el, fixed } from "../dom.js";
 import { sharedKnobs } from "./service.js";
@@ -41,7 +41,8 @@ export function statsView({ state }) {
   const { services, rows: compared } = state.compared;
   const entries = Object.entries(compared);
   return [
-    el("h2", {}, `Sur les mêmes ${services} services, le cuisinier ${HUMAN_LABELS[state.human]}`),
+    // The chef at the keyboard plays no comparison: the robots are then alone (30/10/2026, the title said « c'est vous »).
+    el("h2", {}, `Sur les mêmes ${services} services, ${HUMANS[state.human] ? "le cuisinier " + HUMAN_LABELS[state.human] : "sans cuisinier : les robots seuls"}`),
     table(["Les robots prennent", "commandes", "à temps", "en retard", "pas servies", "gain à temps (IC 95 %)"], entries.map(([name, row]) => dishesRow(state, name, row))),
     el("h3", {}, "Les indicateurs du métier (moyennes par service, en tours)"),
     el("p", { class: "hint" }, "Le bon : de la commande au passe. Le coup de feu : le plus de bons ouverts à la fois. Le poste le plus occupé : la part des tours où le plus chargé de sa sorte travaille ; l'attente : les tours passés à attendre qu'un poste de cette sorte se libère ; réservé sans travailler : les tours où un poste de cette sorte est retenu par un cuisinier encore en chemin (docs/recherche/indicateurs.md)."),

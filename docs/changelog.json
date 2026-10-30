@@ -85,9 +85,12 @@
       "items": [
         "La table part ensemble par défaut (Sami) : un robot ne commence que les plats qui arriveront au passe avec leur table. Sur 30 services, les règles gagnent 2 à 4,6 plats à temps aux tables ; la recherche ne change pas nettement. --sans-ensemble rejoue l'ancien modèle. Une empreinte nouvelle tient les options (tables, banquet, livraison, rupture), qui n'en avaient pas.",
         "A contre E confirmé sur d'autres services : à la carte, le gain de E ne tient pas (les écarts du palier retombent à zéro). E ne gagne qu'au banquet de la grande brigade (+2,3 plats) et aux tables du détour (+1,2). Les réglages par défaut restent ceux de A.",
-        "Les docs remises à jour : le statut du README, la file et ses créneaux dans l'outillage."
+        "Les docs remises à jour : le statut du README, la file et ses créneaux dans l'outillage.",
+        "La page, revue onglet par onglet : le bouton qui replie le panneau ne cache plus la dernière ligne d'aide ; « suit sa table » n'est proposé que dans une cuisine à tables ; une comparaison avec le chef au clavier se dit « sans cuisinier : les robots seuls », ce qu'elle est."
       ],
-      "commits": []
+      "commits": [
+        "54d089b"
+      ]
     },
     {
       "version": "0.43",
