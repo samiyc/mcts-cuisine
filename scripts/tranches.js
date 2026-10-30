@@ -40,17 +40,22 @@ export function withEarlyStop(job) {
   return { ...job, id: `${job.id}-arret`, command: `${job.command} --arret-anticipe`, estimate: wordsOf(2 * minutesOf(job.estimate)) };
 }
 
-/** `job` (a compare command with `--services N`) as its slices and the job that gathers them, or alone. */
+/**
+ * `job` (a compare command with `--services N`, from service `--de S` or the first) as its slices and the job that
+ * gathers them, or alone.
+ */
 export function slicesOf(job) {
   const services = Number(/--services (\d+)/.exec(job.command)?.[1]);
+  const start = Number(/--de (\d+)/.exec(job.command)?.[1] ?? 1);
+  const base = job.command.replace(/ --de \d+/, "");
   const minutes = minutesOf(job.estimate);
   const count = Math.min(services, Math.ceil(minutes / SLICE));
   if (!services || count <= 1) return [{ ...job, command: `${job.command} --lignes`, limit: limitOf(minutes) }];
   const size = Math.ceil(services / count);
   const each = Math.ceil(minutes / count);
   const slices = [];
-  for (let first = 1, n = 1; first <= services; first += size, n += 1) {
-    const command = job.command.replace(/--services \d+/, `--services ${Math.min(size, services - first + 1)} --de ${first}`);
+  for (let first = start, n = 1; first < start + services; first += size, n += 1) {
+    const command = base.replace(/--services \d+/, `--services ${Math.min(size, start + services - first)} --de ${first}`);
     slices.push({ ...job, id: `${job.id}-t${n}`, command: `${command} --lignes`, estimate: wordsOf(each), limit: limitOf(each) });
   }
   const gather = { ...job, command: `${job.command} --lignes`, estimate: "5 min", limit: limitOf(each), after: [...(job.after ?? []), ...slices.map((one) => one.id)] };

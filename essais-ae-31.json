@@ -1,0 +1,71 @@
+{
+  "about": "A contre E, la confirmation (Sami, 30/10 : « ok pour les jobs dans la file A vs E ») : le palier E (256 itérations, 8 coups à la racine, 5 plus bas, profondeur 3, élargissement 1) contre A, les réglages par défaut, par paires sur 30 autres services (les n° 31 à 60) avec « le plus urgent », dans les neuf cuisines à la carte et les deux banquets du palier du 28/10 (docs/mesures-palier-28-10.md). Les tables sont mesurées avec --ensemble dans essais-ensemble.json. Estimations : les durées réelles des jobs E du palier, plus 30 %. Ajout : npm run tranches -- essais-ae-31.json, puis npx mcts-backlog --add-file essais-ae-31.tranches.json --tag confirmation-ae-2026-10-30.",
+  "jobs": [
+    {
+      "id": "cuis-carte-petite-urgent-E-31",
+      "command": "npm run compare -- --kitchen petite --services 30 --de 31 --search --humain urgent --contre budget=256,rootWidth=8,width=5,depth=3,widening=1",
+      "estimate": "3 min",
+      "priority": 2
+    },
+    {
+      "id": "cuis-carte-couloir-urgent-E-31",
+      "command": "npm run compare -- --kitchen couloir --services 30 --de 31 --search --humain urgent --contre budget=256,rootWidth=8,width=5,depth=3,widening=1",
+      "estimate": "2 min",
+      "priority": 2
+    },
+    {
+      "id": "cuis-carte-brigade-urgent-E-31",
+      "command": "npm run compare -- --kitchen brigade --services 30 --de 31 --search --humain urgent --contre budget=256,rootWidth=8,width=5,depth=3,widening=1",
+      "estimate": "11 min",
+      "priority": 2
+    },
+    {
+      "id": "cuis-carte-comptoirs-urgent-E-31",
+      "command": "npm run compare -- --kitchen comptoirs --services 30 --de 31 --search --humain urgent --contre budget=256,rootWidth=8,width=5,depth=3,widening=1",
+      "estimate": "2 min",
+      "priority": 2
+    },
+    {
+      "id": "cuis-carte-postes-urgent-E-31",
+      "command": "npm run compare -- --kitchen postes --services 30 --de 31 --search --humain urgent --contre budget=256,rootWidth=8,width=5,depth=3,widening=1",
+      "estimate": "3 min",
+      "priority": 2
+    },
+    {
+      "id": "cuis-carte-separee-urgent-E-31",
+      "command": "npm run compare -- --kitchen separee --services 30 --de 31 --search --humain urgent --contre budget=256,rootWidth=8,width=5,depth=3,widening=1",
+      "estimate": "5 min",
+      "priority": 2
+    },
+    {
+      "id": "cuis-carte-detour-urgent-E-31",
+      "command": "npm run compare -- --kitchen detour --services 30 --de 31 --search --humain urgent --contre budget=256,rootWidth=8,width=5,depth=3,widening=1",
+      "estimate": "3 min",
+      "priority": 2
+    },
+    {
+      "id": "cuis-carte-dark-urgent-E-31",
+      "command": "npm run compare -- --kitchen dark --services 30 --de 31 --search --humain urgent --contre budget=256,rootWidth=8,width=5,depth=3,widening=1",
+      "estimate": "8 min",
+      "priority": 2
+    },
+    {
+      "id": "cuis-carte-plonge-urgent-E-31",
+      "command": "npm run compare -- --kitchen plonge --services 30 --de 31 --search --humain urgent --contre budget=256,rootWidth=8,width=5,depth=3,widening=1",
+      "estimate": "10 min",
+      "priority": 2
+    },
+    {
+      "id": "cuis-banquet-petite-urgent-E-31",
+      "command": "npm run compare -- --kitchen petite --banquet --services 30 --de 31 --search --humain urgent --contre budget=256,rootWidth=8,width=5,depth=3,widening=1",
+      "estimate": "16 min",
+      "priority": 2
+    },
+    {
+      "id": "cuis-banquet-brigade-urgent-E-31",
+      "command": "npm run compare -- --kitchen brigade --banquet --services 30 --de 31 --search --humain urgent --contre budget=256,rootWidth=8,width=5,depth=3,widening=1",
+      "estimate": "56 min",
+      "priority": 2
+    }
+  ]
+}

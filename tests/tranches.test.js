@@ -22,6 +22,14 @@ describe("the night's slices (scripts/tranches.js)", () => {
     assert.deepEqual(gather.after, jobs.slice(0, 8).map((one) => one.id));
   });
 
+  it("cuts the services from the first one asked (`--de`), as a confirmation on other services", () => {
+    const job = { id: "cuis-carte-brigade-urgent-E-31", command: "npm run compare -- --kitchen brigade --services 30 --de 31 --search --humain urgent", estimate: "40 min" };
+    const jobs = slicesOf(job);
+    const commands = ["--services 15 --de 31", "--services 15 --de 46"].map((part) => `npm run compare -- --kitchen brigade ${part} --search --humain urgent --lignes`);
+    assert.deepEqual(jobs.slice(0, 2).map((one) => one.command), commands);
+    assert.equal(jobs[2].command, `${job.command} --lignes`);
+  });
+
   it("leaves a short measure whole, its lines written and its limit past the worst case", () => {
     assert.deepEqual(slicesOf({ id: "cuis-carte-petite-none", command: "npm run compare -- --kitchen petite --services 50 --humain none", estimate: "10 min" }), [
       { id: "cuis-carte-petite-none", command: "npm run compare -- --kitchen petite --services 50 --humain none --lignes", estimate: "10 min", limit: 30 },
