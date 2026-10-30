@@ -17,7 +17,7 @@ import { searchLines } from "./compare-search.js";
 import { searchTally } from "./search-tally.js";
 
 /**
- * `npm run compare -- [--kitchen petite|couloir|brigade] [--services 100] [--de 1] [--lignes] [--search [budget]] [--arret-anticipe] [--contre key=value,…] [--tables] [--rupture [n]] [--banquet] [--livraison] [--serie [k]] [--couverts n] [--chaud m] [--mise-en-place] [--aboyeur] [--hygiene] [--fatigue] [--pauses] [--erreurs] [--pannes] [--croisement] [--humain urgent]`: the
+ * `npm run compare -- [--kitchen petite|couloir|brigade] [--services 100] [--de 1] [--lignes] [--search [budget]] [--arret-anticipe] [--contre key=value,…] [--tables] [--rupture [n]] [--banquet] [--livraison] [--serie [k]] [--couverts n] [--chaud m] [--mise-en-place] [--aboyeur] [--hygiene] [--fatigue] [--pauses] [--erreurs] [--pannes] [--croisement] [--ensemble] [--humain urgent]`: the
  * robots' rules on the same drawn services, with each simulated human the service may have (src/rules.js, `humansOf`)
  * and with none, or only `--humain` (a name of HUMANS, or none); every kitchen when none is named.
  * `--search` adds the search (src/search.js, ~1 to 3 s a service). Since step 0 of the trades' roadmap (26/10), each
@@ -74,6 +74,8 @@ const banquetOf = () => ({ ...BANQUET, ...(serie ? { batch: serie } : {}), ...(n
 const aboyeur = args.includes("--aboyeur");
 // `--croisement`: the cooks cross in the aisles, the stations' cells kept one cook's (service-crossing.js).
 const crossing = args.includes("--croisement");
+// `--ensemble` (with `--tables`, Sami, 30/10/2026, to test): the robots start only the dishes fired with their table (service-firing.js `together`).
+const together = args.includes("--ensemble");
 // `--hygiene`: guests allergic to onions, boards cleaned before their salads (service-hygiene.js).
 const hygiene = args.includes("--hygiene");
 // `--fatigue`, `--pauses`, `--erreurs`: the human's limits (service-human.js); `--pannes`: the robots' breakdowns (service-breakdowns.js).
@@ -95,7 +97,7 @@ const HEAD = "L'humain              | Règle des robots         | commandes | à
 function setupOf(id) {
   if (!KITCHENS[id]) throw new Error(`cuisine inconnue ; au choix : ${Object.keys(KITCHENS).join(", ")}`);
   /** @type {[unknown, () => object][]} */
-  const options = [[tables, () => ({ tables: TABLES })], [rupture, () => ({ supply: { o: rupture, t: rupture } })], [banquet, () => ({ banquet: banquetOf() })], [delivery, () => ({ delivery: { ...DELIVERY, ...KITCHENS[id].delivery } })], [mise, () => ({ miseEnPlace: MISE })], [hygiene, () => ({ hygiene: HYGIENE })], [crossing, () => ({ crossing: true })]];
+  const options = [[tables, () => ({ tables: together ? { ...TABLES, together } : TABLES })], [rupture, () => ({ supply: { o: rupture, t: rupture } })], [banquet, () => ({ banquet: banquetOf() })], [delivery, () => ({ delivery: { ...DELIVERY, ...KITCHENS[id].delivery } })], [mise, () => ({ miseEnPlace: MISE })], [hygiene, () => ({ hygiene: HYGIENE })], [crossing, () => ({ crossing: true })]];
   const setup = Object.assign({ ...KITCHENS[id] }, ...options.filter(([on]) => on).map(([, part]) => part()), limits);
   return aboyeur ? withAboyeur(setup) : setup;
 }

@@ -1,0 +1,29 @@
+{
+  "about": "La table part ensemble (Sami, 30/10 : « ok pour la correction dans la grande brigade, à tester ») : les tables de la grande brigade et du grand détour, les mêmes 30 services avec « le plus urgent », sans puis avec --ensemble (un robot ne commence que les plats « qui marchent » avec leur table, service-firing.js together). Avec l'option, la recherche A est jouée contre le palier E (--contre), pour voir ce qui reste du gain de E aux tables une fois les plats morts au passe évités. Estimations : la recherche seule d'après les jobs du palier du 28/10 (C, au coût de A : 14,3 min pour deux recherches dans la brigade, 8,7 au détour), E à 3,7 fois A, 20 % de marge. Ajout : npm run tranches -- essais-ensemble.json, puis npx mcts-backlog --add-file essais-ensemble.tranches.json --tag ensemble-2026-10-30.",
+  "jobs": [
+    {
+      "id": "cuis-tables-brigade-urgent-sans",
+      "command": "npm run compare -- --kitchen brigade --tables --services 30 --search --humain urgent",
+      "estimate": "9 min",
+      "priority": 2
+    },
+    {
+      "id": "cuis-tables-brigade-urgent-ensemble-E",
+      "command": "npm run compare -- --kitchen brigade --tables --services 30 --search --humain urgent --ensemble --contre budget=256,rootWidth=8,width=5,depth=3,widening=1",
+      "estimate": "40 min",
+      "priority": 2
+    },
+    {
+      "id": "cuis-tables-detour-urgent-sans",
+      "command": "npm run compare -- --kitchen detour --tables --services 30 --search --humain urgent",
+      "estimate": "6 min",
+      "priority": 2
+    },
+    {
+      "id": "cuis-tables-detour-urgent-ensemble-E",
+      "command": "npm run compare -- --kitchen detour --tables --services 30 --search --humain urgent --ensemble --contre budget=256,rootWidth=8,width=5,depth=3,widening=1",
+      "estimate": "25 min",
+      "priority": 2
+    }
+  ]
+}

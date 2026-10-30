@@ -79,13 +79,25 @@
   ],
   "versions": [
     {
+      "version": "0.43",
+      "title": "La table part ensemble, à l'essai",
+      "date": "30/10",
+      "items": [
+        "Une option pour les tables dont les plats meurent au passe l'un après l'autre (accord de Sami) : avec --ensemble, un robot ne commence que les plats qui arriveront au passe avec leur table, comme le fait la règle de la table, quelle que soit sa règle, recherche comprise. Désactivée par défaut : les empreintes ne bougent pas.",
+        "Règles seules, sur 30 services : au grand détour, 10 à 14 plats morts au passe par service tombent à 3 environ, et les plats à temps doublent ; dans la grande brigade, le gain est plus petit (le plus rapide : 27,6 → 18,0 morts). La recherche est mesurée dans la file."
+      ],
+      "commits": []
+    },
+    {
       "version": "0.42",
       "title": "Le lecteur de la lib",
       "date": "30/10",
       "items": [
         "Les touches du lecteur viennent du module commun mcts-commun/replay-keys.js, le même que chez urgences et à l'entrepôt (accord de Sami, 30/10) : mêmes touches, mêmes pas (10 tours, 50 avec Maj), même ligne d'aide. Notre copie est supprimée, nos tests de touches passent sur le module."
       ],
-      "commits": []
+      "commits": [
+        "4e9e4e0"
+      ]
     },
     {
       "version": "0.41",

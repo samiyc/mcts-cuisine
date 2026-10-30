@@ -100,3 +100,25 @@ Les oublis réglés quittent cette liste et vont dans [modele.md](../modele.md) 
   11,7 plats meurent au passe par service avec la recherche (17,2 avec la règle de la table), 9,5 avec le palier E ; au
   grand détour, 1,7. Une piste, à décider avec Sami : ne pas envoyer au passe le plat d'une table qui ne pourra pas
   être complète avant qu'il meure.
+
+  **À l'essai (30/10, accord de Sami : « ok pour la correction dans la grande brigade, à tester »)** : le tracé de
+  30 services avec la règle de la table montre une cuisine engorgée aux fourneaux (une soupe prise au tour 137 n'est
+  sur le feu qu'au 170). Un plat refait arrive 30 à 50 tours après ceux de sa table, qui meurent à leur tour. Une salade
+  lancée à côté d'une soupe qui n'a pas commencé arrive la première et meurt au passe. L'option `--ensemble`
+  (`setup.tables.together`, désactivée par défaut, `src/service-firing.js`) impose aux robots de « faire marcher »
+  comme la règle de la table : un robot ne commence que les plats dont les compagnons encore à faire ne demandent pas
+  plus que leur propre travail et 4 tours (`HOLD`), quelle que soit sa règle, recherche comprise. L'humain choisit
+  comme avant. Les règles seules, sur les mêmes 30 services avec « le plus urgent » (plats morts au passe, puis
+  plats à temps, par service) :
+
+  | | grande brigade, sans → avec | grand détour, sans → avec |
+  |---|---|---|
+  | le plus rapide | 27,6 → 18,0 morts ; 4,1 → 8,1 à temps | 14,2 → 3,7 ; 3,5 → 8,1 |
+  | la plus ancienne | 19,5 → 17,2 ; 4,7 → 6,7 | 11,9 → 2,7 ; 4,1 → 8,0 |
+  | le rétroplanning | 17,5 → 16,4 ; 5,1 → 5,9 | 10,1 → 2,9 ; 3,7 → 7,2 |
+  | la table | 17,2 ; 6,7 (inchangée : elle fait déjà marcher ainsi) | 2,3 ; 7,8 |
+
+  Une marge de 5 ou 6 tours faisait mieux dans la brigade avec le plus rapide (14,7 morts) et moins bien au détour
+  (7 à 10) : la marge de la règle de la table reste, sans réglage sur ces services. Dans la brigade, il reste
+  autant de morts qu'avec la règle de la table : là, c'est l'engorgement, et l'humain qui n'obéit pas. La recherche,
+  sans et avec l'option, et le palier E avec, sont dans la file (`essais-ensemble.json`, tag `ensemble-2026-10-30`).

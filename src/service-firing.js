@@ -38,6 +38,18 @@ export function fires(state, order) {
   return mates.every((mate) => leftOf(state, mate) <= workOf(order) + HOLD);
 }
 
+/**
+ * The table goes out together (Sami, 30/10/2026, to test: the tables whose dishes die at the pass one after the other,
+ * docs/recherche/oublis.md): with `setup.tables.together`, a robot starts only the dishes fired, whatever its rule or
+ * the search would take, as the table's rule does; the human chooses as he does. Off by default. On 30 services of
+ * the brigade's tables, a margin of 5 or 6 turns did better than `HOLD` with the quickest dish and worse in the detour:
+ * `HOLD` stays, not tuned.
+ */
+export function together(state, cook, open) {
+  if (cook.kind !== "robot" || !state.setup.tables?.together) return open;
+  return open.filter((order) => fires(state, order));
+}
+
 /** The turns a dish is assumed to take beyond its work: walking, a station to wait for (a hypothesis). */
 const MARGIN = 10;
 /** The turn a dish must start by to go out on time: its send turn (a banquet's) or its deadline, less its work and the margin. */

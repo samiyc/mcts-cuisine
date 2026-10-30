@@ -3,6 +3,7 @@ import { RECIPES } from "./kitchens.js";
 import { PILE, fitsRole, keyOf, kindDistance, placeOf, servable, sideDistance, stepsFrom, stoveFree } from "./service-basics.js";
 import { toldBy } from "./service-aboyeur.js";
 import { formBatch } from "./service-batch.js";
+import { together } from "./service-firing.js";
 import { paceOf, stepAside, watch } from "./service-legs.js";
 import { useSupply } from "./service-supply.js";
 
@@ -55,7 +56,8 @@ export function choiceOf(state, cook) {
   const pile = all.filter((order) => order.status === "prepped");
   const mine = all.filter((order) => fitsRole(cook.role, order) || (pile.length >= PILE && order.status === "prepped"));
   // With an aboyeur, a robot makes what he fired and calls for (service-aboyeur.js).
-  const open = toldBy(state, cook, mine.length > 0 || watching(state, cook) ? mine : all);
+  // A table's dish that would die at the pass waits for its mates, when the table goes out together (service-firing.js).
+  const open = together(state, cook, toldBy(state, cook, mine.length > 0 || watching(state, cook) ? mine : all));
   // A cook whose pot is on keeps an eye on it: a soup to take off, or an order it cuts before its own is ready.
   const own = [...state.pots.values()].find((pot) => pot.owner === cook.id && state.t < pot.ready);
   if (own) return { cook, open: open.filter((order) => order.status === "ready" || (order.status === "open" && walk(order) + 1 + RECIPES[order.recipe].cut + 2 <= own.ready - state.t)), reach };
