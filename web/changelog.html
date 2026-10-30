@@ -4,6 +4,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Journal des versions</title>
+    <link rel="stylesheet" href="../node_modules/mcts-commun/web/theme.css" />
     <link rel="stylesheet" href="style.css" />
     <link rel="stylesheet" href="changelog.css" />
   </head>
@@ -36,6 +37,16 @@
         <h2>Les versions</h2>
 
       <article class="version">
+        <h3><span class="tag">0.45</span> La relecture, et une idée pour la suite <span class="date">30/10</span></h3>
+        <ul>
+          <li>A reste le réglage par défaut de la recherche (Sami) : E ne gagnait, de façon confirmée, qu'au banquet de la grande brigade.</li>
+          <li>La relecture des modules sans test direct (les touches du chef, les lots du banquet, les relais) : pas de défaut trouvé ; les touches qu'un tour joue sont maintenant testées. Le journal des versions charge le thème commun, comme la page (signalé par urgences).</li>
+          <li>Une idée gardée pour plus tard dans la feuille de route : une cuisine aussi riche et visuelle que le grand CHU des urgences, avec d'autres recettes, d'autres stations, la gestion du stock et celle du service.</li>
+        </ul>
+        <p class="commits"></p>
+      </article>
+
+      <article class="version">
         <h3><span class="tag">0.44</span> La table part ensemble, par défaut <span class="date">30/10</span></h3>
         <ul>
           <li>La table part ensemble par défaut (Sami) : un robot ne commence que les plats qui arriveront au passe avec leur table. Sur 30 services, les règles gagnent 2 à 4,6 plats à temps aux tables ; la recherche ne change pas nettement. --sans-ensemble rejoue l'ancien modèle. Une empreinte nouvelle tient les options (tables, banquet, livraison, rupture), qui n'en avaient pas.</li>
@@ -43,7 +54,7 @@
           <li>Les docs remises à jour : le statut du README, la file et ses créneaux dans l'outillage.</li>
           <li>La page, revue onglet par onglet : le bouton qui replie le panneau ne cache plus la dernière ligne d'aide ; « suit sa table » n'est proposé que dans une cuisine à tables ; une comparaison avec le chef au clavier se dit « sans cuisinier : les robots seuls », ce qu'elle est.</li>
         </ul>
-        <p class="commits"><code>54d089b</code></p>
+        <p class="commits"><code>54d089b</code> <code>e542e77</code></p>
       </article>
 
       <article class="version">

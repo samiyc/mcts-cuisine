@@ -79,6 +79,17 @@
   ],
   "versions": [
     {
+      "version": "0.45",
+      "title": "La relecture, et une idée pour la suite",
+      "date": "30/10",
+      "items": [
+        "A reste le réglage par défaut de la recherche (Sami) : E ne gagnait, de façon confirmée, qu'au banquet de la grande brigade.",
+        "La relecture des modules sans test direct (les touches du chef, les lots du banquet, les relais) : pas de défaut trouvé ; les touches qu'un tour joue sont maintenant testées. Le journal des versions charge le thème commun, comme la page (signalé par urgences).",
+        "Une idée gardée pour plus tard dans la feuille de route : une cuisine aussi riche et visuelle que le grand CHU des urgences, avec d'autres recettes, d'autres stations, la gestion du stock et celle du service."
+      ],
+      "commits": []
+    },
+    {
       "version": "0.44",
       "title": "La table part ensemble, par défaut",
       "date": "30/10",
@@ -89,7 +100,8 @@
         "La page, revue onglet par onglet : le bouton qui replie le panneau ne cache plus la dernière ligne d'aide ; « suit sa table » n'est proposé que dans une cuisine à tables ; une comparaison avec le chef au clavier se dit « sans cuisinier : les robots seuls », ce qu'elle est."
       ],
       "commits": [
-        "54d089b"
+        "54d089b",
+        "e542e77"
       ]
     },
     {

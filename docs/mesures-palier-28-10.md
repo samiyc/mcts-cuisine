@@ -110,5 +110,5 @@ retombent à zéro sur d'autres services ; c'étaient, pour l'essentiel, les fau
 tables de la grande brigade (+3,0) tenait aux plats qui mouraient au passe : la table partant ensemble, il n'en reste
 rien de net. E ne paie que là où il faut prévoir loin : le banquet de la grande brigade et les tables du détour.
 
-**À décider (Sami)** : rester à A par défaut. Passer à E seulement pour les banquets, où il gagne 2,3 plats pour 2,4 fois
-le temps, ou ne rien changer.
+**Décidé (Sami, 30/10) : A reste le réglage par défaut**, partout, banquets compris. E reste une variante à mesurer
+(`--contre budget=256,rootWidth=8,width=5,depth=3,widening=1`).

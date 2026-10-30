@@ -120,6 +120,21 @@ D'après [livraison.md](livraison.md) :
   - les degrés et les sondes : les fenêtres de temps suffisent ;
   - le transport en liaison froide et les achats : de la logistique, plus proche de mcts-entrepot.
 
+## Une idée pour la suite : une cuisine aussi riche que le grand CHU (Sami, 30/10)
+
+Une idée à garder, pas encore une étape : « encore un peu tôt ». Sami voudrait que la cuisine se rapproche de la
+complexité et du visuel du grand CHU de mcts-urgences, « c'est très visuel ». Les pistes qu'il cite :
+
+- **d'autres recettes**, au-delà de la soupe à l'oignon et de la salade de tomates, avec des chaînes plus longues ;
+- **d'autres stations** : un four, une friteuse, un grill, un garde-manger, chacune avec sa durée et sa capacité ;
+- **la gestion du stock** : les caisses qui se vident aujourd'hui (la rupture), mais aussi les livraisons, la réserve
+  et la chambre froide, et ce qui se perd ;
+- **la gestion du service** : la salle, les tables et leur rotation, l'envoi des plats, le rythme d'une soirée entière ;
+- **le visuel** : une page qui montre autant que celle du grand CHU, d'un coup d'œil.
+
+La démo statique de la page et l'entretien avec un chef de brigade, proposés pour la semaine du 2/11, attendent aussi :
+il est encore tôt (Sami, 30/10).
+
 ## L'ordre, et ce qui peut changer
 
 Les étapes 0 et 1 viennent d'abord : elles approfondissent la cuisine d'aujourd'hui et ses mesures, sans nouveau
