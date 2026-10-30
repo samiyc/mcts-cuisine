@@ -79,6 +79,15 @@
   ],
   "versions": [
     {
+      "version": "0.42",
+      "title": "Le lecteur de la lib",
+      "date": "30/10",
+      "items": [
+        "Les touches du lecteur viennent du module commun mcts-commun/replay-keys.js, le même que chez urgences et à l'entrepôt (accord de Sami, 30/10) : mêmes touches, mêmes pas (10 tours, 50 avec Maj), même ligne d'aide. Notre copie est supprimée, nos tests de touches passent sur le module."
+      ],
+      "commits": []
+    },
+    {
       "version": "0.41",
       "title": "Les touches du lecteur",
       "date": "29/10",
@@ -88,7 +97,8 @@
       ],
       "commits": [
         "9ca4509",
-        "5bf076d"
+        "5bf076d",
+        "6442213"
       ]
     },
     {

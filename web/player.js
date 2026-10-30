@@ -1,9 +1,9 @@
 import { isOver } from "../src/simulate.js";
-import { nextSpeed, playerKey, within } from "./player-keys.js";
+import { nextSpeed, replayKeys, within } from "mcts-commun/replay-keys.js";
 import { SPEEDS } from "./tabs/service.js";
 
 /**
- * The service's player at the keyboard (Sami, 29/10/2026, player-keys.js): in the tab « Service », space plays or
+ * The service's player at the keyboard (Sami, 29/10/2026; mcts-commun's replay-keys.js since 30/10): in the tab « Service », space plays or
  * pauses, the arrows move in the service or change its speed, the figures go to a tenth of it; none while the chef is played. Going on plays the
  * turns between; going back plays the service again from its start (a service, and its replay, replay from their
  * seed), to the turn asked. The page breathes while the search thinks. `page`: the page's `state`, `replays`,
@@ -12,6 +12,8 @@ import { SPEEDS } from "./tabs/service.js";
 const breathe = () => new Promise((resolve) => setTimeout(resolve, 0));
 /** While a seek runs: whether the service plays on once there (space while seeking changes it). */
 const seeking = { id: 0, resume: null };
+/** The keys of a video, in turns: 10 back or on, 50 with Shift, a tenth of the service to the whole turn. */
+const playerKey = replayKeys({ step: 10, bigStep: 50, whole: true });
 
 /** Back to the start: the replay playing, from its first key, or the service. */
 const rewind = (page) => (page.replays.playing ? page.startReplay(page.replays.playing.replay) : page.restart());

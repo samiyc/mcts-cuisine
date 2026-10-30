@@ -1,9 +1,9 @@
+import { replayHint } from "mcts-commun/replay-keys.js";
 import { KITCHENS } from "../../src/kitchens.js";
 import { HUMAN_LABELS, RULE_LABELS } from "../../src/rules.js";
 import { isOver, measuresOf } from "../../src/simulate.js";
 import { kitchenView } from "../board.js";
 import { el, select } from "../dom.js";
-import { CHEF_PLAYER_HINT, PLAYER_HINT } from "../player-keys.js";
 import { statusLine } from "../view.js";
 
 /**
@@ -18,6 +18,10 @@ export const SPEEDS = [
   ["4", "normale (4 tours par s)"],
   ["10", "rapide (10 tours par s)"],
 ];
+
+/** The player's line of help (mcts-commun's replay-keys.js); with the chef at the keyboard, the keys are his (Sami, 29/10/2026). */
+export const PLAYER_HINT = replayHint({ step: "10 tours", bigStep: "50", of: " du service" });
+export const CHEF_PLAYER_HINT = "En jeu, les touches sont au chef : le service se pilote par les boutons";
 
 /** The kitchen, the robots' rule and the cook: the settings the tabs share. */
 export const sharedKnobs = (state) => [

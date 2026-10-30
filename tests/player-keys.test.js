@@ -1,7 +1,10 @@
 import { describe, it } from "node:test";
 import assert from "node:assert/strict";
-import { nextSpeed, playerKey, within } from "../web/player-keys.js";
-import { SPEEDS } from "../web/tabs/service.js";
+import { nextSpeed, replayKeys, within } from "mcts-commun/replay-keys.js";
+import { PLAYER_HINT, SPEEDS } from "../web/tabs/service.js";
+
+/** The player's keys as web/player.js makes them. */
+const playerKey = replayKeys({ step: 10, bigStep: 50, whole: true });
 
 /** A player at turn 40 of 200 that writes down what the keys asked. */
 function playerAt(t = 40) {
@@ -15,8 +18,8 @@ function keydown(key, { code = "", on = "body", ...modifiers } = {}) {
   return Object.assign(event, { target: { closest: (tags) => (tags.split(", ").includes(on) ? {} : null) }, preventDefault: () => (event.prevented = true) });
 }
 
-/** The player's keys, as on a video (Sami, 29/10/2026: web/player-keys.js, as mcts-urgences'). */
-describe("the player's keys (web/player-keys.js)", () => {
+/** The player's keys, as on a video (Sami, 29/10/2026; mcts-commun's replay-keys.js since 30/10, our steps on it). */
+describe("the player's keys (mcts-commun/replay-keys.js, in turns)", () => {
   it("plays or pauses with space, moves 10 turns or 50 with Shift, changes the speed, goes to a tenth", () => {
     const player = playerAt();
     for (const event of [keydown(" "), keydown("ArrowLeft"), keydown("ArrowRight", { shiftKey: true }), keydown("ArrowUp"), keydown("ArrowDown"), keydown("7")]) {
@@ -51,5 +54,15 @@ describe("the player's keys (web/player-keys.js)", () => {
     assert.equal(nextSpeed(SPEEDS, 10, 1), 10);
     assert.equal(nextSpeed(SPEEDS, 0.5, -1), 0.5);
     assert.equal(nextSpeed(SPEEDS, 1, -1), 0.5);
+  });
+
+  it("goes to a whole turn and stays within the service", () => {
+    const player = { ...playerAt(195), end: () => 205 };
+    for (const key of ["ArrowRight", "3"]) playerKey(player, keydown(key));
+    assert.deepEqual(player.asked, [["seek", 205], ["seek", 62]]);
+  });
+
+  it("says its keys under the buttons", () => {
+    assert.equal(PLAYER_HINT, "Espace : lecture ou pause ; ← → : 10 tours, avec Maj : 50 ; ↑ ↓ : plus ou moins vite ; 0 à 9 : de 0 à 90 % du service");
   });
 });

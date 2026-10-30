@@ -106,8 +106,10 @@ La disposition de lopin, telle que mcts-urgences l'a reprise le 26/10 :
   tours entre deux ; reculer rejoue le service depuis le début (ou son replay) jusqu'au tour demandé, puisqu'un service
   se rejoue de sa graine. Avec le chef au clavier, la page est un jeu, plus un lecteur : aucune touche ne va au
   lecteur, Espace compris (Sami, 29/10), il se pilote par ses boutons ; la page le décide avant le lecteur.
-  `web/player-keys.js` lit la touche (pur, testé) ; `web/player.js` choisit les touches qui lui vont et déplace le
-  service ;
+  La touche est lue par le module commun `mcts-commun/replay-keys.js` (depuis le 30/10, avec l'accord de Sami : les
+  copies d'urgences, de l'entrepôt et de la cuisine n'en font plus qu'une), à nos pas : `replayKeys({ step: 10,
+  bigStep: 50, whole: true })` ; nos tests de touches passent dessus. `web/player.js` choisit les touches qui lui vont
+  et déplace le service ;
 - **le panneau de gauche n'est refait que s'il change** (29/10) : refait à chaque tour, il remplaçait le bouton sous la
   souris entre l'appui et le relâchement, et « Pause » ne répondait pas.
 
