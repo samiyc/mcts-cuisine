@@ -196,6 +196,11 @@ côté de la file tournaient pendant qu'elle occupait déjà tous les fils : tou
   attendre la nuit prend `--not-before`. Un job demande un diviseur de 18 fils (les nôtres : 1).
 - **Les essais courts hors file passent par un créneau** : `npx mcts-backlog --slot N -- commande`, 4 fils et 15 min au
   plus.
+- **Le ramasse-miettes, mesuré et laissé tel quel** (31/10, la proposition de mcts-commun, accord de Sami « à mesurer
+  puis adopter ») : `--min-semi-space-size=64 --max-semi-space-size=64` sur la ligne `node`. Mesuré sur 10 services
+  de la grande brigade avec la recherche, trois fois de chaque en alternance, sous `--slot` : 16,7 s sans, 16,5 s avec,
+  soit −1,4 %, avec les mêmes tableaux. Commun trouvait −4,9 % sur la petite cuisine, où la recherche pèse moins.
+  Le gain est dans le bruit, et coûte 128 Mo par processus : nos commandes ne changent pas.
 - **À la main**, seulement les essais courts : moins de 10 services, un cuisinier, quelques minutes.
 - **Pendant qu'une file tourne**, le dépôt reste utilisable à chaque instant : un job démarre avec le code tel qu'il
   est sur le disque.
