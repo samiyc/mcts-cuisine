@@ -4,7 +4,7 @@ import { DAY_PLAN } from "../../src/day-plan.js";
 import { sceneAt } from "../../src/day-scene.js";
 import { runDay } from "../../src/day.js";
 import { createPlan, moodOf } from "../day-draw.js";
-import { el } from "../dom.js";
+import { el, fixed } from "../dom.js";
 
 /**
  * The tab « Journée » (Sami, 1/11/2026, docs/journee.md): the showcase's day, computed once and replayed. The panel and
@@ -58,7 +58,7 @@ function compute() {
 function drawReview() {
   if (!parts.review) return;
   const one = dayMeasures(day.trace);
-  parts.review.textContent = `${one.guests} clients à ${one.tables} tables, ${one.plates} assiettes. Un bon : ${one.ticketMean} min en moyenne, ${one.ticketMax} au pire. Une table : ${one.tableMean} min, et ${one.waitedMean} min d'attente à l'entrée en moyenne (${one.waitedMax} au pire). Fermé à ${one.closedAt}.`;
+  parts.review.textContent = `${one.guests} clients à ${one.tables} tables, ${one.plates} assiettes. Un bon : ${fixed(one.ticketMean)} min en moyenne, ${fixed(one.ticketMax)} au pire. Une table : ${fixed(one.tableMean)} min, et ${fixed(one.waitedMean)} min d'attente à l'entrée en moyenne (${fixed(one.waitedMax)} au pire). Fermé à ${one.closedAt}.`;
 }
 
 /** Where second `t` falls on the band, in percent. */

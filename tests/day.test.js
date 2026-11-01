@@ -146,6 +146,7 @@ describe("the scene of the day (src/day-scene.js)", () => {
 
   it("gives the clock and the phase", () => {
     assert.equal(clockOf(20 * 3600 + 5 * 60), "20 h 05");
+    assert.equal(clockOf(24 * 3600 + 14 * 60), "0 h 14");
     const day = dayOf(1);
     assert.equal(sceneAt(day, 8.5 * 3600).phase.id, "reception");
     assert.equal(sceneAt(day, 20 * 3600).phase.id, "service");

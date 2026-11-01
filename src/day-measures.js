@@ -58,6 +58,7 @@ export function dayMeasures(trace) {
     cooledMax: round(minutes(Math.max(0, ...trace.log.filter((one) => one.type === "cooled").map((one) => one.seconds)))),
     drinks: trace.log.filter((one) => one.type === "drink").length,
     closedAt: clockOf(trace.end),
+    closedSeconds: trace.end,
     stations: ["P", "A", "_", "S", "C", "Z", "L"].map((kind) => fullness(trace, kind)),
     staff: staffOf(trace.people),
   };

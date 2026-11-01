@@ -27,7 +27,7 @@ const EXPECTED = {
   added: "fb30b3733e4da0c8",
   // 30/10/2026 (Sami): the options had none; added with the table out together by default (62484b7698721c1d without it).
   options: "2bf8be9b82db32d8",
-  day: "68fb1c3d5fed85fb",
+  day: "2b8e1e6a501da132",
 };
 
 const digest = (value) => createHash("sha256").update(JSON.stringify(value)).digest("hex").slice(0, 16);

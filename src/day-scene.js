@@ -52,10 +52,10 @@ export const gaugeAt = (series, t) => lastBefore(series ?? [], t, (entry) => ent
 /** The phase at `t`. */
 export const phaseAt = (phases, t) => lastBefore(phases, t, (phase) => phase.from) ?? phases[0];
 
-/** The clock's words for second `t` of the day: « 20 h 05 ». */
+/** The clock's words for second `t` of the day, past midnight too: « 20 h 05 », « 0 h 14 ». */
 export function clockOf(t) {
   const minutes = Math.floor(t / 60);
-  return `${Math.floor(minutes / 60)} h ${String(minutes % 60).padStart(2, "0")}`;
+  return `${Math.floor(minutes / 60) % 24} h ${String(minutes % 60).padStart(2, "0")}`;
 }
 
 /** The portions in the fridges by `course` (entrees and mains together), from each dish's gauge. */

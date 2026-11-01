@@ -15,7 +15,8 @@ const ms = (performance.now() - t0) / days;
 const average = (read) => measures.reduce((total, one) => total + read(one), 0) / days;
 
 for (const name of SUMMED) console.log(`${name.padEnd(12)} ${average((one) => one[name]).toFixed(1)}`);
-console.log(`\nfermé à       ${measures.map((one) => one.closedAt).sort().at(-1)} au plus tard, ${ms.toFixed(0)} ms par journée`);
+const latest = measures.reduce((last, one) => (one.closedSeconds > last.closedSeconds ? one : last));
+console.log(`\nfermé à       ${latest.closedAt} au plus tard, ${ms.toFixed(0)} ms par journée`);
 console.log("\nposte  cases  pris au plus  plein pendant le service");
 measures[0].stations.forEach((station, i) => console.log(`${station.kind.padEnd(6)} ${String(station.count).padEnd(6)} ${average((one) => one.stations[i].highest).toFixed(1).padEnd(13)} ${average((one) => one.stations[i].fullShare).toFixed(1)} %`));
 console.log("\nqui             mètres  heures");
