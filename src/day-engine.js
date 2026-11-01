@@ -15,7 +15,7 @@ import { START, WALK } from "./day-program.js";
  */
 
 export function createWorld(layout, seed) {
-  return { layout, rng: createRng(seed), events: createEvents(START), t: START, staff: [], people: [], tasks: [], taskCount: 0, claims: new Map(), lines: new Map(), stock: new Map(), gauges: {}, marks: [], uses: [], log: [], end: START };
+  return { layout, rng: createRng(seed), events: createEvents(START), t: START, staff: [], people: [], tasks: [], taskCount: 0, claims: new Map(), lines: new Map(), stock: new Map(), gauges: {}, marks: [], uses: [], log: [], end: START, crates: 0, washing: false, ticketCount: 0 };
 }
 
 /** Runs `run` at `time`, or now if that has passed. */
@@ -48,7 +48,11 @@ export function addStock(world, name, amount) {
 }
 
 /** Something to show on a cell from now until `t1`: a pot on a stove, plates on a table. */
-export const mark = (world, cell, parts) => world.marks.push({ x: cell.x, y: cell.y, t0: world.t, ...parts });
+export function mark(world, cell, parts) {
+  const one = { x: cell.x, y: cell.y, t0: world.t, ...parts };
+  world.marks.push(one);
+  return one;
+}
 
 /** Walks `person` to `cell`, then `then()`. */
 export function walkTo(world, person, { cell, label }, then) {

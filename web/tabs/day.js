@@ -19,6 +19,8 @@ const GAUGES = [
   ["plats", "Plats aux frigos"],
   ["desserts", "Desserts aux frigos"],
   ["sale", "Batterie sale"],
+  ["bons", "Bons en cours"],
+  ["envoyes", "Assiettes envoyées"],
 ];
 const REDRAW_EVERY = 200;
 /** The summed gauges' full bars: what the batches make. */

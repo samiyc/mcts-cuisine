@@ -20,20 +20,21 @@ export const PHASES = Object.freeze([
 ]);
 
 /**
- * The brigade: each one's name, the short mark the plan shows, and what they do, their own work first. `control` checks
- * the delivery (one who can refuse a product, Assurup in docs/recherche/journee.md).
+ * The brigade: each one's name, the short mark the plan shows, what they do through the day, their own work first, and
+ * what they do at the service (`service`). `control` checks the delivery (one who can refuse a product, Assurup in
+ * docs/recherche/journee.md).
  */
 export const BRIGADE = Object.freeze([
-  Object.freeze({ name: "Le chef", mark: "Ch", skills: Object.freeze(["passe", "control", "chaud", "prep"]) }),
-  Object.freeze({ name: "Le second", mark: "2d", skills: Object.freeze(["chaud", "control", "prep"]) }),
-  Object.freeze({ name: "Chef de partie 1", mark: "P1", skills: Object.freeze(["chaud", "prep"]) }),
-  Object.freeze({ name: "Chef de partie 2", mark: "P2", skills: Object.freeze(["chaud", "prep"]) }),
-  Object.freeze({ name: "Garde-manger", mark: "GM", skills: Object.freeze(["froid", "prep"]) }),
-  Object.freeze({ name: "Pâtissier", mark: "Pâ", skills: Object.freeze(["patisserie", "prep"]) }),
-  Object.freeze({ name: "Commis 1", mark: "C1", skills: Object.freeze(["prep", "froid", "chaud"]) }),
-  Object.freeze({ name: "Commis 2", mark: "C2", skills: Object.freeze(["prep", "chaud", "froid"]) }),
-  Object.freeze({ name: "Commis 3", mark: "C3", skills: Object.freeze(["prep", "patisserie", "plonge"]) }),
-  Object.freeze({ name: "Plongeur", mark: "Pl", skills: Object.freeze(["plonge", "prep"]) }),
+  Object.freeze({ name: "Le chef", mark: "Ch", skills: Object.freeze(["passe", "control", "chaud", "prep"]), service: Object.freeze(["passe"]) }),
+  Object.freeze({ name: "Le second", mark: "2d", skills: Object.freeze(["chaud", "control", "prep"]), service: Object.freeze(["chaud"]) }),
+  Object.freeze({ name: "Chef de partie 1", mark: "P1", skills: Object.freeze(["chaud", "prep"]), service: Object.freeze(["chaud"]) }),
+  Object.freeze({ name: "Chef de partie 2", mark: "P2", skills: Object.freeze(["chaud", "prep"]), service: Object.freeze(["chaud"]) }),
+  Object.freeze({ name: "Garde-manger", mark: "GM", skills: Object.freeze(["froid", "prep"]), service: Object.freeze(["froid"]) }),
+  Object.freeze({ name: "Pâtissier", mark: "Pâ", skills: Object.freeze(["patisserie", "prep"]), service: Object.freeze(["patisserie"]) }),
+  Object.freeze({ name: "Commis 1", mark: "C1", skills: Object.freeze(["prep", "froid", "chaud"]), service: Object.freeze(["froid", "chaud"]) }),
+  Object.freeze({ name: "Commis 2", mark: "C2", skills: Object.freeze(["prep", "chaud", "froid"]), service: Object.freeze(["chaud", "froid"]) }),
+  Object.freeze({ name: "Commis 3", mark: "C3", skills: Object.freeze(["prep", "patisserie", "plonge"]), service: Object.freeze(["patisserie", "froid", "plonge"]) }),
+  Object.freeze({ name: "Plongeur", mark: "Pl", skills: Object.freeze(["plonge", "prep"]), service: Object.freeze(["plonge"]) }),
 ]);
 
 /**

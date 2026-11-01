@@ -62,10 +62,19 @@ describe("the day (src/day.js)", () => {
 
     it(`makes every batch ahead, cooled within the 2 hours (seed ${seed})`, () => {
       const { gauges, log } = dayOf(seed);
-      for (const dish of MENU) assert.equal(gauges[portionsOf(dish)].at(-1)[1], dish.batches * dish.portions, dish.id);
+      for (const dish of MENU) assert.equal(Math.max(...gauges[portionsOf(dish)].map(([, value]) => value)), dish.batches * dish.portions, dish.id);
       const cooled = log.filter((one) => one.type === "cooled");
       assert.equal(cooled.length, MENU.filter((dish) => dish.chain.some((step) => step.chill)).reduce((sum, dish) => sum + dish.batches, 0));
       for (const one of cooled) assert.ok(one.seconds <= 2 * 3600, `${one.dish} : ${one.seconds} s`);
+    });
+
+    it(`sends every ticket of the evening, in less than an hour (seed ${seed})`, () => {
+      const { gauges, log } = dayOf(seed);
+      assert.equal(gauges.bons.at(-1)[1], 0);
+      const tickets = log.filter((one) => one.type === "ticket");
+      assert.ok(tickets.length > 30, String(tickets.length));
+      for (const ticket of tickets) assert.ok(ticket.seconds < 3600, `table ${ticket.table} : ${ticket.seconds} s`);
+      assert.equal(gauges.envoyes.at(-1)[1], tickets.reduce((sum, ticket) => sum + ticket.dishes, 0));
     });
 
     it(`keeps everyone on the floor as they walk (seed ${seed})`, () => {

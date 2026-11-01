@@ -48,3 +48,15 @@ ce que quelqu'un vienne la retirer, en priorité. Ce qui a cuit passe en cellule
 un test : **moins de 2 h entre la fin de la cuisson et la fin du refroidissement**. Les salades sont coupées en dernier,
 à partir de 14 h 30. Chaque étape salit de la batterie, que le plongeur lave par charges de 6 ; le commis 3 l'aide
 quand il n'a rien d'autre. Les jauges montrent les caisses qui descendent et les plats qui montent.
+
+### Le service en cuisine (étape 3)
+
+À 16 h 30, ménage intermédiaire et bacs montés aux postes ; à 18 h 30, chacun à son poste, et le chef ne quitte plus le
+passe. Un bon est le temps d'une table : chaque plat sort du frigo, est réchauffé ou cuit à la minute, dressé, posé au
+passe. Quand toutes les assiettes d'un bon sont là, le chef les contrôle et les envoie. Le bon le plus ancien passe
+d'abord, un peu avant le plus proche.
+
+Une portion est réservée à la commande, et un plat épuisé sort de la carte. Une réchauffe se fait une fois, comme la
+règle le demande. Sur la journée n° 1 : 92 bons et 227 assiettes, 6,1 min par bon en moyenne, 10,4 au 90ᵉ centile, 12,1
+au pire ; 11 bons au plus en même temps, le pic entre 20 h et 21 h. Aucune référence publiée à comparer
+([brigade-service.md](recherche/brigade-service.md)) : chaque cuisine se mesure contre elle-même.

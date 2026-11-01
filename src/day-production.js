@@ -71,7 +71,7 @@ function stepDone(world, batch, station) {
 }
 
 /** A pan to wash: the dish room is told if nobody is on it. */
-function dirtyPan(world) {
+export function dirtyPan(world) {
   addStock(world, "sale", 1);
   if (world.washing || world.stock.get("sale") < 1) return;
   offerWash(world);
