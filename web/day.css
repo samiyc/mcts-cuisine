@@ -1,0 +1,60 @@
+/* The tab « Journée » (Sami, 1/11/2026, docs/journee.md): the plan as large as it goes, the band of the phases above it. */
+.day-view { display: grid; gap: 10px; }
+main.layout:has(.day-view) { max-width: none; }
+.day-head { display: flex; align-items: baseline; gap: 12px; }
+.day-clock { font-size: 1.7rem; font-variant-numeric: tabular-nums; line-height: 1; }
+.day-phase { color: var(--ink-2); font-weight: 600; }
+
+.day-band { position: relative; display: flex; gap: 3px; }
+.day-band button { min-width: 0; padding: 4px 2px; font-size: 0.78rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; border-radius: 6px; }
+.day-band button.on { background: var(--accent-soft); border-color: var(--accent); font-weight: 700; }
+.day-cursor { position: absolute; top: -3px; bottom: -3px; width: 3px; margin-left: -1px; border-radius: 2px; background: var(--accent); pointer-events: none; }
+
+.day-layout { display: grid; grid-template-columns: minmax(0, 1fr) 290px; gap: 12px; align-items: start; }
+@media (max-width: 1100px) { .day-layout { grid-template-columns: minmax(0, 1fr); } }
+.day-stage { background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius); box-shadow: var(--shadow); padding: 6px; }
+.day-board { display: block; width: 100%; height: auto; }
+.day-side { display: grid; gap: 12px; }
+
+.day-cell { fill: var(--floor); }
+.day-cell.wall { fill: var(--counter); }
+.day-cell.station { fill: var(--station); }
+.day-cell.truck { fill: #8fa3b3; }
+.day-cell.yard { fill: #b9d6a6; }
+.day-cell.cold { fill: #bfdcec; }
+.day-cell.hot { fill: #f2b28c; }
+.day-cell.store { fill: #e0cda2; }
+.day-cell.pass { fill: #f3d36b; }
+.day-cell.wash { fill: #c9d7d9; }
+.day-cell.water { fill: #a7d3f0; }
+.day-cell.table { fill: #a9805a; }
+.day-cell.seat { fill: #d9c3a8; }
+.day-icon { font-size: 14px; text-anchor: middle; pointer-events: none; }
+.day-name { font-size: 11px; font-weight: 700; text-anchor: middle; fill: var(--ink); paint-order: stroke; stroke: var(--panel); stroke-width: 3px; pointer-events: none; }
+.day-on { font-size: 15px; text-anchor: middle; pointer-events: none; }
+
+.day-person .body { stroke-width: 2.5; fill: #30506e; stroke: #4fae5c; }
+.day-person.cook .body { fill: #fff; }
+.day-person.waiter .body { fill: #2a2a33; stroke: #fff; }
+.day-person.guest .body { fill: #c77fb0; stroke: #fff; stroke-width: 1.5; }
+.day-person[data-mood="low"] .body { stroke: #e2a21a; }
+.day-person[data-mood="bad"] .body { stroke: #d6372c; }
+.day-person .letters { font: 700 10px system-ui, sans-serif; text-anchor: middle; fill: #222; pointer-events: none; }
+.day-person.waiter .letters { fill: #fff; }
+.day-person .carry { font-size: 12px; pointer-events: none; }
+
+.day-gauge { display: grid; grid-template-columns: 112px minmax(0, 1fr) 32px; align-items: center; gap: 6px; font-size: 0.8rem; }
+.day-bar { display: block; height: 8px; border-radius: 4px; background: var(--line); overflow: hidden; }
+.day-bar span { display: block; height: 100%; background: var(--accent); }
+.day-number { text-align: right; font-variant-numeric: tabular-nums; }
+
+.day-cooks { display: grid; gap: 3px; margin: 0; padding: 0; list-style: none; font-size: 0.8rem; }
+.day-cook { display: flex; align-items: center; gap: 6px; min-width: 0; }
+.day-chip { flex: none; width: 24px; height: 18px; border: 2px solid #4fae5c; border-radius: 9px; font: 700 10px/14px system-ui, sans-serif; text-align: center; }
+.day-cook[data-mood="low"] .day-chip { border-color: #e2a21a; }
+.day-cook[data-mood="bad"] .day-chip { border-color: #d6372c; }
+.day-doing { min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+.day-editor textarea { width: 100%; margin: 6px 0; font: 11px/1.15 ui-monospace, Consolas, monospace; overflow-x: auto; }
+.day-editor summary { cursor: pointer; font-size: 0.82rem; font-weight: 600; }
+.row-buttons button[aria-pressed="true"] { background: var(--accent-soft); border-color: var(--accent); }

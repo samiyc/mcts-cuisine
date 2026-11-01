@@ -1,0 +1,68 @@
+import { dayLayout } from "./day-plan.js";
+import { BRIGADE, DELIVERY, PHASES, START } from "./day-program.js";
+import { addPerson, addStock, at, createWorld, offer, runWorld, segment } from "./day-engine.js";
+
+/**
+ * A whole day of the showcase (Sami, 1/11/2026, docs/journee.md): the kitchen's day played once, from a seed, by simple
+ * rules; what comes out is a trace (`runDay`), replayed by the page (day-scene.js, web/tabs/day.js).
+ */
+
+/** A crate of `lot`: from the truck to its store. */
+function crateTask(lot) {
+  return {
+    label: `ranger ${lot.label}`,
+    skill: "prep",
+    priority: lot.priority,
+    legs: [
+      { at: "K", seconds: DELIVERY.take, label: `décharger ${lot.label}`, carry: lot.emoji, take: { camion: 1 } },
+      { at: lot.store, seconds: DELIVERY.put, label: `ranger ${lot.label}`, carry: null, put: { [lot.store]: 1 } },
+    ],
+  };
+}
+
+/** The check of `lot` at the truck, by one who can refuse it: its crates may then be put away. */
+function controlTask(world, lot) {
+  return {
+    label: `contrôler ${lot.label}`,
+    skill: "control",
+    priority: lot.priority + 5,
+    legs: [{ at: "K", seconds: DELIVERY.control, label: `contrôler ${lot.label}` }],
+    done: () => {
+      for (let crate = 0; crate < lot.crates; crate += 1) offer(world, crateTask(lot));
+    },
+  };
+}
+
+/** The truck at the dock: its lots to check, the cold first. */
+function receive(world) {
+  addStock(world, "camion", DELIVERY.lots.reduce((sum, lot) => sum + lot.crates, 0));
+  for (const lot of DELIVERY.lots) {
+    addStock(world, lot.store, 0);
+    offer(world, controlTask(world, lot));
+  }
+}
+
+/** The brigade comes in by the back door, one after the other. */
+function arrive(world, layout) {
+  BRIGADE.forEach((spec, i) => {
+    const person = addPerson(world, { ...spec, kind: "cook" }, layout.back);
+    at(world, START + i * 15, () => segment(world, person, { kind: "idle", label: "arrive" }));
+  });
+}
+
+/** The trace of a world played: what the page and the tests read. */
+function traceOf(world) {
+  return { layout: world.layout, phases: PHASES, start: START, end: world.end, people: world.people, gauges: world.gauges, marks: world.marks, uses: world.uses, log: world.log };
+}
+
+/**
+ * The day on the plan `text`, from `seed`. Throws, in French, on a plan it cannot play.
+ * @param {{ text?: string, seed?: number }} [options]
+ */
+export function runDay({ text, seed = 1 } = {}) {
+  const layout = dayLayout(text);
+  const world = createWorld(layout, seed);
+  arrive(world, layout);
+  receive(world);
+  return traceOf(runWorld(world));
+}

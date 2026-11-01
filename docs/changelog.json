@@ -79,6 +79,16 @@
   ],
   "versions": [
     {
+      "version": "0.48",
+      "title": "La journée : le plan et la réception",
+      "date": "1/11",
+      "items": [
+        "Un nouvel onglet, Journée : la cuisine vitrine, sur un plan avec ses réserves, ses postes et sa salle. La journée est calculée une fois, puis rejouée, avec une frise des phases et trois vitesses. Le plan se modifie dans l'onglet, un plan impossible est refusé en français.",
+        "Pour l'instant, la réception : le camion à quai, les lots contrôlés par le chef et le second, 120 caisses rangées par les dix, le frais d'abord. Les chemins sont gardés et les allées laissent passer tout le monde, comme au grand CHU (docs/journee.md)."
+      ],
+      "commits": []
+    },
+    {
       "version": "0.47",
       "title": "La journée d'un restaurant : la recherche",
       "date": "1/11",
@@ -86,7 +96,9 @@
         "Sami veut une cuisine vitrine : 10 cuisiniers, une journée entière, de la livraison à la fermeture, aussi visuelle que le grand CHU. La recherche est dans docs/recherche/journee.md : l'ordre des phases, les règles du refroidissement et de la remise en température, les pauses, la salle.",
         "Neuf nouvelles questions au spécialiste (25 à 33) : aucune source ne donne d'horaire de référence, ni la durée des préparations."
       ],
-      "commits": []
+      "commits": [
+        "e117b8e"
+      ]
     },
     {
       "version": "0.46",

@@ -6,6 +6,7 @@ import { beginTurn, createService, drawOrders, interact, isOver, measuresOf, run
 import { firstTab, showTab, wireFold, wireTabs } from "./chrome.js";
 import { turnKeys, wireChefKeys } from "./keys.js";
 import { wirePlayerKeys } from "./player.js";
+import { dayPanel, dayView } from "./tabs/day.js";
 import { kitchenFrom, kitchenKept, kitchenPanel, kitchenView } from "./tabs/kitchen.js";
 import { download, replayClicked, replayFile, replays, replaysPanel, replaysView } from "./tabs/replays.js";
 import { servicePanel, serviceView } from "./tabs/service.js";
@@ -22,8 +23,8 @@ import { statsPanel, statsView } from "./tabs/stats.js";
  */
 const COMPARED = 100;
 const COMPARED_WITH_SEARCH = 12;
-const TAB_NAMES = ["service", "cuisine", "replays", "stats"];
-const TABS = { service: [servicePanel, serviceView], cuisine: [kitchenPanel, kitchenView], replays: [replaysPanel, replaysView], stats: [statsPanel, statsView] };
+const TAB_NAMES = ["service", "cuisine", "journee", "replays", "stats"];
+const TABS = { service: [servicePanel, serviceView], cuisine: [kitchenPanel, kitchenView], journee: [dayPanel, dayView], replays: [replaysPanel, replaysView], stats: [statsPanel, statsView] };
 const layout = document.getElementById("layout");
 const sidebar = document.getElementById("sidebar");
 const app = document.getElementById("app");
