@@ -4,7 +4,9 @@ import { DAY_PLAN, dayLayout } from "../src/day-plan.js";
 import { MENU, portionsOf } from "../src/day-menu.js";
 import { DELIVERY, WALK } from "../src/day-program.js";
 import { STREAMS } from "../src/day-waste.js";
+import { BOOKING } from "../src/day-bookings.js";
 import { dayMeasures } from "../src/day-measures.js";
+import { WALK_INS } from "../src/day-walkins.js";
 import { runDay } from "../src/day.js";
 import { clockOf, sceneAt } from "../src/day-scene.js";
 
@@ -139,6 +141,34 @@ describe("the day (src/day.js)", () => {
       const barman = day.people.find((one) => one.kind === "barman");
       assert.equal(barman.track.at(-1).kind, "gone");
       assert.ok(barman.worked > 3600, String(barman.worked));
+    });
+
+    it(`books the tables by slots, a whole block apart, and seats each group at its own (seed ${seed})`, () => {
+      const day = dayOf(seed);
+      const written = day.bookings.filter((one) => !one.refused && !one.walkIn);
+      assert.ok(written.length >= 20, String(written.length));
+      const slots = BOOKING.services.flatMap((service) => service.slots);
+      for (const one of written) assert.ok(slots.includes(one.slot), String(one.slot));
+      for (const [table, list] of Map.groupBy(written, (one) => one.table)) {
+        const sorted = list.toSorted((a, b) => a.slot - b.slot);
+        sorted.slice(1).forEach((one, i) => assert.ok(one.slot - sorted[i].slot >= BOOKING.block, `table ${table}`));
+        assert.ok(table < day.layout.tables.length - BOOKING.walkInTables, `table ${table}, gardée pour ceux sans réservation`);
+      }
+      assert.ok(written.some((one) => one.service === 0) && written.some((one) => one.service === 1));
+      for (const one of written) {
+        if (one.noShow) assert.equal(one.seatedAt, null);
+        else assert.ok(one.seatedAt >= one.arrivedAt && one.leftAt > one.seatedAt, `réservation ${one.id}`);
+      }
+    });
+
+    it(`has its peak of walk-ins at the bar before the first service is full, and they all leave (seed ${seed})`, () => {
+      const day = dayOf(seed);
+      const { bookings } = dayMeasures(day);
+      assert.ok(bookings.barGuests >= 20, String(bookings.barGuests));
+      assert.ok(bookings.barPeak >= 8 && bookings.barPeak <= WALK_INS.roomAtTheBar, String(bookings.barPeak));
+      assert.equal(day.gauges["bar:debout"].at(-1)[1], 0);
+      const peakAt = day.gauges["bar:debout"].reduce((best, entry) => (entry[1] > best[1] ? entry : best))[0];
+      assert.ok(peakAt < 21 * 3600, clockOf(peakAt));
     });
 
     it(`writes each cook's thirst and fatigue, within their bounds, the fatigue up by the night (seed ${seed})`, () => {

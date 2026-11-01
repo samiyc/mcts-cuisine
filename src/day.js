@@ -82,7 +82,7 @@ function arrive(world, layout) {
 
 /** The trace of a world played: what the page and the tests read. */
 function traceOf(world) {
-  return { layout: world.layout, phases: PHASES, start: START, end: world.end, people: world.people, gauges: world.gauges, marks: world.marks, uses: world.uses, log: world.log };
+  return { layout: world.layout, phases: PHASES, start: START, end: world.end, people: world.people, gauges: world.gauges, marks: world.marks, uses: world.uses, log: world.log, bookings: world.bookings };
 }
 
 /**

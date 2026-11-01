@@ -3,7 +3,7 @@
 Sami (1/11/2026) veut une cuisine vitrine : 10 cuisiniers, une journée entière, et le visuel du grand CHU de
 mcts-urgences. Ce fichier dit ce que les sources publiées disent de cette journée, et ce qui reste une hypothèse. Le
 modèle qui s'en sert est décrit dans [../journee.md](../journee.md). Ce qui n'a pas été trouvé va dans
-[questions-specialiste.md](questions-specialiste.md), questions 25 à 36.
+[questions-specialiste.md](questions-specialiste.md), questions 25 à 38.
 
 ## Le déroulé
 
@@ -89,6 +89,17 @@ Les ratios trouvés viennent surtout d'organisateurs d'événements : un barman 
 restaurant, [un exemple d'effectif][nmbrs] compte un barman pour 80 couverts, et un autre pour 120. **Rien de publié sur le temps
 de préparation d'un verre ni sur la différence entre un bar de service et un comptoir** (question 36).
 
+## Les réservations et les clients sans réservation
+
+- **Les créneaux** : les outils de réservation proposent des créneaux tous les quarts d'heure ([Wix][wix]) et deux services à heures
+  d'arrivée fixes ([Formitable][formitable]) ; [Aleno][aleno] donne un exemple de 120 min par table. Le modèle : 19 h à 19 h 45 et
+  21 h à 21 h 30, une table gardée 105 min (hypothèse, proche du temps à table mesuré).
+- **Les absents** : une réservation sur sept ne serait pas honorée, selon une étude Zonal/CGA citée par [Combo][combo], que je n'ai
+  pas pu vérifier ; d'autres parlent de 10 à 20 % ([Skift][skift]). Les chiffres viennent surtout d'éditeurs de logiciels.
+- **Les tables sans réservation** : [OpenTable][opentable] conseille d'en garder 20 à 30 % ; le modèle en garde 4 sur 16 (25 %).
+- **Le bar** : garder les tabourets pour ceux qui n'ont pas réservé est une pratique citée par un professionnel ([eGullet][egullet]).
+  **Rien de publié sur un pic au bar ni sur le temps qu'on y reste** (question 38).
+
 ## Le grand CHU : pourquoi il tient
 
 Sami : « la plupart des chemins sont pré-calculés et en cache ». C'est bien ce que fait mcts-urgences :
@@ -103,6 +114,13 @@ La cuisine actuelle, elle, planifie chaque pas dans le temps pour éviter les au
 avec des dizaines de personnes. La journée reprend donc la méthode du CHU, dans un modèle à part. mcts-commun a déjà
 les distances gardées par cible (`createDistances`).
 
+[wix]: https://dev.wix.com/docs/rest/api-reference/wix-restaurants/reservations/time-slots/introduction
+[formitable]: https://help.formitable.com/hc/en-us/articles/18305735396893-Set-two-shifts-with-fixed-arrival-times
+[aleno]: https://knowledge.aleno.me/en/kb/double-seating
+[combo]: https://combohr.com/fr/blog/no-show-restaurant
+[skift]: https://skift.com/?p=5118
+[opentable]: https://www.opentable.com/restaurant-solutions/resources/?p=12230
+[egullet]: https://forums.egullet.org/topic/102681-the-reservations-book
 [cci]: https://www.limoges.cci.fr/sites/g/files/mwbcuj1461/files/2023-09/solutions%20collecte%20valorisation%20biodechets.pdf
 [poitiers]: https://www.grandpoitiers.fr/fileadmin/M%C3%A9dias_par_groupes_de_contributeurs/Economie_emploi_et_entreprises/03-d%C3%A9chets/GP_2022_contexte_reglementaire_biodechets_pro.pdf
 [veolia]: https://www.veolia.fr/sites/g/files/dvc2401/files/document/2019/12/934_VEOLIA_article_9-biod%C3%A9chets_1219.pdf

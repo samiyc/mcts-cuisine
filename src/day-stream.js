@@ -1,22 +1,11 @@
 import { addStock } from "./day-engine.js";
 import { MENU, portionsOf } from "./day-menu.js";
-import { HOUR } from "./day-program.js";
 
 /**
- * What the evening asks of the kitchen (Sami, 1/11/2026, docs/journee.md): groups come through it, most of them around
- * 20 h 15, and what each guest orders of a course. Hypotheses: question 31.
+ * What the evening asks of the kitchen (Sami, 1/11/2026, docs/journee.md): what each guest orders of a course, and how long a
+ * course is eaten. Hypotheses: question 31.
  */
-export const EVENING = Object.freeze({ groups: 28, from: 19 * HOUR, peak: 20.25 * HOUR, to: 21.5 * HOUR, wants: Object.freeze({ entree: 0.7, plat: 1, dessert: 0.6 }), eats: Object.freeze({ entree: 12, plat: 20, dessert: 12 }) });
-
-/** When the groups come: a triangular draw between the first and the last, peaking at `peak`. */
-export function arrivals(rng, { groups, from, peak, to } = EVENING) {
-  const split = (peak - from) / (to - from);
-  const draw = () => {
-    const u = rng.next();
-    return u < split ? from + Math.sqrt(u * (to - from) * (peak - from)) : to - Math.sqrt((1 - u) * (to - from) * (to - peak));
-  };
-  return Array.from({ length: groups }, draw).sort((a, b) => a - b);
-}
+export const EVENING = Object.freeze({ wants: Object.freeze({ entree: 0.7, plat: 1, dessert: 0.6 }), eats: Object.freeze({ entree: 12, plat: 20, dessert: 12 }) });
 
 /** A guest's dish of `course`: among those left, the one drawn, its portion set aside; null when none is left (counted). */
 export function chooseDish(world, course) {

@@ -16,7 +16,7 @@ export const PHASES = Object.freeze([
   Object.freeze({ id: "miseEnPlace", label: "Mise en place", from: 16.5 * HOUR }),
   Object.freeze({ id: "repas", label: "Repas d'équipe", from: 17.5 * HOUR }),
   Object.freeze({ id: "service", label: "Service", from: 19 * HOUR }),
-  Object.freeze({ id: "fermeture", label: "Fermeture", from: 22.5 * HOUR }),
+  Object.freeze({ id: "fermeture", label: "Fermeture", from: 23 * HOUR }),
 ]);
 
 /**

@@ -3,7 +3,7 @@
 Sami (1/11/2026) voulait une cuisine plus complète que la brigade avec plonge, sur une journée entière, avec le visuel
 du grand CHU de mcts-urgences : « ça grouille ». Ce que disent les sources est dans
 [recherche/journee.md](recherche/journee.md), les questions qui restent dans
-[recherche/questions-specialiste.md](recherche/questions-specialiste.md) (25 à 36).
+[recherche/questions-specialiste.md](recherche/questions-specialiste.md) (25 à 38).
 
 Ses choix : un service du soir d'abord, la salle et les clients juste après le service en cuisine, des règles d'abord,
 sans recherche. **Tous les chiffres du modèle sont des hypothèses, sauf ceux qui nomment leur source.**
@@ -62,15 +62,14 @@ chaque cuisine se mesure contre elle-même.
 
 ### La salle (étape 4)
 
-28 groupes de 2 à 4 entrent par leur porte de 19 h à 21 h 30, le plus souvent vers 20 h 15. Ils vont à la table dressée la
-moins utilisée, ou attendent au bar. Ils lisent la carte, commandent, mangent jusqu'à trois temps, paient,
+Les groupes entrent par leur porte à l'heure de leur réservation (voir plus bas), et vont à leur table. Ils lisent la carte, commandent, mangent jusqu'à trois temps, paient,
 s'en vont. Les 6 serveurs dressent les tables à 18 h, prennent les commandes, vont au bar, portent les assiettes du
 passe aux tables, débarrassent, rapportent les assiettes à la plonge, redressent les tables. Le plongeur lave par
 casiers de 20. Avec eux, le plan compte environ 90 personnes au pic.
 
 ### La fermeture et le corps (étape 5)
 
-**La fermeture** commence quand le dernier client est parti, à 22 h 30 au plus tôt : les restes rassemblés, étiquetés et
+**La fermeture** commence quand le dernier client est parti (vers 23 h avec le second service), à 22 h 30 au plus tôt : les restes rassemblés, étiquetés et
 rangés, chaque poste nettoyé, le relevé des températures par le chef ou le second, les allées lavées. Les serveurs partent
 par la porte des clients, puis les cuisiniers par l'arrière, quand tout est fait.
 
@@ -98,32 +97,48 @@ le linge à l'office puis dresse. Un groupe ne s'assoit qu'à une table dressée
 vin, café. Il la prépare, la pose au bar, et un serveur la porte. Il repart chercher des caisses quand il en manque. Un groupe sans
 table attend au comptoir et y prend un verre.
 
+### Les réservations et le bar sans réservation (1/11, le soir)
+
+**Le carnet** (`src/day-bookings.js`) : 30 demandes pour un créneau, de 19 h à 19 h 45 pour le premier service et de 21 h à 21 h 30
+pour le second. Chacune prend une table libre pendant 105 min : le créneau demandé, sinon le plus proche de son service, sinon l'autre
+service, sinon elle est refusée. 4 tables sur 16 restent sans réservation. Un groupe arrive de 5 min en avance à 15 min en retard, et va
+à sa table ; si elle n'est pas prête, il attend au bar. Une réservation sur sept ne vient pas : sa table est libérée après 20 min.
+
+**Sans réservation** (`src/day-walkins.js`) : 26 petits groupes, le pic vers 19 h 05, viennent au bar pour un ou deux verres. Trois sur
+dix demandent une table : ils l'ont si une table dressée n'a aucune réservation proche ; sinon ils repartent. Le bar a de la place pour
+36 personnes debout.
+
+**Dans l'onglet** : le carnet se lit sous le plan, une ligne par table, une couleur par groupe, celle de ses clients sur le plan.
+
 ## Les mesures (étape 6)
 
-`npm run journee -- 20`, 20 journées, 58 ms chacune sur la machine pleine ; le plan brouillon, 12 fourneaux et 6 fours :
+`npm run journee -- 20`, 20 journées, 33 ms chacune sur la machine pleine ; le plan brouillon, 12 fourneaux et 6 fours :
 
 | Mesure | Moyenne |
 |---|---|
-| clients, tables, assiettes | 82,5, 28, 189 |
-| un bon : moyenne, 90ᵉ centile, pire | 10,3, 20,6, 28,0 min |
-| bons en cours au pic | 10,4 |
-| clients en salle au pic | 73,5 |
-| temps à table | 91,0 min |
-| attente d'une table : moyenne, pire | 17,8, 55,2 min |
+| clients, tables servies, assiettes | 115,4, 26,6, 172 |
+| un bon : moyenne, 90ᵉ centile, pire | 9,6, 17,6, 25,3 min |
+| bons en cours au pic | 8,8 |
+| clients en salle au pic | 63,8 |
+| temps à table | 87,4 min |
+| carnet | 30 demandes, 6,0 refusées, 3,5 déplacées, 2,6 absentes |
+| attente de sa table quand on a réservé | 0,3 min, 5,0 au pire |
+| au bar sans réservation | 41,3 clients, 53 min, jusqu'à 30 debout ; 5,2 tables prises |
 | refroidissement le plus long | 81,5 min (limite : 120) |
-| remise en état d'une table | 6,3 min |
-| bar | 194 verres, une tournée 2,8 min, 13,2 au pire |
-| déchets | 11,8 kg de biodéchets, 52,0 de cartons, 16,9 de verre, 6,5 d'ordures |
-| biodéchets par client | 143 g (repère publié : 134) |
-| sacs sortis, bacs qui ont débordé | 14,7, 1,0 |
-| fermeture | vers minuit, 0 h 19 au plus tard |
+| remise en état d'une table | 6,2 min |
+| bar | 224 verres, une tournée 2,0 min, 7,1 au pire |
+| déchets | 11,3 kg de biodéchets, 52,0 de cartons, 19,5 de verre, 6,1 d'ordures |
+| biodéchets par client | 154 g (repère publié : 134) |
+| sacs sortis, bacs qui ont débordé | 14,6, 1,0 |
+| fermeture | vers minuit, 0 h 13 au plus tard |
 
 **Réglé à la main, sans source** : les premières durées laissaient les cuisiniers inactifs 64 % du service, sans coup
 de feu. Après une assiette à 90 s, un poisson surveillé 6 min et moins de fourneaux, ce temps tombe à 45 %, et un bon
 monte à 10 min. Ce sont des réglages pour que le coup de feu existe, pas des mesures de restaurant (questions 27 et 28).
-**La cuisine reste moins chargée que la salle** : un poste n'est jamais plein plus de 2 % du service. Ce qui coince, sur
-ce plan, c'est le nombre de tables (attente à l'entrée) et les bons qui s'accumulent au pic. Plus de couverts ou moins
-de postes dans le plan de Sami le verront tout de suite, dans « Les postes pris ».
+**La cuisine reste moins chargée que la salle** : un poste n'est jamais plein plus de 2 % du service. Avant le carnet, ce qui
+coinçait était l'attente d'une table à l'entrée (18 min en moyenne, 55 au pire). Avec le carnet, elle tombe à 0,3 min pour qui a réservé :
+ce qui reste limité, c'est la salle elle-même, qui refuse 6 demandes sur 30. Plus de couverts ou moins de postes dans le plan de Sami le
+verront tout de suite, dans « Les postes pris ».
 
 Le modèle a sa propre empreinte (`day`, `tests/fingerprint.test.js`) ; celles des neuf cuisines n'ont pas bougé.
 

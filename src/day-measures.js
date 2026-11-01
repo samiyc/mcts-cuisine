@@ -4,7 +4,7 @@ import { clockOf } from "./day-scene.js";
  * What a day came to (Sami, 1/11/2026, docs/journee.md): the guests and the plates, the tickets' times, the tables, how far
  * and how much each one worked, where the stations filled up. Read from the trace, nothing more.
  */
-const SERVICE = Object.freeze({ from: 19 * 3600, to: 22.5 * 3600 });
+const SERVICE = Object.freeze({ from: 19 * 3600, to: 23 * 3600 });
 const sum = (values) => values.reduce((total, value) => total + value, 0);
 const mean = (values) => (values.length ? sum(values) / values.length : 0);
 const minutes = (seconds) => seconds / 60;
@@ -39,7 +39,7 @@ const staffOf = (people) =>
 function wasteOf(trace, final) {
   const kilos = (stream) => round(final(`local:${stream}`) / 1000);
   const bags = trace.log.filter((one) => one.type === "bag");
-  return { bio: kilos("bio"), emballages: kilos("emballages"), verre: kilos("verre"), ordures: kilos("ordures"), bioPerGuest: Math.round(final("local:bio") / Math.max(1, final("partis"))), bags: bags.length, full: trace.log.filter((one) => one.type === "binFull").length };
+  return { bio: kilos("bio"), emballages: kilos("emballages"), verre: kilos("verre"), ordures: kilos("ordures"), bioPerGuest: Math.round(final("local:bio") / Math.max(1, sum(trace.log.filter((one) => one.type === "group").map((one) => one.size)))), bags: bags.length, full: trace.log.filter((one) => one.type === "binFull").length };
 }
 
 /** The bar: the glasses poured, how long a round waited, what was missing. */
@@ -47,6 +47,30 @@ function barOf(trace) {
   const rounds = trace.log.filter((one) => one.type === "round").map((one) => one.seconds);
   const poured = trace.log.filter((one) => one.type === "drinks");
   return { poured: sum(poured.map((one) => one.count)), short: sum(poured.map((one) => one.short)), roundMean: round(minutes(mean(rounds))), roundMax: round(minutes(Math.max(0, ...rounds))) };
+}
+
+/** The diary: what was asked, refused, written, honoured; how long a booked group waited for its table; the walk-ins. */
+function bookingsOf(trace) {
+  const asked = trace.bookings.filter((one) => !one.walkIn);
+  const written = asked.filter((one) => !one.refused);
+  const came = written.filter((one) => !one.noShow);
+  const waits = came.map((one) => one.seatedAt - one.arrivedAt);
+  const barGroups = trace.log.filter((one) => one.type === "barGroup");
+  return {
+    asked: asked.length,
+    refused: asked.length - written.length,
+    written: written.length,
+    absent: written.length - came.length,
+    moved: written.filter((one) => one.slot !== one.asked).length,
+    waitMean: round(minutes(mean(waits))),
+    waitMax: round(minutes(Math.max(0, ...waits))),
+    walkInTables: trace.log.filter((one) => one.type === "walkInTable").length,
+    barGroups: barGroups.length,
+    barGuests: sum(barGroups.map((one) => one.size)),
+    barStay: round(minutes(mean(barGroups.map((one) => one.seconds)))),
+    barFull: trace.log.filter((one) => one.type === "barFull").length,
+    barPeak: Math.max(0, ...(trace.gauges["bar:debout"] ?? []).map((entry) => entry[1])),
+  };
 }
 
 /** How long each table took from its group's leaving to laid again. */
@@ -84,6 +108,7 @@ export function dayMeasures(trace) {
     drinks: trace.log.filter((one) => one.type === "drink").length,
     waste: wasteOf(trace, final),
     bar: barOf(trace),
+    bookings: bookingsOf(trace),
     tableTurnMean: round(minutes(mean(turnsOf(trace)))),
     closedAt: clockOf(trace.end),
     closedSeconds: trace.end,

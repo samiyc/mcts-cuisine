@@ -3,6 +3,7 @@ import { dayMeasures } from "../../src/day-measures.js";
 import { DAY_PLAN } from "../../src/day-plan.js";
 import { sceneAt } from "../../src/day-scene.js";
 import { runDay } from "../../src/day.js";
+import { createBook } from "../day-book.js";
 import { createPlan, moodOf } from "../day-draw.js";
 import { el, fixed } from "../dom.js";
 
@@ -20,7 +21,7 @@ const CARDS = [
   ["Les réserves", [["camion", "Le camion"], ["F", "Chambre froide"], ["T", "Stock tempéré"], ["G", "Conserves, céréales"], ["plats", "Plats aux frigos"], ["desserts", "Desserts aux frigos"]]],
   ["Les postes pris", [["pris:P", "Fourneaux"], ["pris:A", "Fours"], ["pris:C", "Planches"], ["pris:_", "Dressage"], ["pris:Z", "Cellule"], ["pris:L", "Plonge"]]],
   ["Le service", [["bons", "Bons en cours"], ["envoyes", "Assiettes envoyées"], ["clients", "Clients en salle"], ["partis", "Clients partis"], ["propres", "Assiettes propres"], ["assiettes", "Assiettes sales"], ["sale", "Batterie sale"]]],
-  ["La salle et le bar", [["tables:pretes", "Tables dressées"], ["tables:sales", "Tables à nettoyer"], ["verres", "Verres à préparer"], ["boissons", "Boissons au bar"]]],
+  ["La salle et le bar", [["resa:attendues", "Réservations à venir"], ["resa:absents", "Réservations absentes"], ["tables:pretes", "Tables dressées"], ["tables:sales", "Tables à nettoyer"], ["bar:debout", "Debout au bar"], ["verres", "Verres à préparer"], ["boissons", "Boissons au bar"]]],
   ["Les déchets (kg)", [["dechet:bio", "Bac biodéchets"], ["dechet:emballages", "Bac cartons"], ["dechet:verre", "Bac verre"], ["dechet:ordures", "Bac ordures"], ["local", "Au local"]]],
 ];
 const REDRAW_EVERY = 200;
@@ -34,8 +35,8 @@ function topsOf({ gauges, layout }) {
   return tops;
 }
 
-const day = { trace: null, plan: null, t: 0, speed: 60, playing: false, last: 0, seed: 1, text: DAY_PLAN, error: "", ms: 0, drawnAt: 0, hover: null, tops: {} };
-const parts = { panel: null, view: null, stage: null, clock: null, phase: null, band: null, play: null, seek: null, speeds: new Map(), gauges: new Map(), cooks: null, review: null, detail: null, note: null, error: null };
+const day = { trace: null, plan: null, t: 0, speed: 60, playing: false, last: 0, seed: 1, text: DAY_PLAN, error: "", ms: 0, drawnAt: 0, hover: null, tops: {}, book: null };
+const parts = { panel: null, view: null, stage: null, clock: null, phase: null, band: null, play: null, seek: null, diary: null, speeds: new Map(), gauges: new Map(), cooks: null, review: null, detail: null, note: null, error: null };
 
 /** Computes the day on the plan and seed asked; a plan refused keeps the last one. */
 function compute() {
@@ -47,6 +48,8 @@ function compute() {
     day.t = Math.max(day.trace.start, Math.min(day.t || day.trace.start, day.trace.end));
     day.tops = topsOf(day.trace);
     day.plan = createPlan(day.trace.layout);
+    day.book = createBook(day.trace);
+    parts.diary?.replaceChildren(day.book.root);
     drawReview();
     parts.stage?.replaceChildren(day.plan.root);
     drawBand();
@@ -60,7 +63,7 @@ function compute() {
 function drawReview() {
   if (!parts.review) return;
   const one = dayMeasures(day.trace);
-  parts.review.textContent = `${one.guests} clients à ${one.tables} tables, ${one.plates} assiettes. Un bon : ${fixed(one.ticketMean)} min en moyenne, ${fixed(one.ticketMax)} au pire. Une table : ${fixed(one.tableMean)} min, et ${fixed(one.waitedMean)} min d'attente à l'entrée en moyenne (${fixed(one.waitedMax)} au pire). Au bar : ${one.bar.poured} verres. Déchets : ${fixed(one.waste.bio + one.waste.emballages + one.waste.verre + one.waste.ordures)} kg, dont ${one.waste.bioPerGuest} g de biodéchets par client. Fermé à ${one.closedAt}.`;
+  parts.review.textContent = `${one.guests} clients, dont ${one.bookings.barGuests} au bar sans réservation ; ${one.bookings.written} réservations, ${one.bookings.absent} absentes, ${one.bookings.refused} refusées. ${one.tables} tables servies, ${one.plates} assiettes. Un bon : ${fixed(one.ticketMean)} min en moyenne, ${fixed(one.ticketMax)} au pire. Une table : ${fixed(one.tableMean)} min, et ${fixed(one.bookings.waitMean)} min d'attente de sa table quand on a réservé (${fixed(one.bookings.waitMax)} au pire). Au bar : ${one.bar.poured} verres. Déchets : ${fixed(one.waste.bio + one.waste.emballages + one.waste.verre + one.waste.ordures)} kg, dont ${one.waste.bioPerGuest} g de biodéchets par client. Fermé à ${one.closedAt}.`;
 }
 
 /** Where second `t` falls on the band, in percent. */
@@ -128,6 +131,7 @@ function wordsOf(person) {
 function drawWords(scene) {
   parts.clock.textContent = scene.clock;
   parts.phase.textContent = scene.phase.label;
+  day.book.draw(scene.t);
   parts.band.querySelector(".day-cursor")?.setAttribute("style", `left: ${shareOf(scene.t)}%`);
   parts.seek.max = String(day.trace.end);
   parts.seek.min = String(day.trace.start);
@@ -233,6 +237,7 @@ function buildView() {
   parts.seek.addEventListener("input", () => jump(Number(parts.seek.value)));
   parts.stage = el("div", { class: "day-stage" });
   parts.cooks = el("ul", { class: "day-cooks" });
+  parts.diary = el("div", { class: "day-diary" });
   parts.detail = el("p", { class: "hint" }, "");
   parts.stage.addEventListener("pointermove", (event) => {
     const who = /** @type {Element} */ (event.target).closest?.("[data-who]");
@@ -241,7 +246,7 @@ function buildView() {
   parts.review = el("p", { class: "hint" }, "");
   const gauges = CARDS.map(([title, rows]) => el("section", { class: "card" }, el("h3", {}, title), ...rows.map(gaugeRow)));
   const side = el("div", { class: "day-side" }, el("section", { class: "card" }, el("h3", {}, "La brigade"), parts.cooks, parts.detail), ...gauges, el("section", { class: "card" }, el("h3", {}, "Le bilan de la journée"), parts.review));
-  parts.view = el("div", { class: "day-view" }, el("div", { class: "day-head" }, parts.clock, parts.phase), parts.band, parts.seek, el("div", { class: "day-layout" }, parts.stage, side));
+  parts.view = el("div", { class: "day-view" }, el("div", { class: "day-head" }, parts.clock, parts.phase), parts.band, parts.seek, el("div", { class: "day-layout" }, el("div", { class: "day-main" }, parts.stage, el("section", { class: "card" }, el("h3", {}, "Le carnet de réservations"), parts.diary, el("p", { class: "hint" }, "Une couleur par groupe, celle de ses clients sur le plan ; le bloc se remplit quand le groupe est à table. Barré : personne n'est venu. En pointillé : sans réservation."))), side));
 }
 
 /** Builds the tab once, the first time it opens, and shows the first moment of the day. */

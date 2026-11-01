@@ -90,11 +90,11 @@ function carryRound(world, { table, course, station }) {
   });
 }
 
-/** A group waiting for a table has a drink at the counter, if it is still waiting by then. */
-export function atTheCounter(world, group) {
+/** A group at the bar has a drink at the counter, if it is still there by then; `then` once served. */
+export function atTheCounter(world, group, then = undefined) {
   offer(world, {
     skill: "bar",
-    priority: PRIORITY.round,
+    priority: PRIORITY.round - world.t / 3600,
     legs: [
       {
         at: "B",
@@ -108,6 +108,7 @@ export function atTheCounter(world, group) {
             person.carry = SERVE_AT_THE_BAR;
             segment(world, person, { kind: "wait", label: "prend un verre au bar" });
           }
+          then?.();
         },
       },
     ],

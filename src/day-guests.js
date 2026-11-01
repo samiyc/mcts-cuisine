@@ -1,15 +1,18 @@
 import { atTheCounter, barRound } from "./day-bar.js";
+import { BOOKING, bookTables, openFor } from "./day-bookings.js";
 import { addPerson, addStock, at, gauge, mark, offer, segment, walkTo } from "./day-engine.js";
 import { COURSES } from "./day-menu.js";
 import { MINUTE } from "./day-program.js";
 import { clearPass, fireCourse } from "./day-service.js";
-import { EVENING, arrivals, orderOf } from "./day-stream.js";
+import { EVENING, orderOf } from "./day-stream.js";
 import { layAll, placeOf, setState, turnTable } from "./day-tables.js";
+import { startWalkIns } from "./day-walkins.js";
 import { LEFT, throwAway } from "./day-waste.js";
 
 /**
- * The dining room (Sami, 1/11/2026, docs/journee.md: it is what makes the plan teem): groups come in by their door, have a drink
- * at the bar if no table is ready, sit, order, eat their courses, pay and leave. The waiters take the orders, bring the plates
+ * The dining room (Sami, 1/11/2026, docs/journee.md: it is what makes the plan teem): groups come in by their door at the time
+ * of their booking (day-bookings.js), have a drink at the bar if their table is not ready, sit, order, eat their courses, pay
+ * and leave. The waiters take the orders, bring the plates
  * from the pass, clear, and bring the dirty plates to the dish room. No published sequence was found: every duration is a
  * hypothesis (question 31); one waiter for 4 or 5 tables is a rule of thumb (OysterLink, docs/recherche/journee.md).
  */
@@ -142,7 +145,8 @@ function offerBill(world, group) {
 /** Everyone of the group walks to the door and out; the table's turn begins. */
 function leave(world, group) {
   const { table } = group;
-  world.log.push({ type: "group", id: group.id, size: group.size, seconds: world.t - group.seatedAt, waited: group.seatedAt - group.arrivedAt });
+  world.log.push({ type: "group", id: group.id, size: group.size, booked: !group.walkIn, seconds: world.t - group.seatedAt, waited: group.seatedAt - group.arrivedAt });
+  group.booking.leftAt = world.t;
   for (const person of group.members) {
     person.cell = person.standing;
     walkTo(world, person, { cell: world.layout.entry, label: "s'en va" }, () => segment(world, person, { kind: "gone" }));
@@ -152,12 +156,25 @@ function leave(world, group) {
   turnTable(world, table, { guests: group.size, then: () => tableReady(world, table), glassesBack: (count) => platesBack(world, 0, count) });
 }
 
-/** A table laid: the first group in line takes it. */
+/** Is `table` laid, and nobody at it? */
+const ready = (table) => table.state === "laid" && !table.group;
+
+/** A table laid: the group waiting for it at the bar, if any, takes it. */
 function tableReady(world, table) {
   table.group = null;
   const { line } = world.room;
-  const waiting = line.findIndex((group) => group.size <= table.seats.length);
+  const waiting = line.findIndex((group) => group.booking?.table === table.id);
   if (waiting >= 0) seat(world, line.splice(waiting, 1)[0], table);
+}
+
+/** A group without a booking asks for a table: the first laid one with no booking soon, or none. */
+function seatWalkIn(world, group) {
+  const table = world.room.tables.find((one) => ready(one) && openFor(world.bookings, one.id, world.t));
+  if (!table) return false;
+  group.booking = { id: group.id, table: table.id, size: group.size, slot: world.t, walkIn: true, noShow: false, arrivedAt: group.arrivedAt, seatedAt: null, leftAt: null };
+  world.bookings.push(group.booking);
+  seat(world, group, table);
+  return true;
 }
 
 /** The group walks to its table, each to a seat; all sat, they read the menu. */
@@ -167,6 +184,8 @@ function seat(world, group, table) {
   setState(world, table, "taken");
   group.table = table;
   group.seatedAt = world.t;
+  group.booking.seatedAt = world.t;
+  addStock(world, "resa:assises", 1);
   let walking = group.members.length;
   group.members.forEach((person, i) => {
     person.seat = table.seats[i];
@@ -181,26 +200,51 @@ function seat(world, group, table) {
   });
 }
 
-/** No table ready: the group waits around the bar, and has a drink. */
-function toTheBar(world, group) {
+/** The group walks to the floor around the bar. */
+function standAtBar(world, group) {
   const { room } = world;
-  room.line.push(group);
   group.members.forEach((person) => {
     const cell = room.counter[room.waiting % room.counter.length];
     room.waiting += 1;
-    walkTo(world, person, { cell, label: "va au bar" }, () => segment(world, person, { kind: "wait", label: "attend une table au bar" }));
+    walkTo(world, person, { cell, label: "va au bar" }, () => segment(world, person, { kind: "wait", label: group.walkIn ? "au bar, sans réservation" : "attend sa table au bar" }));
   });
+}
+
+/** Its table not ready: the group waits around the bar, and has a drink. */
+function toTheBar(world, group) {
+  world.room.line.push(group);
+  standAtBar(world, group);
   atTheCounter(world, group);
 }
 
-/** A group comes in: to a laid table, the least used first; or to the bar. */
+/** A booked group comes in: to its table if it is ready, or to the bar. */
 function arrive(world, group) {
+  const table = world.room.tables[group.booking.table];
   group.arrivedAt = world.t;
+  group.booking.arrivedAt = world.t;
   group.members = Array.from({ length: group.size }, (_, i) => addPerson(world, { name: `Client ${group.id + 1}.${i + 1}`, kind: "guest", group: group.id }, world.layout.entry));
   addStock(world, "clients", group.size);
-  const free = world.room.tables.filter((table) => table.state === "laid" && !table.group && table.seats.length >= group.size).sort((a, b) => a.turns - b.turns)[0];
-  if (free) seat(world, group, free);
+  addStock(world, "resa:attendues", -1);
+  if (ready(table)) seat(world, group, table);
   else toTheBar(world, group);
+}
+
+/** A booking nobody came for: its table is released for those without one. */
+function absent(world, booking) {
+  booking.released = true;
+  addStock(world, "resa:attendues", -1);
+  addStock(world, "resa:absents", 1);
+  world.log.push({ type: "noShow", id: booking.id, table: booking.table, t: world.t });
+}
+
+/** The day's diary played: each group at its time, each absent group noticed when its table has been held long enough. */
+function playDiary(world) {
+  for (const booking of world.bookings) {
+    if (booking.refused) continue;
+    addStock(world, "resa:attendues", 1);
+    if (booking.noShow) at(world, booking.slot + BOOKING.held, () => absent(world, booking));
+    else at(world, booking.arrivesAt, () => arrive(world, { id: booking.id, size: booking.size, booking, table: null, members: [] }));
+  }
 }
 
 /** The waiters come in and lay the tables. */
@@ -218,8 +262,8 @@ export function startGuests(world) {
   for (const name of ["bons", "envoyes", "epuises", "clients", "partis", "assiettes", "tables:pretes", "tables:sales"]) gauge(world, name, 0);
   addStock(world, "propres", FLOOR.cleanPlates);
   startWaiters(world);
-  arrivals(world.rng).forEach((time, id) => {
-    const group = { id, size: 2 + world.rng.int(3), table: null, members: [] };
-    at(world, time, () => arrive(world, group));
-  });
+  world.bookings = bookTables(world.rng, world.room.tables.length);
+  for (const name of ["resa:attendues", "resa:absents", "resa:assises"]) gauge(world, name, 0);
+  playDiary(world);
+  startWalkIns(world, { firstId: world.bookings.length, standAtBar, seatWalkIn });
 }

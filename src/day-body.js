@@ -9,7 +9,7 @@ import { BRIGADE, HOUR, MINUTE } from "./day-program.js";
  * The 15 minutes outside are Sami's; the law's 20 minutes after 6 hours are what the team's meal stands for.
  */
 export const BODY = Object.freeze({ thirstHours: 2, fatigueHours: 20, slower: 0.25, drinkAt: 0.6, drinkInRush: 0.85, drink: 30, breakMinutes: 15, breakRest: 0.15, mealRest: 0.2 });
-const RUSH = Object.freeze({ from: 19.5 * HOUR, to: 22 * HOUR });
+const RUSH = Object.freeze({ from: 19.25 * HOUR, to: 22.75 * HOUR });
 /** The first break, and the time between two people's: two by two through the middle of the day. */
 const BREAKS = Object.freeze({ from: 11.5 * HOUR, every: 25 * MINUTE });
 const MEAL = Object.freeze({ cook: 16.5 * HOUR, at: 17.5 * HOUR, minutes: 30 });

@@ -117,3 +117,8 @@ qualité, hygiène (HACCP) ; **R** un intégrateur de robots de cuisine.
 36. **Le bar d'un restaurant de 90 couverts : combien de personnes, combien de temps pour un verre ?** (C) Le modèle : un
     barman, 25 s par verre, un apéritif pour 70 % des clients, du vin pour 80 %, un café pour 50 %, une caisse de 24 à chaque
     réapprovisionnement.
+37. **Comment se remplit un carnet de réservations pour un soir à deux services ?** (C) Le modèle : 30 demandes, des créneaux de 19 h à
+    19 h 45 et de 21 h à 21 h 30, une table gardée 105 min, 4 tables sur 16 sans réservation, une table d'absents gardée 20 min, une
+    réservation sur sept non honorée. Prend-on une réservation à une autre heure que celle demandée ? Prévoit-on la production d'après le carnet ?
+38. **Combien de clients viennent au bar sans réservation, à quelle heure, combien de temps restent-ils, combien boivent-ils ?** (C) Le
+    modèle : 26 petits groupes, le pic vers 19 h 05, 20 à 45 min par verre, un second verre une fois sur deux, 3 sur 10 demandent une table.

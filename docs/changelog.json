@@ -79,6 +79,17 @@
   ],
   "versions": [
     {
+      "version": "0.53",
+      "title": "La journée : le carnet de réservations, et le bar sans réservation",
+      "date": "1/11",
+      "items": [
+        "Un carnet de réservations : des créneaux sur deux services, de 19 h à 19 h 45 et de 21 h à 21 h 30, une table gardée 105 min, des réservations déplacées ou refusées quand c'est complet, une sur sept qui ne vient pas. 4 tables sur 16 restent sans réservation.",
+        "Un pic de clients sans réservation au bar, vers 19 h 05 : un ou deux verres, debout, et une table pour ceux qui en demandent une si l'une est libre.",
+        "Dans l'onglet, le carnet se lit sous le plan, table par table, avec la couleur des clients de chaque groupe. Quand on a réservé, on attend sa table 0,3 min en moyenne, au lieu de 18 min à l'entrée auparavant."
+      ],
+      "commits": []
+    },
+    {
       "version": "0.52",
       "title": "La journée : les déchets, les tables, le bar",
       "date": "1/11",
@@ -87,7 +98,9 @@
         "Les tables : débarrassées, essuyées, puis dressées avec le couvert et le linge pris à l'office. Leur état se voit sur le plan, et un groupe ne s'assoit qu'à une table dressée.",
         "Le bar : un barman, des tournées d'apéritifs, de vin et de cafés que les serveurs portent aux tables, et un comptoir où les groupes sans table prennent un verre."
       ],
-      "commits": []
+      "commits": [
+        "a765e3d"
+      ]
     },
     {
       "version": "0.51",
