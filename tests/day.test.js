@@ -65,10 +65,10 @@ describe("the day (src/day.js)", () => {
     });
 
     it(`makes every batch ahead, cooled within the 2 hours (seed ${seed})`, () => {
-      const { gauges, log } = dayOf(seed);
-      for (const dish of MENU) assert.equal(Math.max(...gauges[portionsOf(dish)].map(([, value]) => value)), dish.batches * dish.portions, dish.id);
+      const { gauges, log, forecast } = dayOf(seed);
+      for (const dish of MENU) assert.equal(Math.max(...gauges[portionsOf(dish)].map(([, value]) => value)), forecast.batches[dish.id] * dish.portions, dish.id);
       const cooled = log.filter((one) => one.type === "cooled");
-      assert.equal(cooled.length, MENU.filter((dish) => dish.chain.some((step) => step.chill)).reduce((sum, dish) => sum + dish.batches, 0));
+      assert.equal(cooled.length, MENU.filter((dish) => dish.chain.some((step) => step.chill)).reduce((sum, dish) => sum + forecast.batches[dish.id], 0));
       for (const one of cooled) assert.ok(one.seconds <= 2 * 3600, `${one.dish} : ${one.seconds} s`);
     });
 

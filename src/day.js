@@ -8,6 +8,7 @@ import { startWaste } from "./day-waste.js";
 import { startBar } from "./day-bar.js";
 import { startBody } from "./day-body.js";
 import { startClosing } from "./day-closing.js";
+import { dayForecast, FORECAST } from "./day-forecast.js";
 import { startGuests } from "./day-guests.js";
 
 /**
@@ -82,14 +83,14 @@ function arrive(world, layout) {
 
 /** The trace of a world played: what the page and the tests read. */
 function traceOf(world) {
-  return { layout: world.layout, phases: PHASES, start: START, end: world.end, people: world.people, gauges: world.gauges, marks: world.marks, uses: world.uses, log: world.log, bookings: world.bookings };
+  return { layout: world.layout, phases: PHASES, start: START, end: world.end, people: world.people, gauges: world.gauges, marks: world.marks, uses: world.uses, log: world.log, bookings: world.bookings, forecast: world.forecast };
 }
 
 /**
  * The day on the plan `text`, from `seed`. Throws, in French, on a plan it cannot play.
- * @param {{ text?: string, seed?: number }} [options]
+ * @param {{ text?: string, seed?: number, margin?: number }} [options] `margin`, what the kitchen makes beyond its forecast.
  */
-export function runDay({ text, seed = 1 } = {}) {
+export function runDay({ text, seed = 1, margin = FORECAST.margin } = {}) {
   const layout = dayLayout(text);
   const world = createWorld(layout, seed);
   arrive(world, layout);
@@ -97,6 +98,7 @@ export function runDay({ text, seed = 1 } = {}) {
   receive(world);
   startPhases(world, { dishes: MENU, brigade: BRIGADE });
   startGuests(world);
+  world.forecast = dayForecast(world.bookings, margin);
   startBar(world);
   startBody(world);
   startClosing(world);

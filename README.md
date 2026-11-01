@@ -5,7 +5,7 @@ arrivent. Les recettes s'enchaînent : couper, cuire, dresser, servir. Les robot
 cuisinier : ils devinent ce qu'il va faire, comme le bot de Lopin devine la main adverse, et montrent la
 tâche qu'ils visent.
 
-Statut (1/11/2026) : la cuisine vitrine, une journée entière avec 10 cuisiniers, 6 serveurs et la salle, dans l'onglet Journée (`docs/journee.md`). Le reste, au 30/10 :
+Statut (1/11/2026) : la cuisine vitrine, une journée entière avec 10 cuisiniers, 6 serveurs et la salle, sa production calée sur le carnet de réservations, dans l'onglet Journée (`docs/journee.md`). Le reste, au 30/10 :
 - **Neuf cuisines**, de la petite cuisine à la dark kitchen et à la brigade avec plonge, dont trois dessinées par Sami.
 - **Quatre règles pour les robots** : la plus ancienne, le plat le plus rapide, la table et le rétroplanning.
 - **La recherche** (`src/search.js`, ISMCTS de `mcts-commun`), qui les bat toutes.

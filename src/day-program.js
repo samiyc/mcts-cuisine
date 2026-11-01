@@ -44,7 +44,7 @@ export const BRIGADE = Object.freeze([
 export const DELIVERY = Object.freeze({
   lots: Object.freeze([
     Object.freeze({ store: "F", label: "le frais", emoji: "🥩", crates: 60, priority: 30 }),
-    Object.freeze({ store: "T", label: "le tempéré", emoji: "🥔", crates: 40, priority: 20 }),
+    Object.freeze({ store: "T", label: "le tempéré", emoji: "🥔", crates: 44, priority: 20 }),
     Object.freeze({ store: "G", label: "l'épicerie et les boissons", emoji: "🥫", crates: 36, priority: 10 }),
   ]),
   control: 5 * MINUTE,

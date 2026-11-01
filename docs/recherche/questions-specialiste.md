@@ -122,3 +122,7 @@ qualité, hygiène (HACCP) ; **R** un intégrateur de robots de cuisine.
     réservation sur sept non honorée. Prend-on une réservation à une autre heure que celle demandée ? Prévoit-on la production d'après le carnet ?
 38. **Combien de clients viennent au bar sans réservation, à quelle heure, combien de temps restent-ils, combien boivent-ils ?** (C) Le
     modèle : 26 petits groupes, le pic vers 19 h 05, 20 à 45 min par verre, un second verre une fois sur deux, 3 sur 10 demandent une table.
+39. **Comment décide-t-on combien produire pour un soir ?** (C) Le modèle : le matin, le chef part du carnet, retire les absents attendus (une réservation sur
+    sept), ajoute 10 couverts sans réservation, applique la part de chaque service (7 sur 10 une entrée, 6 sur 10 un dessert) et 25 % de marge. Quelle marge
+    prend-on vraiment ? Les courses suivent-elles le carnet, et à quel moment sont-elles commandées ? Que deviennent les restes d'un soir : le lendemain, le
+    repas d'équipe, la poubelle ? Le modèle les range, sans lendemain.

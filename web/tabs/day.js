@@ -1,10 +1,11 @@
-import { MENU } from "../../src/day-menu.js";
 import { dayMeasures } from "../../src/day-measures.js";
 import { DAY_PLAN } from "../../src/day-plan.js";
 import { sceneAt } from "../../src/day-scene.js";
 import { runDay } from "../../src/day.js";
 import { createBook } from "../day-book.js";
 import { createPlan, moodOf } from "../day-draw.js";
+import { CARDS, topsOf } from "../day-gauges.js";
+import { forecastWords, reviewWords } from "../day-review.js";
 import { el, fixed } from "../dom.js";
 
 /**
@@ -13,30 +14,9 @@ import { el, fixed } from "../dom.js";
  * lost and the plan stays fluid. A plan changed by hand is played as soon as it is applied, a refused one says why.
  */
 const SPEEDS = [15, 60, 240];
-/**
- * The gauges by card: each `[its gauge, its words]`.
- * @type {readonly [string, string[][]][]}
- */
-const CARDS = [
-  ["Les réserves", [["camion", "Le camion"], ["F", "Chambre froide"], ["T", "Stock tempéré"], ["G", "Conserves, céréales"], ["plats", "Plats aux frigos"], ["desserts", "Desserts aux frigos"]]],
-  ["Les postes pris", [["pris:P", "Fourneaux"], ["pris:A", "Fours"], ["pris:C", "Planches"], ["pris:_", "Dressage"], ["pris:Z", "Cellule"], ["pris:L", "Plonge"]]],
-  ["Le service", [["bons", "Bons en cours"], ["envoyes", "Assiettes envoyées"], ["clients", "Clients en salle"], ["partis", "Clients partis"], ["propres", "Assiettes propres"], ["assiettes", "Assiettes sales"], ["sale", "Batterie sale"]]],
-  ["La salle et le bar", [["resa:attendues", "Réservations à venir"], ["resa:absents", "Réservations absentes"], ["tables:pretes", "Tables dressées"], ["tables:sales", "Tables à nettoyer"], ["bar:debout", "Debout au bar"], ["verres", "Verres à préparer"], ["boissons", "Boissons au bar"]]],
-  ["Les déchets (kg)", [["dechet:bio", "Bac biodéchets"], ["dechet:emballages", "Bac cartons"], ["dechet:verre", "Bac verre"], ["dechet:ordures", "Bac ordures"], ["local", "Au local"]]],
-];
 const REDRAW_EVERY = 200;
-/** The summed gauges' full bars: what the batches make. */
-const fullOf = (fridge) => MENU.filter((dish) => dish.fridge === fridge).reduce((sum, dish) => sum + dish.batches * dish.portions, 0);
-
-/** Each gauge's full bar, for this day: the number of a kind of station, or the highest its value goes. */
-function topsOf({ gauges, layout }) {
-  const tops = { plats: fullOf("f"), desserts: fullOf("d") };
-  for (const [name, series] of Object.entries(gauges)) tops[name] = name.startsWith("pris:") ? layout.stations[name.slice(5)].length : Math.max(1, ...series.map((entry) => entry[1]));
-  return tops;
-}
-
 const day = { trace: null, plan: null, t: 0, speed: 60, playing: false, last: 0, seed: 1, text: DAY_PLAN, error: "", ms: 0, drawnAt: 0, hover: null, tops: {}, book: null };
-const parts = { panel: null, view: null, stage: null, clock: null, phase: null, band: null, play: null, seek: null, diary: null, speeds: new Map(), gauges: new Map(), cooks: null, review: null, detail: null, note: null, error: null };
+const parts = { panel: null, view: null, stage: null, clock: null, phase: null, band: null, play: null, seek: null, diary: null, speeds: new Map(), gauges: new Map(), cooks: null, forecast: null, review: null, detail: null, note: null, error: null };
 
 /** Computes the day on the plan and seed asked; a plan refused keeps the last one. */
 function compute() {
@@ -59,11 +39,12 @@ function compute() {
   if (parts.error) parts.error.textContent = day.error;
 }
 
-/** The day's review, in a sentence. */
+/** The day's review. */
 function drawReview() {
   if (!parts.review) return;
   const one = dayMeasures(day.trace);
-  parts.review.textContent = `${one.guests} clients, dont ${one.bookings.barGuests} au bar sans réservation ; ${one.bookings.written} réservations, ${one.bookings.absent} absentes, ${one.bookings.refused} refusées. ${one.tables} tables servies, ${one.plates} assiettes. Un bon : ${fixed(one.ticketMean)} min en moyenne, ${fixed(one.ticketMax)} au pire. Une table : ${fixed(one.tableMean)} min, et ${fixed(one.bookings.waitMean)} min d'attente de sa table quand on a réservé (${fixed(one.bookings.waitMax)} au pire). Au bar : ${one.bar.poured} verres. Déchets : ${fixed(one.waste.bio + one.waste.emballages + one.waste.verre + one.waste.ordures)} kg, dont ${one.waste.bioPerGuest} g de biodéchets par client. Fermé à ${one.closedAt}.`;
+  parts.forecast.textContent = forecastWords(day.trace.forecast, one);
+  parts.review.textContent = reviewWords(one);
 }
 
 /** Where second `t` falls on the band, in percent. */
@@ -243,9 +224,10 @@ function buildView() {
     const who = /** @type {Element} */ (event.target).closest?.("[data-who]");
     day.hover = who ? Number(who.getAttribute("data-who")) : null;
   });
+  parts.forecast = el("p", { class: "hint" }, "");
   parts.review = el("p", { class: "hint" }, "");
   const gauges = CARDS.map(([title, rows]) => el("section", { class: "card" }, el("h3", {}, title), ...rows.map(gaugeRow)));
-  const side = el("div", { class: "day-side" }, el("section", { class: "card" }, el("h3", {}, "La brigade"), parts.cooks, parts.detail), ...gauges, el("section", { class: "card" }, el("h3", {}, "Le bilan de la journée"), parts.review));
+  const side = el("div", { class: "day-side" }, el("section", { class: "card" }, el("h3", {}, "La brigade"), parts.cooks, parts.detail), ...gauges, el("section", { class: "card" }, el("h3", {}, "Le bilan de la journée"), parts.forecast, parts.review));
   parts.view = el("div", { class: "day-view" }, el("div", { class: "day-head" }, parts.clock, parts.phase), parts.band, parts.seek, el("div", { class: "day-layout" }, el("div", { class: "day-main" }, parts.stage, el("section", { class: "card" }, el("h3", {}, "Le carnet de réservations"), parts.diary, el("p", { class: "hint" }, "Une couleur par groupe, celle de ses clients sur le plan ; le bloc se remplit quand le groupe est à table. Barré : personne n'est venu. En pointillé : sans réservation."))), side));
 }
 

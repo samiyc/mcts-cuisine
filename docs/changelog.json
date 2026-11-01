@@ -79,6 +79,17 @@
   ],
   "versions": [
     {
+      "version": "0.54",
+      "title": "La journée : la production suit le carnet",
+      "date": "1/11",
+      "items": [
+        "Le chef prévoit ce qu'il produit d'après le carnet : les couverts réservés, moins les absents attendus, plus les clients qui s'attablent d'habitude sans réservation, avec 25 % de marge, en lots entiers.",
+        "Sur 100 journées, les restes passent de 96 portions (36 %) à moins de la moitié, sans client privé d'un service. La marge se mesure en une commande : à 10 %, un soir sur six, un client manque d'un service.",
+        "Le bilan de l'onglet dit ce qui était prévu, les lots de chaque plat, ce qui reste. Les caisses non ouvertes restent en réserve : le camion ne suit pas encore le carnet."
+      ],
+      "commits": []
+    },
+    {
       "version": "0.53",
       "title": "La journée : le carnet de réservations, et le bar sans réservation",
       "date": "1/11",
@@ -87,7 +98,9 @@
         "Un pic de clients sans réservation au bar, vers 19 h 05 : un ou deux verres, debout, et une table pour ceux qui en demandent une si l'une est libre.",
         "Dans l'onglet, le carnet se lit sous le plan, table par table, avec la couleur des clients de chaque groupe. Quand on a réservé, on attend sa table 0,3 min en moyenne, au lieu de 18 min à l'entrée auparavant."
       ],
-      "commits": []
+      "commits": [
+        "861b60a"
+      ]
     },
     {
       "version": "0.52",

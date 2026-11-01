@@ -1,3 +1,4 @@
+import { MENU, portionsOf } from "./day-menu.js";
 import { clockOf } from "./day-scene.js";
 
 /**
@@ -73,6 +74,15 @@ function bookingsOf(trace) {
   };
 }
 
+/** The production against the forecast: the covers expected and seated, the portions made and left, the crates left in the stores. */
+function productionOf(trace, final) {
+  const { forecast } = trace;
+  const made = sum(MENU.map((dish) => forecast.batches[dish.id] * dish.portions));
+  const left = sum(MENU.map((dish) => final(portionsOf(dish))));
+  const seated = sum(trace.log.filter((one) => one.type === "group").map((one) => one.size));
+  return { covers: forecast.covers, seated, made, left, leftShare: round((100 * left) / made), stores: Object.fromEntries(["F", "T", "G"].map((store) => [store, final(store)])) };
+}
+
 /** How long each table took from its group's leaving to laid again. */
 function turnsOf(trace) {
   const dirtyAt = new Map();
@@ -109,6 +119,7 @@ export function dayMeasures(trace) {
     waste: wasteOf(trace, final),
     bar: barOf(trace),
     bookings: bookingsOf(trace),
+    production: productionOf(trace, final),
     tableTurnMean: round(minutes(mean(turnsOf(trace)))),
     closedAt: clockOf(trace.end),
     closedSeconds: trace.end,

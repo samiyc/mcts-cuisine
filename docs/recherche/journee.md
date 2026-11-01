@@ -3,7 +3,7 @@
 Sami (1/11/2026) veut une cuisine vitrine : 10 cuisiniers, une journée entière, et le visuel du grand CHU de
 mcts-urgences. Ce fichier dit ce que les sources publiées disent de cette journée, et ce qui reste une hypothèse. Le
 modèle qui s'en sert est décrit dans [../journee.md](../journee.md). Ce qui n'a pas été trouvé va dans
-[questions-specialiste.md](questions-specialiste.md), questions 25 à 38.
+[questions-specialiste.md](questions-specialiste.md), questions 25 à 39.
 
 ## Le déroulé
 
@@ -100,6 +100,17 @@ de préparation d'un verre ni sur la différence entre un bar de service et un c
 - **Le bar** : garder les tabourets pour ceux qui n'ont pas réservé est une pratique citée par un professionnel ([eGullet][egullet]).
   **Rien de publié sur un pic au bar ni sur le temps qu'on y reste** (question 38).
 
+## Prévoir la production d'après le carnet
+
+- **La méthode** : la liste de préparation part des couverts attendus et de l'historique des ventes ([Taqtics][taqtics]), et un outil la calcule
+  d'après l'historique et les réservations à venir ([Operandio][operandio]). Le modèle : les couverts du carnet, moins les absents attendus, plus
+  les habitués sans réservation, multipliés par la part de chaque service.
+- **La marge** : « If you expect to sell 100 items, prep for 125 » ([Operandio][operandio]), soit 25 %. C'est une règle d'éditeur de logiciels,
+  rien d'indépendant ; [Taqtics][taqtics] conseille de la souplesse sans donner de chiffre. Une marge de 10 à 15 % sur le budget d'achat figure
+  aussi dans un résultat de recherche ([modèles de business plan][stock]), page que je n'ai pas pu ouvrir pour la vérifier : elle n'est pas retenue.
+- **Pas de source** : les couverts attendus sans réservation, la part de clients qui prend chaque service, ce que deviennent les restes
+  (question 39).
+
 ## Le grand CHU : pourquoi il tient
 
 Sami : « la plupart des chemins sont pré-calculés et en cache ». C'est bien ce que fait mcts-urgences :
@@ -121,6 +132,9 @@ les distances gardées par cible (`createDistances`).
 [skift]: https://skift.com/?p=5118
 [opentable]: https://www.opentable.com/restaurant-solutions/resources/?p=12230
 [egullet]: https://forums.egullet.org/topic/102681-the-reservations-book
+[taqtics]: https://taqtics.co/restaurant-operations/prep-list-checklist/
+[operandio]: https://operandio.com/prep-list-template/
+[stock]: https://modelesdebusinessplan.com/blogs/infos/stock-restaurant
 [cci]: https://www.limoges.cci.fr/sites/g/files/mwbcuj1461/files/2023-09/solutions%20collecte%20valorisation%20biodechets.pdf
 [poitiers]: https://www.grandpoitiers.fr/fileadmin/M%C3%A9dias_par_groupes_de_contributeurs/Economie_emploi_et_entreprises/03-d%C3%A9chets/GP_2022_contexte_reglementaire_biodechets_pro.pdf
 [veolia]: https://www.veolia.fr/sites/g/files/dvc2401/files/document/2019/12/934_VEOLIA_article_9-biod%C3%A9chets_1219.pdf

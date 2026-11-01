@@ -106,11 +106,11 @@ function offerWash(world) {
 /** Starts a batch of `dish`. */
 const startBatch = (world, dish) => nextStep(world, { dish, step: 0, held: null, cookedAt: null });
 
-/** Every dish's batches are offered; the salads, later in the day. */
+/** Every dish's batches, as many as the forecast asks, are offered; the salads, later in the day. */
 export function startProduction(world) {
   for (const dish of MENU) {
     addStock(world, portionsOf(dish), 0);
-    for (let n = 0; n < dish.batches; n += 1) {
+    for (let n = 0; n < world.forecast.batches[dish.id]; n += 1) {
       if (dish.late) at(world, LATE_FROM, () => startBatch(world, dish));
       else startBatch(world, dish);
     }

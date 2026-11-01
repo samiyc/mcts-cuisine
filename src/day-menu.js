@@ -1,6 +1,6 @@
 /**
- * The showcase's menu as data (Sami, 1/11/2026, docs/journee.md): eight dishes, each a chain made ahead by batches, and
- * what is left to do at the service. **Every duration is a hypothesis** (question 27); only the cooling's limit has a
+ * The showcase's menu as data (Sami, 1/11/2026, docs/journee.md): eight dishes, each a chain made ahead by batches (how many: day-forecast.js),
+ * and what is left to do at the service. **Every duration is a hypothesis** (question 27); only the cooling's limit has a
  * source (docs/recherche/journee.md).
  *
  * A step of the chain: `do`, its words; `at`, the station; `min`, the minutes someone works there; `skill`, who does it;
@@ -22,7 +22,6 @@ export const MENU = Object.freeze([
     label: "la soupe à l'oignon",
     emoji: "🍲",
     course: "entree",
-    batches: 3,
     portions: 12,
     fridge: "f",
     chain: Object.freeze([
@@ -39,7 +38,6 @@ export const MENU = Object.freeze([
     label: "la terrine",
     emoji: "🥧",
     course: "entree",
-    batches: 3,
     portions: 10,
     fridge: "f",
     chain: Object.freeze([
@@ -56,7 +54,6 @@ export const MENU = Object.freeze([
     label: "la salade de tomates",
     emoji: "🥗",
     course: "entree",
-    batches: 3,
     portions: 8,
     fridge: "f",
     late: true,
@@ -68,7 +65,6 @@ export const MENU = Object.freeze([
     label: "le bourguignon",
     emoji: "🥘",
     course: "plat",
-    batches: 4,
     portions: 12,
     fridge: "f",
     chain: Object.freeze([
@@ -85,7 +81,6 @@ export const MENU = Object.freeze([
     label: "le poisson",
     emoji: "🐟",
     course: "plat",
-    batches: 4,
     portions: 8,
     fridge: "f",
     chain: Object.freeze([Object.freeze({ do: "lever les filets", at: "C", min: 45, skill: "chaud", fetch: Object.freeze({ F: 3 }) }), Object.freeze({ do: "portionner", at: "C", min: 20, skill: "prep" }), shelve()]),
@@ -96,7 +91,6 @@ export const MENU = Object.freeze([
     label: "le gratin de légumes",
     emoji: "🥔",
     course: "plat",
-    batches: 4,
     portions: 6,
     fridge: "f",
     chain: Object.freeze([
@@ -113,7 +107,6 @@ export const MENU = Object.freeze([
     label: "la tarte",
     emoji: "🥧",
     course: "dessert",
-    batches: 3,
     portions: 12,
     fridge: "d",
     chain: Object.freeze([
@@ -130,7 +123,6 @@ export const MENU = Object.freeze([
     label: "la mousse au chocolat",
     emoji: "🍮",
     course: "dessert",
-    batches: 3,
     portions: 12,
     fridge: "d",
     chain: Object.freeze([

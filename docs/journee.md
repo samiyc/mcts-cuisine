@@ -3,7 +3,7 @@
 Sami (1/11/2026) voulait une cuisine plus complète que la brigade avec plonge, sur une journée entière, avec le visuel
 du grand CHU de mcts-urgences : « ça grouille ». Ce que disent les sources est dans
 [recherche/journee.md](recherche/journee.md), les questions qui restent dans
-[recherche/questions-specialiste.md](recherche/questions-specialiste.md) (25 à 38).
+[recherche/questions-specialiste.md](recherche/questions-specialiste.md) (25 à 39).
 
 Ses choix : un service du soir d'abord, la salle et les clients juste après le service en cuisine, des règles d'abord,
 sans recherche. **Tous les chiffres du modèle sont des hypothèses, sauf ceux qui nomment leur source.**
@@ -34,7 +34,7 @@ brouillon : Sami le rendra plus carré et plus beau.
 
 Le camion est à quai à 8 h, et la brigade entre par la porte arrière. Le chef et le second contrôlent trois lots (5 min
 chacun) ; le frais d'abord, puis le tempéré, puis l'épicerie. Une fois un lot contrôlé, ses caisses sont offertes à
-toute l'équipe : on prend le frais d'abord, sur les 124 caisses (60, 40 et 24). Chaque cuisinier prend la tâche la plus
+toute l'équipe : on prend le frais d'abord, sur les 140 caisses (60, 44 et 36). Chaque cuisinier prend la tâche la plus
 prioritaire qu'il sait faire, à égalité la plus proche.
 
 Mesures sur la journée n° 1, avec le plan brouillon : tout est rangé à 8 h 31 ; le calcul prend 32 ms, avec 136 chemins
@@ -42,7 +42,7 @@ gardés.
 
 ### La production (étape 2)
 
-Après le briefing du chef au passe, chaque plat du menu (`src/day-menu.js`) est fait par lots : on cherche les caisses
+Après le briefing du chef au passe, chaque plat du menu (`src/day-menu.js`) est fait par lots, autant que le carnet en demande (voir plus bas) : on cherche les caisses
 en réserve, on épluche, on coupe, on cuit. Une cuisson continue seule : le poste reste pris, avec le plat dessus, jusqu'à
 ce que quelqu'un vienne la retirer, en priorité. Ce qui a cuit passe en cellule, puis au frigo ; la règle sourcée devient
 un test : **moins de 2 h entre la fin de la cuisson et la fin du refroidissement**. Les salades sont coupées en dernier,
@@ -110,27 +110,61 @@ dix demandent une table : ils l'ont si une table dressée n'a aucune réservatio
 
 **Dans l'onglet** : le carnet se lit sous le plan, une ligne par table, une couleur par groupe, celle de ses clients sur le plan.
 
+### La production d'après le carnet (1/11, le soir)
+
+**Avant**, la cuisine faisait toujours le même nombre de lots, quel que soit le carnet : 266 portions pour 74 clients à table, 96 restes
+(36 %) en moyenne sur 100 journées. **Maintenant** (`src/day-forecast.js`), le chef part du carnet :
+
+1. les couverts réservés, ceux des demandes refusées en moins ;
+2. moins les absents attendus : il connaît le taux (une réservation sur sept), jamais qui ne viendra ;
+3. plus ceux qui s'attablent d'habitude sans réservation : 10 couverts (hypothèse, réglée sur ce que le modèle mesure) ;
+4. par service, la part de clients qui le commandent (7 sur 10 une entrée, tous un plat, 6 sur 10 un dessert), avec **25 % de marge** ;
+5. en lots entiers : au moins un lot de chaque plat, puis un lot de plus au plat qui a le moins de portions, jusqu'à la quantité voulue.
+
+Le camion ne change pas : les courses sont faites avant, et ce qui n'est pas ouvert reste en réserve (question 39). Le tempéré passe de
+40 à 44 caisses, pour qu'un carnet plein de tables de 4 ne manque de rien.
+
+**La marge** se choisit en une ligne (`FORECAST.margin`, ou `npm run journee -- 100 0.1` pour la mesurer). Sur 100 journées :
+
+| Marge | Portions faites | Restes | Manquantes par journée | Jours avec un manque sur 100 | Biodéchets par client | Cartons | Caisses restantes (frais, tempéré, épicerie) |
+|---|---|---|---|---|---|---|---|
+| 0 % | 183 | 15,9 (8,7 %) | 2,52 | 43 | 124 g | 35,9 kg | 26,1, 16,5, 15,5 |
+| 10 % | 199 | 28,8 (14,5 %) | 0,69 | 16 | 130 g | 39,3 kg | 22,9, 14,4, 13,9 |
+| 15 % | 204 | 33,4 (16,4 %) | 0,21 | 8 | 131 g | 40,1 kg | 22,3, 13,9, 13,5 |
+| 25 % | 220 | 50,5 (22,9 %) | 0,00 | 0 | 136 g | 42,7 kg | 20,1, 11,5, 12,8 |
+
+« Manquante » : un client qui voulait ce service, alors que plus aucun plat de ce service ne reste. Un plat seul peut manquer bien plus
+souvent, le client en prend alors un autre. 25 % est le seul chiffre publié que j'aie trouvé (un éditeur de logiciels), et c'est aussi
+la plus petite des marges essayées qui ne manque jamais sur ces 100 journées. Le dernier lot arrive au frigo vers 16 h, avant la mise en place de 16 h 30.
+
+**Ce qui reste à la fin** est compté, puis étiqueté et rangé : le lendemain n'existe pas dans le modèle, donc rien ne dit encore ce que ces
+restes deviennent (question 39). Les biodéchets par client tombent près du repère publié de 134 g, mais ce n'est pas une validation : le
+modèle ne jette aucun reste, et ses quantités de déchets sont des hypothèses.
+
+**Dans l'onglet**, le bilan dit ce qui était prévu, les lots de chaque plat, et ce qu'il en reste.
+
 ## Les mesures (étape 6)
 
-`npm run journee -- 20`, 20 journées, 33 ms chacune sur la machine pleine ; le plan brouillon, 12 fourneaux et 6 fours :
+`npm run journee -- 20`, 20 journées, 37 ms chacune sur la machine pleine ; le plan brouillon, 12 fourneaux et 6 fours :
 
 | Mesure | Moyenne |
 |---|---|
-| clients, tables servies, assiettes | 115,4, 26,6, 172 |
-| un bon : moyenne, 90ᵉ centile, pire | 9,6, 17,6, 25,3 min |
-| bons en cours au pic | 8,8 |
-| clients en salle au pic | 63,8 |
-| temps à table | 87,4 min |
+| clients, tables servies, assiettes | 115,3, 26,8, 171 |
+| un bon : moyenne, 90ᵉ centile, pire | 9,5, 17,3, 25,8 min |
+| bons en cours au pic | 8,6 |
+| clients en salle au pic | 63,3 |
+| temps à table | 86,9 min |
 | carnet | 30 demandes, 6,0 refusées, 3,5 déplacées, 2,6 absentes |
-| attente de sa table quand on a réservé | 0,3 min, 5,0 au pire |
-| au bar sans réservation | 41,3 clients, 53 min, jusqu'à 30 debout ; 5,2 tables prises |
-| refroidissement le plus long | 81,5 min (limite : 120) |
+| attente de sa table quand on a réservé | 0,2 min, 3,4 au pire |
+| au bar sans réservation | 40,9 clients, 52 min, jusqu'à 30 debout ; 5,4 tables prises |
+| production | 70,8 couverts prévus, 74,5 à table ; 218 portions, 46,7 restes, 0,00 manquantes |
+| refroidissement le plus long | 80,9 min (limite : 120) |
 | remise en état d'une table | 6,2 min |
-| bar | 224 verres, une tournée 2,0 min, 7,1 au pire |
-| déchets | 11,3 kg de biodéchets, 52,0 de cartons, 19,5 de verre, 6,1 d'ordures |
-| biodéchets par client | 154 g (repère publié : 134) |
-| sacs sortis, bacs qui ont débordé | 14,6, 1,0 |
-| fermeture | vers minuit, 0 h 13 au plus tard |
+| bar | 223 verres, une tournée 1,9 min, 6,7 au pire |
+| déchets | 10,0 kg de biodéchets, 42,3 de cartons, 19,3 de verre, 5,7 d'ordures |
+| biodéchets par client | 135 g (repère publié : 134) |
+| sacs sortis, bacs qui ont débordé | 13,1, 1,0 |
+| fermeture | vers minuit, 0 h 32 au plus tard |
 
 **Réglé à la main, sans source** : les premières durées laissaient les cuisiniers inactifs 64 % du service, sans coup
 de feu. Après une assiette à 90 s, un poisson surveillé 6 min et moins de fourneaux, ce temps tombe à 45 %, et un bon
