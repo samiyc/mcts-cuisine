@@ -87,3 +87,25 @@ qualité, hygiène (HACCP) ; **R** un intégrateur de robots de cuisine.
 
 24. **À quelle fréquence un robot de cuisine tombe-t-il en panne, et combien de temps ?** (R) Le seul chiffre publié est
     celui d'un fabricant (99 % de disponibilité). Le modèle : une panne de 10 tours tous les 5 services environ.
+
+## La journée entière (Sami, 1/11, la cuisine vitrine, [journee.md](journee.md))
+
+25. **Quel est le vrai horaire d'une journée avec un seul service du soir ?** (C) Le modèle : 8 h la livraison, 9 h à
+    16 h 30 la production, 16 h 30 la mise en place, 17 h 30 le repas d'équipe, 19 h à 22 h 30 le service, fermeture
+    vers minuit. Y a-t-il toujours une coupure dans l'après-midi ?
+26. **Une livraison complète : combien de caisses, qui les contrôle, combien de temps pour tout ranger ?** (C) Le
+    modèle : environ 120 caisses pour 90 couverts, contrôlées par le chef et le second, rangées par toute l'équipe.
+27. **Combien de temps prend chaque préparation, par lot ?** (C, T) Éplucher et couper pour 40 soupes, saisir et mijoter
+    un bourguignon, une fournée de tartes. Le modèle a des durées de principe, marquées dans `src/day-menu.js`.
+28. **Une brigade de 10 pour combien de couverts ?** (C) Le modèle : 90 couverts, 16 tables, avec chef, second, 2 chefs
+    de partie au chaud, garde-manger, pâtissier, 3 commis, plongeur. Combien de plats sortent à la minute au pic ?
+29. **Les pauses en pratique : qui sort, combien de temps, quand ?** (C) Le modèle : 15 min dehors, en décalé dans
+    l'après-midi (le choix de Sami), et le repas d'équipe en plus. La loi demande 20 min dès 6 h : le repas compte-t-il ?
+30. **Combien boit un cuisinier au poste chaud, et comment repère-t-on qu'il faiblit ?** (C, H) Le modèle : une soif qui
+    monte deux fois plus vite au fourneau et au four ; aucun chiffre sérieux trouvé.
+31. **Combien de temps dure chaque moment d'une table ?** (C) Le modèle : commande après 3 min, entrée mangée en 12 min,
+    plat en 20, dessert en 12, addition et départ en 8 ; la table prête 2 min plus tard.
+32. **Qui rapporte les assiettes sales, et à quelle cadence ?** (P) Le modèle : le serveur qui débarrasse les pose à la
+    plonge, en une fois par table.
+33. **Que devient ce qui reste en fin de service, et quel contrôle fait-on des frigos ?** (H) Le modèle : les restes sont
+    comptés et rangés ; un relevé par frigo.

@@ -14,7 +14,8 @@ dossier rassemble ce que disent les sources publiées, et ce que le simulateur e
 7. [oublis.md](oublis.md) : ce que les étapes ont laissé de côté ou découvert en chemin ;
 8. [production.md](production.md) : la série, l'emballage, la plonge, l'hygiène, les pauses et la fatigue, les pannes, et
    l'échelle du temps (un tour ≈ 30 s) ;
-9. [questions-specialiste.md](questions-specialiste.md) : ce qui ne s'est pas trouvé, à demander à quelqu'un du métier.
+9. [journee.md](journee.md) : la journée entière, de la livraison à la fermeture, pour la cuisine vitrine ;
+10. [questions-specialiste.md](questions-specialiste.md) : ce qui ne s'est pas trouvé, à demander à quelqu'un du métier.
 
 Un chiffre cité a sa source dans le fichier qui le donne. Beaucoup de sources sur les restaurants sont des blogs
 d'éditeurs de logiciels de caisse (Toast, LS Central…) : leurs définitions sont reprises, leurs chiffres sont

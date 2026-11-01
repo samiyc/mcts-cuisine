@@ -79,6 +79,16 @@
   ],
   "versions": [
     {
+      "version": "0.47",
+      "title": "La journée d'un restaurant : la recherche",
+      "date": "1/11",
+      "items": [
+        "Sami veut une cuisine vitrine : 10 cuisiniers, une journée entière, de la livraison à la fermeture, aussi visuelle que le grand CHU. La recherche est dans docs/recherche/journee.md : l'ordre des phases, les règles du refroidissement et de la remise en température, les pauses, la salle.",
+        "Neuf nouvelles questions au spécialiste (25 à 33) : aucune source ne donne d'horaire de référence, ni la durée des préparations."
+      ],
+      "commits": []
+    },
+    {
       "version": "0.46",
       "title": "L'onglet Cuisine remis en ordre",
       "date": "1/11",
@@ -87,7 +97,9 @@
         "Des interrupteurs à la place des cases à cocher ; les chiffres d'une option ne s'affichent que quand elle est activée. La légende du plan est un tableau de lettres, et « Appliquer » reste visible en bas de la fenêtre.",
         "Deux défauts corrigés : pendant qu'un service jouait, le formulaire était reconstruit à chaque tour et perdait ce qu'on venait de régler ; un plan refusé effaçait ce qu'on venait de taper. Le formulaire reste maintenant, seul le plan dessiné suit le service, et la raison du refus s'affiche à côté du bouton."
       ],
-      "commits": []
+      "commits": [
+        "86c8fa6"
+      ]
     },
     {
       "version": "0.45",

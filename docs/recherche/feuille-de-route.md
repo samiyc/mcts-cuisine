@@ -122,7 +122,9 @@ D'après [livraison.md](livraison.md) :
 
 ## Une idée pour la suite : une cuisine aussi riche que le grand CHU (Sami, 30/10)
 
-Une idée à garder, pas encore une étape : « encore un peu tôt ». Sami voudrait que la cuisine se rapproche de la
+**Devenue une étape le 1/11** : la cuisine vitrine, une journée entière ([journee.md](journee.md), [../journee.md](../journee.md)).
+
+Une idée gardée le 30/10 : « encore un peu tôt ». Sami voudrait que la cuisine se rapproche de la
 complexité et du visuel du grand CHU de mcts-urgences, « c'est très visuel ». Les pistes qu'il cite :
 
 - **d'autres recettes**, au-delà de la soupe à l'oignon et de la salade de tomates, avec des chaînes plus longues ;
