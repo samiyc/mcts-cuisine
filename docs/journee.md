@@ -34,8 +34,17 @@ brouillon : Sami le rendra plus carré et plus beau.
 
 Le camion est à quai à 8 h, et la brigade entre par la porte arrière. Le chef et le second contrôlent trois lots (5 min
 chacun) ; le frais d'abord, puis le tempéré, puis l'épicerie. Une fois un lot contrôlé, ses caisses sont offertes à
-toute l'équipe : on prend le frais d'abord, sur les 120 caisses (60, 36 et 24). Chaque cuisinier prend la tâche la plus
+toute l'équipe : on prend le frais d'abord, sur les 124 caisses (60, 40 et 24). Chaque cuisinier prend la tâche la plus
 prioritaire qu'il sait faire, à égalité la plus proche.
 
 Mesures sur la journée n° 1, avec le plan brouillon : tout est rangé à 8 h 31 ; le calcul prend 32 ms, avec 136 chemins
 gardés.
+
+### La production (étape 2)
+
+Après le briefing du chef au passe, chaque plat du menu (`src/day-menu.js`) est fait par lots : on cherche les caisses
+en réserve, on épluche, on coupe, on cuit. Une cuisson continue seule : le poste reste pris, avec le plat dessus, jusqu'à
+ce que quelqu'un vienne la retirer, en priorité. Ce qui a cuit passe en cellule, puis au frigo ; la règle sourcée devient
+un test : **moins de 2 h entre la fin de la cuisson et la fin du refroidissement**. Les salades sont coupées en dernier,
+à partir de 14 h 30. Chaque étape salit de la batterie, que le plongeur lave par charges de 6 ; le commis 3 l'aide
+quand il n'a rien d'autre. Les jauges montrent les caisses qui descendent et les plats qui montent.

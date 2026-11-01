@@ -1,3 +1,4 @@
+import { MENU } from "../../src/day-menu.js";
 import { DAY_PLAN } from "../../src/day-plan.js";
 import { sceneAt } from "../../src/day-scene.js";
 import { runDay } from "../../src/day.js";
@@ -15,8 +16,14 @@ const GAUGES = [
   ["F", "Chambre froide"],
   ["T", "Stock tempéré"],
   ["G", "Conserves, céréales"],
+  ["plats", "Plats aux frigos"],
+  ["desserts", "Desserts aux frigos"],
+  ["sale", "Batterie sale"],
 ];
 const REDRAW_EVERY = 200;
+/** The summed gauges' full bars: what the batches make. */
+const fullOf = (fridge) => MENU.filter((dish) => dish.fridge === fridge).reduce((sum, dish) => sum + dish.batches * dish.portions, 0);
+const TOPS = { plats: fullOf("f"), desserts: fullOf("d") };
 
 const day = { trace: null, plan: null, t: 0, speed: 60, playing: false, last: 0, seed: 1, text: DAY_PLAN, error: "", ms: 0, drawnAt: 0, hover: null };
 const parts = { panel: null, view: null, stage: null, clock: null, phase: null, band: null, play: null, speeds: new Map(), gauges: new Map(), cooks: null, detail: null, note: null, error: null };
@@ -72,7 +79,7 @@ function gaugeRow([name, label]) {
 function drawGauges(scene) {
   for (const [name, { bar, number }] of parts.gauges) {
     const value = scene.gauges[name] ?? 0;
-    const top = Math.max(1, ...(day.trace.gauges[name] ?? []).map((entry) => entry[1]));
+    const top = Math.max(1, TOPS[name] ?? 0, ...(day.trace.gauges[name] ?? []).map((entry) => entry[1]));
     bar.style.width = `${(100 * value) / top}%`;
     number.textContent = String(value);
   }

@@ -1,14 +1,17 @@
 import { dayLayout } from "./day-plan.js";
-import { BRIGADE, DELIVERY, PHASES, START } from "./day-program.js";
+import { BRIGADE, DELIVERY, MINUTE, PHASES, START } from "./day-program.js";
 import { addPerson, addStock, at, createWorld, offer, runWorld, segment } from "./day-engine.js";
+import { startProduction } from "./day-production.js";
 
 /**
  * A whole day of the showcase (Sami, 1/11/2026, docs/journee.md): the kitchen's day played once, from a seed, by simple
  * rules; what comes out is a trace (`runDay`), replayed by the page (day-scene.js, web/tabs/day.js).
  */
 
+const BRIEFING = 5 * MINUTE;
+
 /** A crate of `lot`: from the truck to its store. */
-function crateTask(lot) {
+function crateTask(world, lot) {
   return {
     label: `ranger ${lot.label}`,
     skill: "prep",
@@ -17,6 +20,7 @@ function crateTask(lot) {
       { at: "K", seconds: DELIVERY.take, label: `décharger ${lot.label}`, carry: lot.emoji, take: { camion: 1 } },
       { at: lot.store, seconds: DELIVERY.put, label: `ranger ${lot.label}`, carry: null, put: { [lot.store]: 1 } },
     ],
+    done: () => afterTheTruck(world),
   };
 }
 
@@ -28,14 +32,33 @@ function controlTask(world, lot) {
     priority: lot.priority + 5,
     legs: [{ at: "K", seconds: DELIVERY.control, label: `contrôler ${lot.label}` }],
     done: () => {
-      for (let crate = 0; crate < lot.crates; crate += 1) offer(world, crateTask(lot));
+      for (let crate = 0; crate < lot.crates; crate += 1) offer(world, crateTask(world, lot));
     },
   };
 }
 
+/** The last crate put away: the chef's briefing at the pass, everyone there, then the day's production. */
+function afterTheTruck(world) {
+  world.crates -= 1;
+  if (world.crates > 0) return;
+  let left = world.staff.length;
+  for (const person of world.staff) {
+    offer(world, {
+      who: person.id,
+      priority: 90,
+      legs: [{ at: "S", seconds: BRIEFING, label: "le briefing du chef" }],
+      done: () => {
+        left -= 1;
+        if (!left) startProduction(world);
+      },
+    });
+  }
+}
+
 /** The truck at the dock: its lots to check, the cold first. */
 function receive(world) {
-  addStock(world, "camion", DELIVERY.lots.reduce((sum, lot) => sum + lot.crates, 0));
+  world.crates = DELIVERY.lots.reduce((sum, lot) => sum + lot.crates, 0);
+  addStock(world, "camion", world.crates);
   for (const lot of DELIVERY.lots) {
     addStock(world, lot.store, 0);
     offer(world, controlTask(world, lot));

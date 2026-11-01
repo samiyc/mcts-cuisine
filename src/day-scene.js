@@ -1,3 +1,4 @@
+import { MENU } from "./day-menu.js";
 import { WALK } from "./day-program.js";
 
 /**
@@ -56,6 +57,11 @@ export function clockOf(t) {
   return `${Math.floor(minutes / 60)} h ${String(minutes % 60).padStart(2, "0")}`;
 }
 
+/** The portions in the fridges by `course` (entrees and mains together), from each dish's gauge. */
+function portionsAt(trace, t, dishes) {
+  return dishes.reduce((sum, dish) => sum + gaugeAt(trace.gauges[`plat:${dish.id}`], t), 0);
+}
+
 /** The scene at `t`: `{ t, clock, phase, people, marks, gauges }`. */
 export function sceneAt(trace, t) {
   return {
@@ -64,6 +70,10 @@ export function sceneAt(trace, t) {
     phase: phaseAt(trace.phases, t),
     people: trace.people.map((person) => personAt(person, t)).filter(Boolean),
     marks: trace.marks.filter((one) => one.t0 <= t && t < (one.t1 ?? Infinity)),
-    gauges: Object.fromEntries(Object.entries(trace.gauges).map(([name, series]) => [name, gaugeAt(series, t)])),
+    gauges: {
+      ...Object.fromEntries(Object.entries(trace.gauges).map(([name, series]) => [name, gaugeAt(series, t)])),
+      plats: portionsAt(trace, t, MENU.filter((dish) => dish.fridge === "f")),
+      desserts: portionsAt(trace, t, MENU.filter((dish) => dish.fridge === "d")),
+    },
   };
 }

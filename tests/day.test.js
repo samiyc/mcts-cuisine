@@ -1,6 +1,7 @@
 import { describe, it } from "node:test";
 import assert from "node:assert/strict";
 import { DAY_PLAN, dayLayout } from "../src/day-plan.js";
+import { MENU, portionsOf } from "../src/day-menu.js";
 import { DELIVERY, WALK } from "../src/day-program.js";
 import { runDay } from "../src/day.js";
 import { clockOf, sceneAt } from "../src/day-scene.js";
@@ -57,6 +58,14 @@ describe("the day (src/day.js)", () => {
       assert.equal(gauges.camion.at(-1)[1], 0);
       for (const lot of DELIVERY.lots) assert.ok(gauges[lot.store].some(([, value]) => value === lot.crates), lot.label);
       for (const [name, series] of Object.entries(gauges)) assert.ok(series.every(([, value]) => value >= 0), name);
+    });
+
+    it(`makes every batch ahead, cooled within the 2 hours (seed ${seed})`, () => {
+      const { gauges, log } = dayOf(seed);
+      for (const dish of MENU) assert.equal(gauges[portionsOf(dish)].at(-1)[1], dish.batches * dish.portions, dish.id);
+      const cooled = log.filter((one) => one.type === "cooled");
+      assert.equal(cooled.length, MENU.filter((dish) => dish.chain.some((step) => step.chill)).reduce((sum, dish) => sum + dish.batches, 0));
+      for (const one of cooled) assert.ok(one.seconds <= 2 * 3600, `${one.dish} : ${one.seconds} s`);
     });
 
     it(`keeps everyone on the floor as they walk (seed ${seed})`, () => {

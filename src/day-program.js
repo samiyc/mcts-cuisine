@@ -12,7 +12,7 @@ export const START = 8 * HOUR;
 /** The phases, each from its hour to the next one's. The page's band shows them, and jumps to them. */
 export const PHASES = Object.freeze([
   Object.freeze({ id: "reception", label: "Réception", from: START }),
-  Object.freeze({ id: "production", label: "Production", from: 9 * HOUR }),
+  Object.freeze({ id: "production", label: "Production", from: 8.75 * HOUR }),
   Object.freeze({ id: "miseEnPlace", label: "Mise en place", from: 16.5 * HOUR }),
   Object.freeze({ id: "repas", label: "Repas d'équipe", from: 17.5 * HOUR }),
   Object.freeze({ id: "service", label: "Service", from: 19 * HOUR }),
@@ -43,7 +43,7 @@ export const BRIGADE = Object.freeze([
 export const DELIVERY = Object.freeze({
   lots: Object.freeze([
     Object.freeze({ store: "F", label: "le frais", emoji: "🥩", crates: 60, priority: 30 }),
-    Object.freeze({ store: "T", label: "le tempéré", emoji: "🥔", crates: 36, priority: 20 }),
+    Object.freeze({ store: "T", label: "le tempéré", emoji: "🥔", crates: 40, priority: 20 }),
     Object.freeze({ store: "G", label: "l'épicerie", emoji: "🥫", crates: 24, priority: 10 }),
   ]),
   control: 5 * MINUTE,

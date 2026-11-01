@@ -14,8 +14,6 @@ import { START, WALK } from "./day-program.js";
  * the nearest one, in line.
  */
 
-/** @typedef {{ x: number, y: number, kind: string, key: string, access: { x: number, y: number }[] }} Station */
-
 export function createWorld(layout, seed) {
   return { layout, rng: createRng(seed), events: createEvents(START), t: START, staff: [], people: [], tasks: [], taskCount: 0, claims: new Map(), lines: new Map(), stock: new Map(), gauges: {}, marks: [], uses: [], log: [], end: START };
 }

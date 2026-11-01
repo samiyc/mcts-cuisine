@@ -94,7 +94,7 @@ qualité, hygiène (HACCP) ; **R** un intégrateur de robots de cuisine.
     16 h 30 la production, 16 h 30 la mise en place, 17 h 30 le repas d'équipe, 19 h à 22 h 30 le service, fermeture
     vers minuit. Y a-t-il toujours une coupure dans l'après-midi ?
 26. **Une livraison complète : combien de caisses, qui les contrôle, combien de temps pour tout ranger ?** (C) Le
-    modèle : environ 120 caisses pour 90 couverts, contrôlées par le chef et le second, rangées par toute l'équipe.
+    modèle : 124 caisses pour 90 couverts, contrôlées par le chef et le second, rangées par toute l'équipe.
 27. **Combien de temps prend chaque préparation, par lot ?** (C, T) Éplucher et couper pour 40 soupes, saisir et mijoter
     un bourguignon, une fournée de tartes. Le modèle a des durées de principe, marquées dans `src/day-menu.js`.
 28. **Une brigade de 10 pour combien de couverts ?** (C) Le modèle : 90 couverts, 16 tables, avec chef, second, 2 chefs
