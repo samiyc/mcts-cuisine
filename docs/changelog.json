@@ -79,6 +79,17 @@
   ],
   "versions": [
     {
+      "version": "0.46",
+      "title": "L'onglet Cuisine remis en ordre",
+      "date": "1/11",
+      "items": [
+        "L'onglet Cuisine se lit mieux (Sami) : le plan en texte à côté du plan dessiné, puis six cartes en autant de colonnes que la largeur le permet : le service, les commandes, la cuisson et l'hygiène, les réserves, le cuisinier simulé, les robots et les allées.",
+        "Des interrupteurs à la place des cases à cocher ; les chiffres d'une option ne s'affichent que quand elle est activée. La légende du plan est un tableau de lettres, et « Appliquer » reste visible en bas de la fenêtre.",
+        "Deux défauts corrigés : pendant qu'un service jouait, le formulaire était reconstruit à chaque tour et perdait ce qu'on venait de régler ; un plan refusé effaçait ce qu'on venait de taper. Le formulaire reste maintenant, seul le plan dessiné suit le service, et la raison du refus s'affiche à côté du bouton."
+      ],
+      "commits": []
+    },
+    {
       "version": "0.45",
       "title": "La relecture, et une idée pour la suite",
       "date": "30/10",
@@ -87,7 +98,10 @@
         "La relecture des modules sans test direct (les touches du chef, les lots du banquet, les relais) : pas de défaut trouvé ; les touches qu'un tour joue sont maintenant testées. Le journal des versions charge le thème commun, comme la page (signalé par urgences).",
         "Une idée gardée pour plus tard dans la feuille de route : une cuisine aussi riche et visuelle que le grand CHU des urgences, avec d'autres recettes, d'autres stations, la gestion du stock et celle du service."
       ],
-      "commits": []
+      "commits": [
+        "45cc084",
+        "018ba48"
+      ]
     },
     {
       "version": "0.44",

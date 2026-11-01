@@ -37,13 +37,23 @@
         <h2>Les versions</h2>
 
       <article class="version">
+        <h3><span class="tag">0.46</span> L'onglet Cuisine remis en ordre <span class="date">1/11</span></h3>
+        <ul>
+          <li>L'onglet Cuisine se lit mieux (Sami) : le plan en texte à côté du plan dessiné, puis six cartes en autant de colonnes que la largeur le permet : le service, les commandes, la cuisson et l'hygiène, les réserves, le cuisinier simulé, les robots et les allées.</li>
+          <li>Des interrupteurs à la place des cases à cocher ; les chiffres d'une option ne s'affichent que quand elle est activée. La légende du plan est un tableau de lettres, et « Appliquer » reste visible en bas de la fenêtre.</li>
+          <li>Deux défauts corrigés : pendant qu'un service jouait, le formulaire était reconstruit à chaque tour et perdait ce qu'on venait de régler ; un plan refusé effaçait ce qu'on venait de taper. Le formulaire reste maintenant, seul le plan dessiné suit le service, et la raison du refus s'affiche à côté du bouton.</li>
+        </ul>
+        <p class="commits"></p>
+      </article>
+
+      <article class="version">
         <h3><span class="tag">0.45</span> La relecture, et une idée pour la suite <span class="date">30/10</span></h3>
         <ul>
           <li>A reste le réglage par défaut de la recherche (Sami) : E ne gagnait, de façon confirmée, qu'au banquet de la grande brigade.</li>
           <li>La relecture des modules sans test direct (les touches du chef, les lots du banquet, les relais) : pas de défaut trouvé ; les touches qu'un tour joue sont maintenant testées. Le journal des versions charge le thème commun, comme la page (signalé par urgences).</li>
           <li>Une idée gardée pour plus tard dans la feuille de route : une cuisine aussi riche et visuelle que le grand CHU des urgences, avec d'autres recettes, d'autres stations, la gestion du stock et celle du service.</li>
         </ul>
-        <p class="commits"></p>
+        <p class="commits"><code>45cc084</code> <code>018ba48</code></p>
       </article>
 
       <article class="version">

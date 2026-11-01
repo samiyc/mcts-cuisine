@@ -6,7 +6,7 @@ import { beginTurn, createService, drawOrders, interact, isOver, measuresOf, run
 import { firstTab, showTab, wireFold, wireTabs } from "./chrome.js";
 import { turnKeys, wireChefKeys } from "./keys.js";
 import { wirePlayerKeys } from "./player.js";
-import { kitchenFrom, kitchenPanel, kitchenView } from "./tabs/kitchen.js";
+import { kitchenFrom, kitchenKept, kitchenPanel, kitchenView } from "./tabs/kitchen.js";
 import { download, replayClicked, replayFile, replays, replaysPanel, replaysView } from "./tabs/replays.js";
 import { servicePanel, serviceView } from "./tabs/service.js";
 import { statsPanel, statsView } from "./tabs/stats.js";
@@ -158,6 +158,7 @@ function render() {
   // A playing service renders every turn: an unchanged panel is kept, or the button under the mouse is replaced
   // between its press and its release (no click: « Pause » did nothing) and its hover flickers (Sami, 29/10/2026).
   if (!sidebar.firstElementChild?.isEqualNode(next)) sidebar.replaceChildren(next);
+  if (state.tab === "cuisine" && kitchenKept(app, ctx)) return;
   app.replaceChildren(...view(ctx));
 }
 
