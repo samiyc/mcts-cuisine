@@ -8,11 +8,11 @@ import { createDistances, parsePlan } from "mcts-commun/grid.js";
  * Stations, each worked by one person at a time from a floor cell beside it: `K` the truck, `F` the cold room's shelves,
  * `T` the tempered store, `G` the tins and cereals, `C` a board, `P` a stove, `A` an oven, `M` the pastry bench, `Z` a
  * blast chiller, `f` a fridge of dishes, `d` a fridge of desserts, `_` a plating bench, `S` the pass, `L` a sink, `r` the
- * clean plates, `B` the bar, `w` a water tap, `b` a seat of the staff room, `s` a guest's seat, `t` a table (not worked: its seats are).
+ * clean plates, `W` a kitchen's bins, `U` the waste room outside, `B` the bar, `O` the dining room's pantry, `w` a water tap, `b` a seat of the staff room, `s` a guest's seat, `t` a table (not worked: its seats are).
  * `#` a wall, a space outside the building.
  */
 export const DAY_PLAN = [
-  "     KKKKKKKKKK                  yyyyyyyyyyy  ",
+  "     KKKKKKKKKK                  UUUUyyyyyyy  ",
   "     ..........                  yyyyyyyyyyy  ",
   "##########DD##########################x#######",
   "#FFFFFFFF#..#TTTTTTTT#GGGGGGGG#.............w#",
@@ -24,7 +24,7 @@ export const DAY_PLAN = [
   "#............................................#",
   "#..CCCCCC...PPPP.....AA.....MMMMMM..ZZZZZZ...#",
   "#............................................#",
-  "#..ffffff...________.ffff...______..LLLLrr...#",
+  "#..ffffff.W.________.ffff...______..LLLLrrW..#",
   "#............................................#",
   "######.#w###SSSSSSSSSSSSSSSS###w#####.########",
   "#............................................#",
@@ -33,7 +33,7 @@ export const DAY_PLAN = [
   "#..ss...ss...ss...ss...ss...ss...ss...ss.....#",
   "#............................................#",
   "#..ss...ss...ss...ss...ss...ss...ss...ss.....#",
-  "#..tt...tt...tt...tt...tt...tt...tt...tt.....#",
+  "#..tt...tt...tt...tt...tt...tt...tt...tt.OOO.#",
   "#..ss...ss...ss...ss...ss...ss...ss...ss.....#",
   "#............................................#",
   "######################g#######################",
@@ -57,7 +57,10 @@ export const STATION_NAMES = Object.freeze({
   S: "le passe",
   L: "la plonge",
   r: "les assiettes propres",
+  W: "les poubelles",
+  U: "le local à déchets",
   B: "le bar",
+  O: "l'office",
   w: "les points d'eau",
   b: "la salle du personnel",
   s: "les chaises",

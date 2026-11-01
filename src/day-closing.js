@@ -1,6 +1,8 @@
+import { closeBar } from "./day-bar.js";
 import { at, offer, segment } from "./day-engine.js";
 import { MENU, portionsOf } from "./day-menu.js";
 import { BRIGADE, MINUTE } from "./day-program.js";
+import { emptyBins } from "./day-waste.js";
 
 /**
  * The end of the day (Sami, 1/11/2026, docs/journee.md: once the rush is over, put away, clean, the dish room, check the
@@ -71,15 +73,17 @@ function close(world) {
   cooks.forEach((person, i) => {
     person.skills = BRIGADE[i].skills;
   });
-  for (const person of world.staff.filter((one) => one.kind === "waiter")) offerLeave(world, person, world.layout.entry);
-  const tasks = closingTasks(world);
+  for (const person of world.staff.filter((one) => one.kind !== "cook")) offerLeave(world, person, world.layout.entry);
+  const tasks = [...closingTasks(world), closeBar()];
   let left = tasks.length;
   for (const task of tasks) {
     offer(world, {
       ...task,
       done: () => {
         left -= 1;
-        if (!left) goHome(world, cooks);
+        if (left) return;
+        emptyBins(world);
+        goHome(world, cooks);
       },
     });
   }

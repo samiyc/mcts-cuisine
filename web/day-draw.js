@@ -7,8 +7,8 @@ import { svg } from "./dom.js";
  * frame to the next and moved, so a hundred people on the plan stay fluid.
  */
 const CELL = 26;
-const ICONS = { K: "🚚", F: "🥩", T: "🥔", G: "🥫", C: "🔪", P: "🔥", A: "♨️", M: "🥧", Z: "❄️", f: "🧊", d: "🍰", _: "🍽️", S: "🛎️", L: "🧽", r: "🍽️", B: "🍷", w: "💧", D: "🚪", x: "🚪", g: "🚪", y: "🌳" };
-const CLASSES = { "#": "wall", K: "truck", y: "yard", t: "table", s: "seat", b: "seat", F: "cold", Z: "cold", f: "cold", d: "cold", P: "hot", A: "hot", T: "store", G: "store", S: "pass", L: "wash", r: "wash", w: "water" };
+const ICONS = { K: "🚚", F: "🥩", T: "🥔", G: "🥫", C: "🔪", P: "🔥", A: "♨️", M: "🥧", Z: "❄️", f: "🧊", d: "🍰", _: "🍽️", S: "🛎️", L: "🧽", r: "🍽️", B: "🍷", O: "🍴", W: "🗑️", U: "♻️", w: "💧", D: "🚪", x: "🚪", g: "🚪", y: "🌳" };
+const CLASSES = { O: "store", B: "pass", W: "wash", U: "wash", "#": "wall", K: "truck", y: "yard", t: "table", s: "seat", b: "seat", F: "cold", Z: "cold", f: "cold", d: "cold", P: "hot", A: "hot", T: "store", G: "store", S: "pass", L: "wash", r: "wash", w: "water" };
 /** Tells the cook's marks apart at a glance, by their job. */
 const BODY_FROM = 0.45;
 
@@ -33,7 +33,7 @@ function nameOf(root, plan, kind) {
   root.append(svg("text", { x: centre(x), y: centre(y) + 4, class: "day-name" }, STATION_NAMES[kind].replace(/^(les|le|la|l') ?/, "")));
 }
 
-const SEEN_NAMES = ["F", "T", "G", "b"];
+const SEEN_NAMES = ["F", "T", "G", "b", "U", "B", "O"];
 
 /** The plan's still part. */
 export function planBackground(layout) {

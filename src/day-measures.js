@@ -35,6 +35,31 @@ const staffOf = (people) =>
     .filter((person) => person.skills)
     .map((person) => ({ name: person.name, kind: person.kind, metres: person.walked, worked: round(person.worked / 3600) }));
 
+/** The waste taken out, in kilos by stream; the biowaste a guest; the bins that overflowed; the bags. */
+function wasteOf(trace, final) {
+  const kilos = (stream) => round(final(`local:${stream}`) / 1000);
+  const bags = trace.log.filter((one) => one.type === "bag");
+  return { bio: kilos("bio"), emballages: kilos("emballages"), verre: kilos("verre"), ordures: kilos("ordures"), bioPerGuest: Math.round(final("local:bio") / Math.max(1, final("partis"))), bags: bags.length, full: trace.log.filter((one) => one.type === "binFull").length };
+}
+
+/** The bar: the glasses poured, how long a round waited, what was missing. */
+function barOf(trace) {
+  const rounds = trace.log.filter((one) => one.type === "round").map((one) => one.seconds);
+  const poured = trace.log.filter((one) => one.type === "drinks");
+  return { poured: sum(poured.map((one) => one.count)), short: sum(poured.map((one) => one.short)), roundMean: round(minutes(mean(rounds))), roundMax: round(minutes(Math.max(0, ...rounds))) };
+}
+
+/** How long each table took from its group's leaving to laid again. */
+function turnsOf(trace) {
+  const dirtyAt = new Map();
+  const turns = [];
+  for (const one of trace.log.filter((entry) => entry.type === "table")) {
+    if (one.state === "dirty") dirtyAt.set(one.table, one.t);
+    if (one.state === "laid" && dirtyAt.has(one.table)) turns.push(one.t - dirtyAt.get(one.table));
+  }
+  return turns;
+}
+
 /** The day's measures. */
 export function dayMeasures(trace) {
   const tickets = trace.log.filter((one) => one.type === "ticket").map((one) => one.seconds);
@@ -57,6 +82,9 @@ export function dayMeasures(trace) {
     refused: final("epuises"),
     cooledMax: round(minutes(Math.max(0, ...trace.log.filter((one) => one.type === "cooled").map((one) => one.seconds)))),
     drinks: trace.log.filter((one) => one.type === "drink").length,
+    waste: wasteOf(trace, final),
+    bar: barOf(trace),
+    tableTurnMean: round(minutes(mean(turnsOf(trace)))),
     closedAt: clockOf(trace.end),
     closedSeconds: trace.end,
     stations: ["P", "A", "_", "S", "C", "Z", "L"].map((kind) => fullness(trace, kind)),

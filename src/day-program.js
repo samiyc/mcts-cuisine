@@ -31,10 +31,10 @@ export const BRIGADE = Object.freeze([
   Object.freeze({ name: "Chef de partie 2", mark: "P2", skills: Object.freeze(["chaud", "prep"]), service: Object.freeze(["chaud"]) }),
   Object.freeze({ name: "Garde-manger", mark: "GM", skills: Object.freeze(["froid", "prep"]), service: Object.freeze(["froid"]) }),
   Object.freeze({ name: "Pâtissier", mark: "Pâ", skills: Object.freeze(["patisserie", "prep"]), service: Object.freeze(["patisserie"]) }),
-  Object.freeze({ name: "Commis 1", mark: "C1", skills: Object.freeze(["prep", "froid", "chaud"]), service: Object.freeze(["froid", "chaud"]) }),
-  Object.freeze({ name: "Commis 2", mark: "C2", skills: Object.freeze(["prep", "chaud", "froid"]), service: Object.freeze(["chaud", "froid"]) }),
-  Object.freeze({ name: "Commis 3", mark: "C3", skills: Object.freeze(["prep", "patisserie", "plonge"]), service: Object.freeze(["patisserie", "froid", "plonge"]) }),
-  Object.freeze({ name: "Plongeur", mark: "Pl", skills: Object.freeze(["plonge", "prep"]), service: Object.freeze(["plonge"]) }),
+  Object.freeze({ name: "Commis 1", mark: "C1", skills: Object.freeze(["prep", "froid", "chaud", "dechets"]), service: Object.freeze(["froid", "chaud"]) }),
+  Object.freeze({ name: "Commis 2", mark: "C2", skills: Object.freeze(["prep", "chaud", "froid", "dechets"]), service: Object.freeze(["chaud", "froid"]) }),
+  Object.freeze({ name: "Commis 3", mark: "C3", skills: Object.freeze(["prep", "patisserie", "plonge", "dechets"]), service: Object.freeze(["patisserie", "froid", "plonge", "dechets"]) }),
+  Object.freeze({ name: "Plongeur", mark: "Pl", skills: Object.freeze(["plonge", "prep", "dechets"]), service: Object.freeze(["plonge", "dechets"]) }),
 ]);
 
 /**
@@ -45,7 +45,7 @@ export const DELIVERY = Object.freeze({
   lots: Object.freeze([
     Object.freeze({ store: "F", label: "le frais", emoji: "🥩", crates: 60, priority: 30 }),
     Object.freeze({ store: "T", label: "le tempéré", emoji: "🥔", crates: 40, priority: 20 }),
-    Object.freeze({ store: "G", label: "l'épicerie", emoji: "🥫", crates: 24, priority: 10 }),
+    Object.freeze({ store: "G", label: "l'épicerie et les boissons", emoji: "🥫", crates: 36, priority: 10 }),
   ]),
   control: 5 * MINUTE,
   take: 15,

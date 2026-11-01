@@ -1,6 +1,7 @@
 import { addStock, at, mark, offer } from "./day-engine.js";
 import { MENU, portionsOf } from "./day-menu.js";
 import { MINUTE } from "./day-program.js";
+import { LEFT, throwAway } from "./day-waste.js";
 
 /**
  * The day's production (Sami, 1/11/2026, docs/journee.md): what is made ahead, batch by batch. Each batch walks its dish's
@@ -17,11 +18,17 @@ const PRIORITY = Object.freeze({ step: 20, shelve: 40, hot: 60 });
 const LATE_FROM = 14.5 * 3600;
 const WASH = Object.freeze({ at: 6, seconds: 150 });
 
+/** Crates opened: their cartons, and what the raw produce leaves once peeled and trimmed (the tins and sacks leave nothing to compost). */
+function unpacked(world, store, crates) {
+  throwAway(world, "emballages", crates * LEFT.carton);
+  if (store !== "G") throwAway(world, "bio", crates * LEFT.peelings);
+}
+
 /** A batch's legs for its step: what it holds to take off, what to fetch, then the step itself. */
 function legsOf(world, batch, step) {
   const legs = [];
   if (batch.held) legs.push({ station: batch.held, seconds: TAKE_OFF, label: `retirer ${batch.dish.label}`, carry: batch.dish.emoji });
-  for (const [store, crates] of Object.entries(step.fetch ?? {})) legs.push({ at: store, seconds: FETCH, label: `chercher pour ${batch.dish.label}`, carry: "📦", take: { [store]: crates } });
+  for (const [store, crates] of Object.entries(step.fetch ?? {})) legs.push({ at: store, seconds: FETCH, label: `chercher pour ${batch.dish.label}`, carry: "📦", take: { [store]: crates }, done: () => unpacked(world, store, crates) });
   legs.push({ at: step.at, seconds: step.min * MINUTE * (step.alone?.emoji === "❄️" || step.shelve ? 1 : BY_HAND), label: `${step.do} : ${batch.dish.label}`, carry: null, keep: Boolean(step.alone), done: (station) => stepDone(world, batch, station) });
   return legs;
 }
@@ -64,7 +71,10 @@ function goOnAlone(world, batch, { station, step }) {
 function stepDone(world, batch, station) {
   const step = batch.dish.chain[batch.step];
   dirtyPan(world);
-  if (step.shelve) addStock(world, portionsOf(batch.dish), batch.dish.portions);
+  if (step.shelve) {
+    addStock(world, portionsOf(batch.dish), batch.dish.portions);
+    throwAway(world, "ordures", LEFT.film);
+  }
   if (step.alone) return goOnAlone(world, batch, { station, step });
   batch.step += 1;
   nextStep(world, batch);

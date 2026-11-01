@@ -4,6 +4,8 @@ import { addPerson, addStock, at, createWorld, offer, runWorld, segment } from "
 import { MENU } from "./day-menu.js";
 import { startPhases } from "./day-phases.js";
 import { startProduction } from "./day-production.js";
+import { startWaste } from "./day-waste.js";
+import { startBar } from "./day-bar.js";
 import { startBody } from "./day-body.js";
 import { startClosing } from "./day-closing.js";
 import { startGuests } from "./day-guests.js";
@@ -91,9 +93,11 @@ export function runDay({ text, seed = 1 } = {}) {
   const layout = dayLayout(text);
   const world = createWorld(layout, seed);
   arrive(world, layout);
+  startWaste(world);
   receive(world);
   startPhases(world, { dishes: MENU, brigade: BRIGADE });
   startGuests(world);
+  startBar(world);
   startBody(world);
   startClosing(world);
   return traceOf(runWorld(world));

@@ -20,6 +20,8 @@ const CARDS = [
   ["Les réserves", [["camion", "Le camion"], ["F", "Chambre froide"], ["T", "Stock tempéré"], ["G", "Conserves, céréales"], ["plats", "Plats aux frigos"], ["desserts", "Desserts aux frigos"]]],
   ["Les postes pris", [["pris:P", "Fourneaux"], ["pris:A", "Fours"], ["pris:C", "Planches"], ["pris:_", "Dressage"], ["pris:Z", "Cellule"], ["pris:L", "Plonge"]]],
   ["Le service", [["bons", "Bons en cours"], ["envoyes", "Assiettes envoyées"], ["clients", "Clients en salle"], ["partis", "Clients partis"], ["propres", "Assiettes propres"], ["assiettes", "Assiettes sales"], ["sale", "Batterie sale"]]],
+  ["La salle et le bar", [["tables:pretes", "Tables dressées"], ["tables:sales", "Tables à nettoyer"], ["verres", "Verres à préparer"], ["boissons", "Boissons au bar"]]],
+  ["Les déchets (kg)", [["dechet:bio", "Bac biodéchets"], ["dechet:emballages", "Bac cartons"], ["dechet:verre", "Bac verre"], ["dechet:ordures", "Bac ordures"], ["local", "Au local"]]],
 ];
 const REDRAW_EVERY = 200;
 /** The summed gauges' full bars: what the batches make. */
@@ -58,7 +60,7 @@ function compute() {
 function drawReview() {
   if (!parts.review) return;
   const one = dayMeasures(day.trace);
-  parts.review.textContent = `${one.guests} clients à ${one.tables} tables, ${one.plates} assiettes. Un bon : ${fixed(one.ticketMean)} min en moyenne, ${fixed(one.ticketMax)} au pire. Une table : ${fixed(one.tableMean)} min, et ${fixed(one.waitedMean)} min d'attente à l'entrée en moyenne (${fixed(one.waitedMax)} au pire). Fermé à ${one.closedAt}.`;
+  parts.review.textContent = `${one.guests} clients à ${one.tables} tables, ${one.plates} assiettes. Un bon : ${fixed(one.ticketMean)} min en moyenne, ${fixed(one.ticketMax)} au pire. Une table : ${fixed(one.tableMean)} min, et ${fixed(one.waitedMean)} min d'attente à l'entrée en moyenne (${fixed(one.waitedMax)} au pire). Au bar : ${one.bar.poured} verres. Déchets : ${fixed(one.waste.bio + one.waste.emballages + one.waste.verre + one.waste.ordures)} kg, dont ${one.waste.bioPerGuest} g de biodéchets par client. Fermé à ${one.closedAt}.`;
 }
 
 /** Where second `t` falls on the band, in percent. */
@@ -97,7 +99,7 @@ function drawGauges(scene) {
     const value = scene.gauges[name] ?? 0;
     const top = day.tops[name] ?? 1;
     bar.style.width = `${(100 * value) / top}%`;
-    number.textContent = String(value);
+    number.textContent = name === "local" || name.startsWith("dechet:") ? fixed(value / 1000) : String(value);
   }
 }
 
@@ -210,7 +212,7 @@ const legend = () =>
     "ul",
     { class: "day-legend" },
     el("li", {}, el("span", { class: "day-dot cook" }), "un cuisinier"),
-    el("li", {}, el("span", { class: "day-dot waiter" }), "un serveur"),
+    el("li", {}, el("span", { class: "day-dot waiter" }), "un serveur, le barman"),
     el("li", {}, el("span", { class: "day-dot guest" }), "un client, une couleur par table"),
     el("li", {}, el("span", { class: "day-dot low" }), "soif ou fatigue"),
     el("li", {}, el("span", { class: "day-dot bad" }), "au bout"),

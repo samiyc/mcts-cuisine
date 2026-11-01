@@ -1,30 +1,35 @@
+import { atTheCounter, barRound } from "./day-bar.js";
 import { addPerson, addStock, at, gauge, mark, offer, segment, walkTo } from "./day-engine.js";
 import { COURSES } from "./day-menu.js";
 import { MINUTE } from "./day-program.js";
 import { clearPass, fireCourse } from "./day-service.js";
 import { EVENING, arrivals, orderOf } from "./day-stream.js";
+import { layAll, placeOf, setState, turnTable } from "./day-tables.js";
+import { LEFT, throwAway } from "./day-waste.js";
 
 /**
- * The dining room (Sami, 1/11/2026, docs/journee.md: it is what makes the plan teem): groups come in by their door, wait for
- * a table if none is free, sit, order, eat their courses, pay and leave. The waiters take the orders, bring the plates from
- * the pass, clear, and bring the dirty plates to the dish room. No published sequence was found: every duration is a
+ * The dining room (Sami, 1/11/2026, docs/journee.md: it is what makes the plan teem): groups come in by their door, have a drink
+ * at the bar if no table is ready, sit, order, eat their courses, pay and leave. The waiters take the orders, bring the plates
+ * from the pass, clear, and bring the dirty plates to the dish room. No published sequence was found: every duration is a
  * hypothesis (question 31); one waiter for 4 or 5 tables is a rule of thumb (OysterLink, docs/recherche/journee.md).
  */
-export const FLOOR = Object.freeze({ waiters: 6, bar: 60, reading: 3, order: 60, serve: 20, pick: 10, clear: 30, drop: 10, bill: 60, leaving: 5, reset: 90, rack: 20, cleanPlates: 240 });
-const PRIORITY = Object.freeze({ drinks: 55, serve: 80, order: 60, bill: 50, clear: 40, reset: 30, lay: 20 });
+export const FLOOR = Object.freeze({ waiters: 6, reading: 3, order: 60, serve: 20, pick: 10, clear: 30, drop: 10, bill: 60, leaving: 5, rack: 20, cleanPlates: 240 });
+const PRIORITY = Object.freeze({ serve: 80, order: 60, bill: 50, clear: 40 });
 const WAITER_FROM = 18 * 3600;
-const LINE_LENGTH = 24;
 const COURSE_WORDS = Object.freeze({ entree: "l'entrée", plat: "le plat", dessert: "le dessert" });
+const AROUND_BAR = 2;
 
-/** A table as a place someone works from: the floor beside its seats. */
-function placeOf(layout, table) {
-  const seats = table.seats.map((seat) => layout.stations.s.find((one) => one.x === seat.x && one.y === seat.y));
-  return { x: table.x, y: table.y, kind: "table", key: `table:${table.id}`, access: seats.flatMap((seat) => seat.access) };
+/** The room as the evening begins: its tables, and the groups waiting at the bar. */
+function roomOf(world) {
+  return { tables: world.layout.tables.map((table) => ({ ...table, place: placeOf(world.layout, table), group: null, turns: 0, state: "bare", look: null })), line: [], waiting: 0, counter: counterOf(world.layout) };
 }
 
-/** The room as the evening begins: its tables, free, and the group waiting at the door. */
-function roomOf(world) {
-  return { tables: world.layout.tables.map((table) => ({ ...table, place: placeOf(world.layout, table), group: null, turns: 0 })), line: [], waiting: 0 };
+/** The floor around the bar, where groups wait for a table, the nearest first. */
+function counterOf(layout) {
+  const { plan, stations } = layout;
+  const near = (x, y) => stations.B.some((bar) => Math.abs(bar.x - x) + Math.abs(bar.y - y) <= AROUND_BAR);
+  const cells = plan.lines.flatMap((line, y) => [...line].flatMap((char, x) => (char === "." && near(x, y) ? [{ x, y }] : [])));
+  return cells.sort((a, b) => layout.steps(a, layout.entry) - layout.steps(b, layout.entry));
 }
 
 /** The guest `person` on a seat: their segment from now on. */
@@ -52,26 +57,14 @@ function offerOrder(world, group) {
   });
 }
 
-/** Something to drink: a waiter goes to the bar, then to the table. */
-function offerDrinks(world, group) {
-  offer(world, {
-    skill: "salle",
-    priority: PRIORITY.drinks,
-    legs: [
-      { at: "B", seconds: FLOOR.bar, label: `préparer les boissons (table ${group.table.id + 1})`, carry: "🍷" },
-      atTable(group, { seconds: FLOOR.serve, label: "servir les boissons", carry: null }),
-    ],
-  });
-}
-
-/** The group's course from `next` on: the first with something ordered; none left, the bill. */
+/** The group's course from `next` on: the first with something ordered; none left, the bill. A round from the bar goes with it. */
 function nextCourse(world, group, next) {
   const course = COURSES[next];
   if (!course) return offerBill(world, group);
   const dishes = orderOf(world, course, group.size);
   if (!dishes.length) return nextCourse(world, group, next + 1);
   allSit(world, group, "attend son plat");
-  offerDrinks(world, group);
+  barRound(world, { table: group.table, course, size: group.size });
   fireCourse(world, { table: group.table.id, course, dishes, then: (ticket) => offerServe(world, { group, ticket, next }) });
 }
 
@@ -96,27 +89,25 @@ function eat(world, { group, ticket, next }) {
   at(world, t1, () => offerClear(world, { group, ticket, next }));
 }
 
-/** A waiter clears the table, and brings the plates to the dish room; the next course may go. */
+/** A waiter clears the table, scrapes and brings the plates to the dish room; the next course may go. */
 function offerClear(world, { group, ticket, next }) {
   allSit(world, group, "attend la suite");
+  const plates = ticket.dishes.length;
   offer(world, {
     skill: "salle",
     priority: PRIORITY.clear,
     legs: [
-      atTable(group, {
-        seconds: FLOOR.clear,
-        label: "débarrasser",
-        carry: "🍽️",
-        done: () => nextCourse(world, group, next + 1),
-      }),
-      { at: "L", seconds: FLOOR.drop, label: "poser à la plonge", carry: null, done: () => platesBack(world, ticket.dishes.length) },
+      atTable(group, { seconds: FLOOR.clear, label: "débarrasser", carry: "🍽️", done: () => nextCourse(world, group, next + 1) }),
+      { at: "L", seconds: FLOOR.drop, label: "poser à la plonge", carry: null, done: () => platesBack(world, plates) },
     ],
   });
 }
 
-/** Dirty plates at the dish room: washed by racks, back to the clean ones. */
-function platesBack(world, count) {
-  addStock(world, "assiettes", count);
+/** Dirty plates at the dish room: scraped into the bins, washed by racks, back to the clean ones. */
+function platesBack(world, count, glasses = 0) {
+  addStock(world, "assiettes", count + glasses);
+  throwAway(world, "bio", count * LEFT.plateScraps);
+  throwAway(world, "ordures", count * LEFT.plateRest);
   if (!world.platesWashing) offerPlates(world);
 }
 
@@ -138,7 +129,7 @@ function offerPlates(world) {
   });
 }
 
-/** The bill, then the group leaves, and the table is laid again. */
+/** The bill, then the group leaves. */
 function offerBill(world, group) {
   allSit(world, group, "demande l'addition");
   offer(world, {
@@ -148,7 +139,7 @@ function offerBill(world, group) {
   });
 }
 
-/** Everyone of the group walks to the door and out; a waiter lays the table for the next. */
+/** Everyone of the group walks to the door and out; the table's turn begins. */
 function leave(world, group) {
   const { table } = group;
   world.log.push({ type: "group", id: group.id, size: group.size, seconds: world.t - group.seatedAt, waited: group.seatedAt - group.arrivedAt });
@@ -158,26 +149,28 @@ function leave(world, group) {
   }
   addStock(world, "clients", -group.size);
   addStock(world, "partis", group.size);
-  offer(world, { skill: "salle", priority: PRIORITY.reset, legs: [{ station: table.place, seconds: FLOOR.reset, label: `redresser la table ${table.id + 1}`, carry: null, done: () => freeTable(world, table) }] });
+  turnTable(world, table, { guests: group.size, then: () => tableReady(world, table), glassesBack: (count) => platesBack(world, 0, count) });
 }
 
-/** The table free: the first group in line takes it. */
-function freeTable(world, table) {
+/** A table laid: the first group in line takes it. */
+function tableReady(world, table) {
   table.group = null;
-  const room = world.room;
-  const waiting = room.line.findIndex((group) => group.size <= table.seats.length);
-  if (waiting >= 0) seat(world, room.line.splice(waiting, 1)[0], table);
+  const { line } = world.room;
+  const waiting = line.findIndex((group) => group.size <= table.seats.length);
+  if (waiting >= 0) seat(world, line.splice(waiting, 1)[0], table);
 }
 
 /** The group walks to its table, each to a seat; all sat, they read the menu. */
 function seat(world, group, table) {
   table.group = group;
   table.turns += 1;
+  setState(world, table, "taken");
   group.table = table;
   group.seatedAt = world.t;
   let walking = group.members.length;
   group.members.forEach((person, i) => {
     person.seat = table.seats[i];
+    person.carry = null;
     const station = world.layout.stations.s.find((one) => one.x === person.seat.x && one.y === person.seat.y);
     person.standing = world.layout.near(person.cell, station);
     walkTo(world, person, { cell: person.standing, label: "va à sa table" }, () => {
@@ -188,25 +181,26 @@ function seat(world, group, table) {
   });
 }
 
-/** The `n`th place of the line by the door, along the aisle on both sides of it. */
-function lineCell(world, n) {
-  const { entry } = world.layout;
-  const side = n % 2 ? -1 : 1;
-  return { x: entry.x + side * (1 + Math.floor(n / 2)), y: entry.y - 1 };
+/** No table ready: the group waits around the bar, and has a drink. */
+function toTheBar(world, group) {
+  const { room } = world;
+  room.line.push(group);
+  group.members.forEach((person) => {
+    const cell = room.counter[room.waiting % room.counter.length];
+    room.waiting += 1;
+    walkTo(world, person, { cell, label: "va au bar" }, () => segment(world, person, { kind: "wait", label: "attend une table au bar" }));
+  });
+  atTheCounter(world, group);
 }
 
-/** A group comes in: to a free table, the least used first; or it waits by the door. */
+/** A group comes in: to a laid table, the least used first; or to the bar. */
 function arrive(world, group) {
   group.arrivedAt = world.t;
   group.members = Array.from({ length: group.size }, (_, i) => addPerson(world, { name: `Client ${group.id + 1}.${i + 1}`, kind: "guest", group: group.id }, world.layout.entry));
   addStock(world, "clients", group.size);
-  const free = world.room.tables.filter((table) => !table.group && table.seats.length >= group.size).sort((a, b) => a.turns - b.turns)[0];
-  if (free) return seat(world, group, free);
-  world.room.line.push(group);
-  group.members.forEach((person, i) => {
-    walkTo(world, person, { cell: lineCell(world, world.room.waiting + i), label: "attend une table" }, () => segment(world, person, { kind: "wait", label: "attend une table" }));
-  });
-  world.room.waiting = (world.room.waiting + group.size) % LINE_LENGTH;
+  const free = world.room.tables.filter((table) => table.state === "laid" && !table.group && table.seats.length >= group.size).sort((a, b) => a.turns - b.turns)[0];
+  if (free) seat(world, group, free);
+  else toTheBar(world, group);
 }
 
 /** The waiters come in and lay the tables. */
@@ -215,15 +209,13 @@ function startWaiters(world) {
     const person = addPerson(world, { name: `Serveur ${n + 1}`, mark: `S${n + 1}`, kind: "waiter", skills: ["salle"] }, world.layout.entry);
     at(world, WAITER_FROM + n * 20, () => segment(world, person, { kind: "idle", label: "arrive" }));
   }
-  at(world, WAITER_FROM + 2 * MINUTE, () => {
-    for (const table of world.room.tables) offer(world, { skill: "salle", priority: PRIORITY.lay, legs: [{ station: table.place, seconds: FLOOR.reset, label: `dresser la table ${table.id + 1}`, carry: null }] });
-  });
+  at(world, WAITER_FROM + 2 * MINUTE, () => layAll(world, world.room.tables));
 }
 
 /** The evening of the dining room. */
 export function startGuests(world) {
   world.room = roomOf(world);
-  for (const name of ["bons", "envoyes", "epuises", "clients", "partis", "assiettes"]) gauge(world, name, 0);
+  for (const name of ["bons", "envoyes", "epuises", "clients", "partis", "assiettes", "tables:pretes", "tables:sales"]) gauge(world, name, 0);
   addStock(world, "propres", FLOOR.cleanPlates);
   startWaiters(world);
   arrivals(world.rng).forEach((time, id) => {

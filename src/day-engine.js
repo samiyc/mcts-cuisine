@@ -17,7 +17,7 @@ import { START, WALK } from "./day-program.js";
 const HOT = new Set(["P", "A"]);
 
 export function createWorld(layout, seed) {
-  return { layout, rng: createRng(seed), events: createEvents(START), t: START, staff: [], people: [], tasks: [], taskCount: 0, claims: new Map(), lines: new Map(), stock: new Map(), gauges: {}, marks: [], uses: [], log: [], end: START, crates: 0, washing: false, platesWashing: false, ticketCount: 0, room: null, body: null };
+  return { layout, rng: createRng(seed), events: createEvents(START), t: START, staff: [], people: [], tasks: [], taskCount: 0, claims: new Map(), lines: new Map(), stock: new Map(), gauges: {}, marks: [], uses: [], log: [], end: START, crates: 0, washing: false, platesWashing: false, ticketCount: 0, room: null, body: null, wasteTrips: {}, wasteFull: {}, closing: false, barPoured: 0, barRestocking: false };
 }
 
 /** Runs `run` at `time`, or now if that has passed. */

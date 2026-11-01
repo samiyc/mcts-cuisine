@@ -109,3 +109,11 @@ qualité, hygiène (HACCP) ; **R** un intégrateur de robots de cuisine.
     plonge, en une fois par table.
 33. **Que devient ce qui reste en fin de service, et quel contrôle fait-on des frigos ?** (H) Le modèle : les restes sont
     comptés et rangés ; un relevé par frigo.
+34. **Combien de déchets par couvert, par flux, et combien de sorties de poubelles dans une journée ?** (C, H) Le seul chiffre
+    trouvé : 134 g de biodéchets par repas (Veolia, origine non retrouvée). Le modèle : 143 g, environ 50 kg de cartons, 17 kg de
+    verre, 6 kg d'ordures ; un sac sorti à 3 kg de biodéchets ou d'ordures, à 8 kg de cartons ou de verre.
+35. **Comment remet-on une table en état, et en combien de temps ?** (C) Le modèle : débarrasser les verres 1 min, essuyer
+    45 s, chercher le couvert et le linge à l'office, dresser 1 min 30. Change-t-on la nappe à chaque client ?
+36. **Le bar d'un restaurant de 90 couverts : combien de personnes, combien de temps pour un verre ?** (C) Le modèle : un
+    barman, 25 s par verre, un apéritif pour 70 % des clients, du vin pour 80 %, un café pour 50 %, une caisse de 24 à chaque
+    réapprovisionnement.

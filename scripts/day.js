@@ -17,6 +17,10 @@ const average = (read) => measures.reduce((total, one) => total + read(one), 0) 
 for (const name of SUMMED) console.log(`${name.padEnd(12)} ${average((one) => one[name]).toFixed(1)}`);
 const latest = measures.reduce((last, one) => (one.closedSeconds > last.closedSeconds ? one : last));
 console.log(`\nfermé à       ${latest.closedAt} au plus tard, ${ms.toFixed(0)} ms par journée`);
+console.log(`\ndéchets (kg)  biodéchets ${average((one) => one.waste.bio).toFixed(1)}, cartons ${average((one) => one.waste.emballages).toFixed(1)}, verre ${average((one) => one.waste.verre).toFixed(1)}, ordures ${average((one) => one.waste.ordures).toFixed(1)}`);
+console.log(`biodéchets    ${average((one) => one.waste.bioPerGuest).toFixed(0)} g par client (source : 134), ${average((one) => one.waste.bags).toFixed(1)} sacs, ${average((one) => one.waste.full).toFixed(1)} bacs débordés`);
+console.log(`bar           ${average((one) => one.bar.poured).toFixed(0)} verres, une tournée ${average((one) => one.bar.roundMean).toFixed(1)} min (${average((one) => one.bar.roundMax).toFixed(1)} au pire), ${average((one) => one.bar.short).toFixed(1)} manquants`);
+console.log(`table         remise en état en ${average((one) => one.tableTurnMean).toFixed(1)} min`);
 console.log("\nposte  cases  pris au plus  plein pendant le service");
 measures[0].stations.forEach((station, i) => console.log(`${station.kind.padEnd(6)} ${String(station.count).padEnd(6)} ${average((one) => one.stations[i].highest).toFixed(1).padEnd(13)} ${average((one) => one.stations[i].fullShare).toFixed(1)} %`));
 console.log("\nqui             mètres  heures");

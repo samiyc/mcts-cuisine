@@ -3,6 +3,7 @@ import assert from "node:assert/strict";
 import { DAY_PLAN, dayLayout } from "../src/day-plan.js";
 import { MENU, portionsOf } from "../src/day-menu.js";
 import { DELIVERY, WALK } from "../src/day-program.js";
+import { STREAMS } from "../src/day-waste.js";
 import { dayMeasures } from "../src/day-measures.js";
 import { runDay } from "../src/day.js";
 import { clockOf, sceneAt } from "../src/day-scene.js";
@@ -103,8 +104,41 @@ describe("the day (src/day.js)", () => {
       assert.ok(measures.guests >= 56 && measures.plates > measures.guests, JSON.stringify(measures));
       assert.ok(measures.ticketMean > 0 && measures.ticketMean <= measures.ticketP90 && measures.ticketP90 <= measures.ticketMax);
       assert.ok(measures.cooledMax <= 120);
-      assert.equal(measures.staff.length, 16);
+      assert.equal(measures.staff.length, 17);
       for (const station of measures.stations) assert.ok(station.highest <= station.count, station.kind);
+    });
+
+    it(`takes all the waste out, sorted, the biowaste near its published figure (seed ${seed})`, () => {
+      const day = dayOf(seed);
+      const { waste } = dayMeasures(day);
+      for (const stream of Object.keys(STREAMS)) {
+        assert.equal(day.gauges[`dechet:${stream}`].at(-1)[1], 0, `${stream} : le bac n'est pas vide`);
+        assert.ok(waste[stream] > 0, stream);
+      }
+      assert.equal(day.gauges.local.at(-1)[1], day.log.filter((one) => one.type === "bag").reduce((sum, bag) => sum + bag.grams, 0));
+      assert.ok(waste.bioPerGuest >= 100 && waste.bioPerGuest <= 170, `${waste.bioPerGuest} g`);
+    });
+
+    it(`seats a group only at a laid table, each table cleared, wiped and laid in turn (seed ${seed})`, () => {
+      const byTable = Map.groupBy(dayOf(seed).log.filter((one) => one.type === "table"), (one) => one.table);
+      assert.equal(byTable.size, 16);
+      const NEXT = { laid: "taken", taken: "dirty", dirty: "clean", clean: "laid" };
+      for (const [table, states] of byTable) {
+        assert.equal(states[0].state, "laid", `table ${table}`);
+        states.slice(1).forEach((one, i) => assert.equal(one.state, NEXT[states[i].state], `table ${table}`));
+        assert.equal(states.at(-1).state, "laid", `table ${table} : pas redressée`);
+      }
+    });
+
+    it(`pours every round at the bar, which never runs out, each round brought by a waiter (seed ${seed})`, () => {
+      const day = dayOf(seed);
+      const { bar } = dayMeasures(day);
+      assert.ok(bar.poured > 80, String(bar.poured));
+      assert.equal(bar.short, 0);
+      assert.equal(day.gauges.verres.at(-1)[1], 0);
+      const barman = day.people.find((one) => one.kind === "barman");
+      assert.equal(barman.track.at(-1).kind, "gone");
+      assert.ok(barman.worked > 3600, String(barman.worked));
     });
 
     it(`writes each cook's thirst and fatigue, within their bounds, the fatigue up by the night (seed ${seed})`, () => {

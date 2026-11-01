@@ -3,7 +3,7 @@
 Sami (1/11/2026) veut une cuisine vitrine : 10 cuisiniers, une journée entière, et le visuel du grand CHU de
 mcts-urgences. Ce fichier dit ce que les sources publiées disent de cette journée, et ce qui reste une hypothèse. Le
 modèle qui s'en sert est décrit dans [../journee.md](../journee.md). Ce qui n'a pas été trouvé va dans
-[questions-specialiste.md](questions-specialiste.md), questions 25 à 33.
+[questions-specialiste.md](questions-specialiste.md), questions 25 à 36.
 
 ## Le déroulé
 
@@ -68,6 +68,27 @@ Ces chiffres viennent d'éditeurs de logiciels et de sites d'emploi : des ordres
 - **Le déroulé d'une table** : les recherches n'ont pas donné de séquence publiée avec ses durées. Celui du modèle
   (accueil, commande, trois temps, addition, débarrassage) vient de [brigade-service.md](brigade-service.md) et d'hypothèses.
 
+## Les déchets
+
+- **Le tri des biodéchets est obligatoire** pour tous les professionnels depuis le 1ᵉʳ janvier 2024, quels que soient les
+  volumes (loi AGEC ; [CCI Limoges][cci], [Grand Poitiers][poitiers]). Le modèle sépare donc quatre flux : les biodéchets, les
+  cartons, le verre, les ordures.
+- **Le seul chiffre trouvé** : un repas produit en moyenne 134 g de biodéchets, selon [un document de Veolia][veolia]. Il ne
+  précise pas qu'il parle de restaurants, et sa source d'origine n'a pas été retrouvée. Le modèle s'en sert comme d'un repère :
+  il donne environ 143 g par client. Les quantités de cartons, de verre et d'ordures sont des hypothèses (question 34).
+
+## Le nettoyage et le dressage des tables
+
+La remise en état des tables pendant tout le service et la préparation de la salle figurent dans les référentiels de formation
+([France Compétences][fc]) ; [Square][square] les attribue aux commis débarrasseurs. **Aucune source ne donne l'ordre des gestes
+ni leur durée** : débarrasser, essuyer, chercher le couvert à l'office puis dresser sont des hypothèses (question 35).
+
+## Le bar
+
+Les ratios trouvés viennent surtout d'organisateurs d'événements : un barman pour 50 à 75 invités ([EventPlanning][ep]). Pour un
+restaurant, [un exemple d'effectif][nmbrs] compte un barman pour 80 couverts, et un autre pour 120. **Rien de publié sur le temps
+de préparation d'un verre ni sur la différence entre un bar de service et un comptoir** (question 36).
+
 ## Le grand CHU : pourquoi il tient
 
 Sami : « la plupart des chemins sont pré-calculés et en cache ». C'est bien ce que fait mcts-urgences :
@@ -82,6 +103,13 @@ La cuisine actuelle, elle, planifie chaque pas dans le temps pour éviter les au
 avec des dizaines de personnes. La journée reprend donc la méthode du CHU, dans un modèle à part. mcts-commun a déjà
 les distances gardées par cible (`createDistances`).
 
+[cci]: https://www.limoges.cci.fr/sites/g/files/mwbcuj1461/files/2023-09/solutions%20collecte%20valorisation%20biodechets.pdf
+[poitiers]: https://www.grandpoitiers.fr/fileadmin/M%C3%A9dias_par_groupes_de_contributeurs/Economie_emploi_et_entreprises/03-d%C3%A9chets/GP_2022_contexte_reglementaire_biodechets_pro.pdf
+[veolia]: https://www.veolia.fr/sites/g/files/dvc2401/files/document/2019/12/934_VEOLIA_article_9-biod%C3%A9chets_1219.pdf
+[fc]: https://certifpro.francecompetences.fr/api/fiches/refActivity/24400/472405
+[square]: https://squareup.com/ca/fr/townsquare/how-to-manage-your-restaurant-front-of-house
+[ep]: https://eventplanning.com/bartender-staffing-placement/
+[nmbrs]: https://kitchennmbrs.app/en/knowledge-base/daily-control/how-do-i-set-a-labor-standard-per-service-for-my-restaurant-type
 [youschool]: https://www.youschool.fr/metiers-de-bouche/comment-travaille-un-cuisinier
 [choose]: https://www.chooseandconnect.com/explorer-metiers/chef-de-cuisine
 [logbook]: https://www-logbook-lk.pages.dev/blog/how-restaurant-operations-work/

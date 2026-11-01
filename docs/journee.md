@@ -3,7 +3,7 @@
 Sami (1/11/2026) voulait une cuisine plus complète que la brigade avec plonge, sur une journée entière, avec le visuel
 du grand CHU de mcts-urgences : « ça grouille ». Ce que disent les sources est dans
 [recherche/journee.md](recherche/journee.md), les questions qui restent dans
-[recherche/questions-specialiste.md](recherche/questions-specialiste.md) (25 à 33).
+[recherche/questions-specialiste.md](recherche/questions-specialiste.md) (25 à 36).
 
 Ses choix : un service du soir d'abord, la salle et les clients juste après le service en cuisine, des règles d'abord,
 sans recherche. **Tous les chiffres du modèle sont des hypothèses, sauf ceux qui nomment leur source.**
@@ -62,8 +62,8 @@ chaque cuisine se mesure contre elle-même.
 
 ### La salle (étape 4)
 
-28 groupes de 2 à 4 entrent par leur porte de 19 h à 21 h 30, le plus souvent vers 20 h 15. Ils vont à la table libre la
-moins utilisée, ou attendent le long de l'allée. Ils lisent la carte, commandent, mangent jusqu'à trois temps, paient,
+28 groupes de 2 à 4 entrent par leur porte de 19 h à 21 h 30, le plus souvent vers 20 h 15. Ils vont à la table dressée la
+moins utilisée, ou attendent au bar. Ils lisent la carte, commandent, mangent jusqu'à trois temps, paient,
 s'en vont. Les 6 serveurs dressent les tables à 18 h, prennent les commandes, vont au bar, portent les assiettes du
 passe aux tables, débarrassent, rapportent les assiettes à la plonge, redressent les tables. Le plongeur lave par
 casiers de 20. Avec eux, le plan compte environ 90 personnes au pic.
@@ -83,20 +83,40 @@ en salle du personnel, 30 min. Un cuisinier fatigué fait ses gestes jusqu'à 25
 Ces chiffres sont des hypothèses pour montrer qui va mal (question 30). La loi demande 20 min de pause dès 6 h : le repas
 d'équipe en tient lieu, à confirmer (question 29).
 
+### Les déchets, les tables, le bar (1/11, le soir)
+
+**Les déchets** : quatre bacs en cuisine (biodéchets, cartons, verre, ordures), comme la loi le demande pour les biodéchets. Chaque
+caisse ouverte laisse un carton et, pour les produits frais, des épluchures ; chaque lot, du film ; chaque assiette, des restes
+raclés à la plonge ; chaque bouteille, du verre. Un bac qui contient de quoi remplir un sac appelle un commis ou le plongeur, qui
+le sort par la porte arrière jusqu'au local à déchets, dans la cour. La fermeture vide tous les bacs (test : tout finit au local).
+
+**Les tables** : une table passe par quatre états, visibles sur le plan : 🍴 dressée, occupée, 🧽 à nettoyer, ✨ propre. Après le
+départ d'un groupe, un serveur débarrasse les verres et les porte à la plonge, un autre essuie, un autre va chercher le couvert et
+le linge à l'office puis dresse. Un groupe ne s'assoit qu'à une table dressée (test).
+
+**Le bar** : un barman arrive à 18 h, monte deux caisses, prépare son bar. Chaque temps d'une table lui envoie une tournée : apéritif,
+vin, café. Il la prépare, la pose au bar, et un serveur la porte. Il repart chercher des caisses quand il en manque. Un groupe sans
+table attend au comptoir et y prend un verre.
+
 ## Les mesures (étape 6)
 
-`npm run journee -- 20`, 20 journées, 44 ms chacune sur la machine pleine ; le plan brouillon, 12 fourneaux et 6 fours :
+`npm run journee -- 20`, 20 journées, 58 ms chacune sur la machine pleine ; le plan brouillon, 12 fourneaux et 6 fours :
 
 | Mesure | Moyenne |
 |---|---|
-| clients, tables, assiettes | 82,5, 28, 190 |
-| un bon : moyenne, 90ᵉ centile, pire | 10,3, 20,4, 30,2 min |
-| bons en cours au pic | 10,1 |
-| clients en salle au pic | 73,3 |
-| temps à table | 90,7 min |
-| attente à l'entrée : moyenne, pire | 15,7, 50,5 min |
-| refroidissement le plus long | 85,5 min (limite : 120) |
-| fermeture | vers minuit, 0 h 14 au plus tard |
+| clients, tables, assiettes | 82,5, 28, 189 |
+| un bon : moyenne, 90ᵉ centile, pire | 10,3, 20,6, 28,0 min |
+| bons en cours au pic | 10,4 |
+| clients en salle au pic | 73,5 |
+| temps à table | 91,0 min |
+| attente d'une table : moyenne, pire | 17,8, 55,2 min |
+| refroidissement le plus long | 81,5 min (limite : 120) |
+| remise en état d'une table | 6,3 min |
+| bar | 194 verres, une tournée 2,8 min, 13,2 au pire |
+| déchets | 11,8 kg de biodéchets, 52,0 de cartons, 16,9 de verre, 6,5 d'ordures |
+| biodéchets par client | 143 g (repère publié : 134) |
+| sacs sortis, bacs qui ont débordé | 14,7, 1,0 |
+| fermeture | vers minuit, 0 h 19 au plus tard |
 
 **Réglé à la main, sans source** : les premières durées laissaient les cuisiniers inactifs 64 % du service, sans coup
 de feu. Après une assiette à 90 s, un poisson surveillé 6 min et moins de fourneaux, ce temps tombe à 45 %, et un bon

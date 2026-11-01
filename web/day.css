@@ -44,12 +44,12 @@ main.layout:has(.day-view) { max-width: none; }
 
 .day-person .body { stroke-width: 2.5; fill: #30506e; stroke: #4fae5c; }
 .day-person.cook .body { fill: #fff; }
-.day-person.waiter .body { fill: #2a2a33; stroke: #fff; }
+.day-person.waiter .body, .day-person.barman .body { fill: #2a2a33; stroke: #fff; }
 .day-person.guest .body { fill: #c77fb0; stroke: #fff; stroke-width: 1.5; }
 .day-person[data-mood="low"] .body { stroke: #e2a21a; }
 .day-person[data-mood="bad"] .body { stroke: #d6372c; }
 .day-person .letters { font: 700 10px system-ui, sans-serif; text-anchor: middle; fill: #222; pointer-events: none; }
-.day-person.waiter .letters { fill: #fff; }
+.day-person.waiter .letters, .day-person.barman .letters { fill: #fff; }
 .day-person .carry { font-size: 12px; pointer-events: none; }
 
 .day-gauge { display: grid; grid-template-columns: 112px minmax(0, 1fr) 32px; align-items: center; gap: 6px; font-size: 0.8rem; }
