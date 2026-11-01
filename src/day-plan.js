@@ -8,7 +8,7 @@ import { createDistances, parsePlan } from "mcts-commun/grid.js";
  * Stations, each worked by one person at a time from a floor cell beside it: `K` the truck, `F` the cold room's shelves,
  * `T` the tempered store, `G` the tins and cereals, `C` a board, `P` a stove, `A` an oven, `M` the pastry bench, `Z` a
  * blast chiller, `f` a fridge of dishes, `d` a fridge of desserts, `_` a plating bench, `S` the pass, `L` a sink, `r` the
- * clean plates, `w` a water tap, `b` a seat of the staff room, `s` a guest's seat, `t` a table (not worked: its seats are).
+ * clean plates, `B` the bar, `w` a water tap, `b` a seat of the staff room, `s` a guest's seat, `t` a table (not worked: its seats are).
  * `#` a wall, a space outside the building.
  */
 export const DAY_PLAN = [
@@ -22,14 +22,14 @@ export const DAY_PLAN = [
   "#............................................#",
   "#..CCCCCC...PPPPPPPP.AAAA...MMMMMM..dddddd...#",
   "#............................................#",
-  "#..CCCCCC...PPPPPPPP.AAAA...MMMMMM..ZZZZZZ...#",
+  "#..CCCCCC...PPPP.....AA.....MMMMMM..ZZZZZZ...#",
   "#............................................#",
   "#..ffffff...________.ffff...______..LLLLrr...#",
   "#............................................#",
   "######.#w###SSSSSSSSSSSSSSSS###w#####.########",
   "#............................................#",
   "#..ss...ss...ss...ss...ss...ss...ss...ss.....#",
-  "#..tt...tt...tt...tt...tt...tt...tt...tt.....#",
+  "#..tt...tt...tt...tt...tt...tt...tt...tt.BBB.#",
   "#..ss...ss...ss...ss...ss...ss...ss...ss.....#",
   "#............................................#",
   "#..ss...ss...ss...ss...ss...ss...ss...ss.....#",
@@ -57,6 +57,7 @@ export const STATION_NAMES = Object.freeze({
   S: "le passe",
   L: "la plonge",
   r: "les assiettes propres",
+  B: "le bar",
   w: "les points d'eau",
   b: "la salle du personnel",
   s: "les chaises",

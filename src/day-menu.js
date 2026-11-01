@@ -10,8 +10,8 @@
 const chill = (min = 60) => Object.freeze({ do: "mettre en cellule", at: "Z", min: 2, skill: "prep", alone: Object.freeze({ min, emoji: "❄️" }), chill: true });
 const shelve = (fridge = "f") => Object.freeze({ do: "ranger au frigo", at: fridge, min: 2, skill: "prep", shelve: true });
 /** What the service does: from the fridge, warmed on a stove or in an oven (once, then eaten the same day), plated. */
-const warm = (at = "P", min = 3) => Object.freeze({ do: "réchauffer", at, seconds: 30, alone: Object.freeze({ min, emoji: "🔥" }), skill: "chaud" });
-const plate = (skill, seconds = 40) => Object.freeze({ do: "dresser", at: "_", seconds, skill });
+const warm = (at = "P", min = 3) => Object.freeze({ do: "réchauffer", at, seconds: 60, alone: Object.freeze({ min, emoji: "🔥" }), skill: "chaud" });
+const plate = (skill, seconds = 90) => Object.freeze({ do: "dresser", at: "_", seconds, skill });
 
 export const COURSES = Object.freeze(["entree", "plat", "dessert"]);
 
@@ -49,7 +49,7 @@ export const MENU = Object.freeze([
       chill(75),
       shelve(),
     ]),
-    service: Object.freeze([plate("froid", 50)]),
+    service: Object.freeze([plate("froid", 80)]),
   }),
   Object.freeze({
     id: "salade",
@@ -61,7 +61,7 @@ export const MENU = Object.freeze([
     fridge: "f",
     late: true,
     chain: Object.freeze([Object.freeze({ do: "laver et trancher", at: "C", min: 30, skill: "froid", fetch: Object.freeze({ T: 2 }) }), shelve()]),
-    service: Object.freeze([plate("froid", 45)]),
+    service: Object.freeze([plate("froid", 80)]),
   }),
   Object.freeze({
     id: "bourguignon",
@@ -89,7 +89,7 @@ export const MENU = Object.freeze([
     portions: 8,
     fridge: "f",
     chain: Object.freeze([Object.freeze({ do: "lever les filets", at: "C", min: 45, skill: "chaud", fetch: Object.freeze({ F: 3 }) }), Object.freeze({ do: "portionner", at: "C", min: 20, skill: "prep" }), shelve()]),
-    service: Object.freeze([Object.freeze({ do: "cuire à la minute", at: "P", seconds: 60, alone: Object.freeze({ min: 6, emoji: "🐟" }), skill: "chaud" }), plate("chaud")]),
+    service: Object.freeze([Object.freeze({ do: "cuire à la minute", at: "P", seconds: 6 * 60, skill: "chaud" }), plate("chaud")]),
   }),
   Object.freeze({
     id: "gratin",
@@ -123,7 +123,7 @@ export const MENU = Object.freeze([
       chill(45),
       shelve("d"),
     ]),
-    service: Object.freeze([plate("patisserie", 45)]),
+    service: Object.freeze([plate("patisserie", 70)]),
   }),
   Object.freeze({
     id: "mousse",
@@ -138,7 +138,7 @@ export const MENU = Object.freeze([
       Object.freeze({ do: "mouler", at: "M", min: 25, skill: "patisserie", fetch: Object.freeze({ G: 1 }) }),
       shelve("d"),
     ]),
-    service: Object.freeze([plate("patisserie", 35)]),
+    service: Object.freeze([plate("patisserie", 60)]),
   }),
 ]);
 

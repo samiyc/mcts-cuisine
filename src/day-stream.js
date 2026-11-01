@@ -1,13 +1,12 @@
-import { addStock, at, gauge } from "./day-engine.js";
-import { COURSES, MENU, portionsOf } from "./day-menu.js";
-import { HOUR, MINUTE } from "./day-program.js";
-import { clearPass, fireCourse } from "./day-service.js";
+import { addStock } from "./day-engine.js";
+import { MENU, portionsOf } from "./day-menu.js";
+import { HOUR } from "./day-program.js";
 
 /**
- * What the dining room asks of the kitchen, before its guests are drawn (Sami, 1/11/2026, docs/journee.md, step 3): groups
- * come through the evening, most of them around 20 h 15, and order their courses one after the other. Hypotheses: question 31.
+ * What the evening asks of the kitchen (Sami, 1/11/2026, docs/journee.md): groups come through it, most of them around
+ * 20 h 15, and what each guest orders of a course. Hypotheses: question 31.
  */
-export const EVENING = Object.freeze({ groups: 32, from: 19 * HOUR, peak: 20.25 * HOUR, to: 21.5 * HOUR, wants: Object.freeze({ entree: 0.7, plat: 1, dessert: 0.6 }), eats: Object.freeze({ entree: 12, plat: 20, dessert: 12 }) });
+export const EVENING = Object.freeze({ groups: 28, from: 19 * HOUR, peak: 20.25 * HOUR, to: 21.5 * HOUR, wants: Object.freeze({ entree: 0.7, plat: 1, dessert: 0.6 }), eats: Object.freeze({ entree: 12, plat: 20, dessert: 12 }) });
 
 /** When the groups come: a triangular draw between the first and the last, peaking at `peak`. */
 export function arrivals(rng, { groups, from, peak, to } = EVENING) {
@@ -40,32 +39,4 @@ export function orderOf(world, course, size) {
     if (dish) dishes.push(dish);
   }
   return dishes;
-}
-
-/** A group's courses from the `next`, each after the last is eaten. */
-function nextCourse(world, group, next) {
-  const course = COURSES[next];
-  if (!course) return;
-  const dishes = orderOf(world, course, group.size);
-  if (!dishes.length) return nextCourse(world, group, next + 1);
-  fireCourse(world, {
-    table: group.id,
-    course,
-    dishes,
-    then: (ticket) => {
-      clearPass(world, ticket);
-      at(world, world.t + EVENING.eats[course] * MINUTE, () => nextCourse(world, group, next + 1));
-    },
-  });
-}
-
-/** The groups of the evening. */
-export function startStream(world) {
-  gauge(world, "bons", 0);
-  gauge(world, "envoyes", 0);
-  gauge(world, "epuises", 0);
-  arrivals(world.rng).forEach((time, id) => {
-    const group = { id, size: 2 + world.rng.int(3) };
-    at(world, time, () => nextCourse(world, group, 0));
-  });
 }

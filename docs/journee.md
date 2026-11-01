@@ -57,6 +57,57 @@ passe. Quand toutes les assiettes d'un bon sont là, le chef les contrôle et le
 d'abord, un peu avant le plus proche.
 
 Une portion est réservée à la commande, et un plat épuisé sort de la carte. Une réchauffe se fait une fois, comme la
-règle le demande. Sur la journée n° 1 : 92 bons et 227 assiettes, 6,1 min par bon en moyenne, 10,4 au 90ᵉ centile, 12,1
-au pire ; 11 bons au plus en même temps, le pic entre 20 h et 21 h. Aucune référence publiée à comparer
-([brigade-service.md](recherche/brigade-service.md)) : chaque cuisine se mesure contre elle-même.
+règle le demande. Aucune référence publiée du temps d'un bon ([brigade-service.md](recherche/brigade-service.md)) :
+chaque cuisine se mesure contre elle-même.
+
+### La salle (étape 4)
+
+28 groupes de 2 à 4 entrent par leur porte de 19 h à 21 h 30, le plus souvent vers 20 h 15. Ils vont à la table libre la
+moins utilisée, ou attendent le long de l'allée. Ils lisent la carte, commandent, mangent jusqu'à trois temps, paient,
+s'en vont. Les 6 serveurs dressent les tables à 18 h, prennent les commandes, vont au bar, portent les assiettes du
+passe aux tables, débarrassent, rapportent les assiettes à la plonge, redressent les tables. Le plongeur lave par
+casiers de 20. Avec eux, le plan compte environ 90 personnes au pic.
+
+### La fermeture et le corps (étape 5)
+
+**La fermeture** commence quand le dernier client est parti, à 22 h 30 au plus tôt : les restes rassemblés, étiquetés et
+rangés, chaque poste nettoyé, le relevé des températures par le chef ou le second, les allées lavées. Les serveurs partent
+par la porte des clients, puis les cuisiniers par l'arrière, quand tout est fait.
+
+**Le corps** : chaque cuisinier a une soif qui monte deux fois plus vite au feu et une fatigue qui monte avec les heures
+et la soif. Son anneau passe au orange, puis au rouge. Il boit au point d'eau quand il est libre et que la soif dépasse
+60 %, 85 % au coup de feu : il tient plus longtemps. Chacun sort **15 min dans la cour, par la porte arrière**, deux par
+deux à partir de 11 h 30 (le choix de Sami). Le commis 2 cuisine le repas d'équipe à 16 h 30, et tous le prennent à 17 h 30
+en salle du personnel, 30 min. Un cuisinier fatigué fait ses gestes jusqu'à 25 % plus lentement.
+
+Ces chiffres sont des hypothèses pour montrer qui va mal (question 30). La loi demande 20 min de pause dès 6 h : le repas
+d'équipe en tient lieu, à confirmer (question 29).
+
+## Les mesures (étape 6)
+
+`npm run journee -- 20`, 20 journées, 44 ms chacune sur la machine pleine ; le plan brouillon, 12 fourneaux et 6 fours :
+
+| Mesure | Moyenne |
+|---|---|
+| clients, tables, assiettes | 82,5, 28, 190 |
+| un bon : moyenne, 90ᵉ centile, pire | 10,3, 20,4, 30,2 min |
+| bons en cours au pic | 10,1 |
+| clients en salle au pic | 73,3 |
+| temps à table | 90,7 min |
+| attente à l'entrée : moyenne, pire | 15,7, 50,5 min |
+| refroidissement le plus long | 85,5 min (limite : 120) |
+| fermeture | vers minuit, 0 h 14 au plus tard |
+
+**Réglé à la main, sans source** : les premières durées laissaient les cuisiniers inactifs 64 % du service, sans coup
+de feu. Après une assiette à 90 s, un poisson surveillé 6 min et moins de fourneaux, ce temps tombe à 45 %, et un bon
+monte à 10 min. Ce sont des réglages pour que le coup de feu existe, pas des mesures de restaurant (questions 27 et 28).
+**La cuisine reste moins chargée que la salle** : un poste n'est jamais plein plus de 2 % du service. Ce qui coince, sur
+ce plan, c'est le nombre de tables (attente à l'entrée) et les bons qui s'accumulent au pic. Plus de couverts ou moins
+de postes dans le plan de Sami le verront tout de suite, dans « Les postes pris ».
+
+Le modèle a sa propre empreinte (`day`, `tests/fingerprint.test.js`) ; celles des neuf cuisines n'ont pas bougé.
+
+## Ce qui reste hors du modèle
+
+Le midi et la coupure, la recherche (des règles seulement), le cuisinier au clavier, les robots. Les allées ne bloquent
+personne : l'encombrement ne se voit qu'aux postes.

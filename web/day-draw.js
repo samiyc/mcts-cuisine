@@ -7,7 +7,7 @@ import { svg } from "./dom.js";
  * frame to the next and moved, so a hundred people on the plan stay fluid.
  */
 const CELL = 26;
-const ICONS = { K: "🚚", F: "🥩", T: "🥔", G: "🥫", C: "🔪", P: "🔥", A: "♨️", M: "🥧", Z: "❄️", f: "🧊", d: "🍰", _: "🍽️", S: "🛎️", L: "🧽", r: "🍽️", w: "💧", D: "🚪", x: "🚪", g: "🚪", y: "🌳" };
+const ICONS = { K: "🚚", F: "🥩", T: "🥔", G: "🥫", C: "🔪", P: "🔥", A: "♨️", M: "🥧", Z: "❄️", f: "🧊", d: "🍰", _: "🍽️", S: "🛎️", L: "🧽", r: "🍽️", B: "🍷", w: "💧", D: "🚪", x: "🚪", g: "🚪", y: "🌳" };
 const CLASSES = { "#": "wall", K: "truck", y: "yard", t: "table", s: "seat", b: "seat", F: "cold", Z: "cold", f: "cold", d: "cold", P: "hot", A: "hot", T: "store", G: "store", S: "pass", L: "wash", r: "wash", w: "water" };
 /** Tells the cook's marks apart at a glance, by their job. */
 const BODY_FROM = 0.45;
@@ -30,7 +30,7 @@ function nameOf(root, plan, kind) {
   const cells = plan.find(kind);
   if (!cells.length) return;
   const [x, y] = [middleOf(cells.map((cell) => cell.x)), middleOf(cells.map((cell) => cell.y))];
-  root.append(svg("text", { x: centre(x), y: centre(y) + 4, class: "day-name" }, STATION_NAMES[kind].replace(/^(le|la|les|l') ?/, "")));
+  root.append(svg("text", { x: centre(x), y: centre(y) + 4, class: "day-name" }, STATION_NAMES[kind].replace(/^(les|le|la|l') ?/, "")));
 }
 
 const SEEN_NAMES = ["F", "T", "G", "b"];
@@ -48,7 +48,7 @@ export function planBackground(layout) {
 function personMark(person) {
   const group = svg("g", { class: `day-person ${person.kind}`, "data-who": String(person.id) });
   const radius = person.kind === "guest" ? 7 : 11;
-  group.append(svg("circle", { r: radius, class: "body" }));
+  group.append(svg("circle", { r: radius, class: "body", style: person.kind === "guest" ? `fill: hsl(${(person.group * 47) % 360} 55% 62%)` : null }));
   if (person.mark) group.append(svg("text", { y: 4, class: "letters" }, person.mark));
   group.append(svg("text", { x: 9, y: -7, class: "carry" }, ""));
   return group;

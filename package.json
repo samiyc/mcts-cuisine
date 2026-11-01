@@ -20,7 +20,8 @@
     "replay": "node scripts/replay.js",
     "page": "node node_modules/mcts-commun/bin/serve.js 4803",
     "prepare": "git config core.hooksPath .githooks",
-    "changelog": "node scripts/changelog.js"
+    "changelog": "node scripts/changelog.js",
+    "journee": "node scripts/day.js"
   },
   "author": "Sami",
   "license": "UNLICENSED",

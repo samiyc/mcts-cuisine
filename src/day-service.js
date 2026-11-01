@@ -1,4 +1,4 @@
-import { addStock, at, gauge, mark, offer } from "./day-engine.js";
+import { addStock, at, mark, offer } from "./day-engine.js";
 import { MINUTE } from "./day-program.js";
 import { dirtyPan } from "./day-production.js";
 
@@ -8,10 +8,10 @@ import { dirtyPan } from "./day-production.js";
  * the rule asks: docs/recherche/journee.md), plated, set on the pass. All the plates of a ticket there, the chef checks
  * them and sends them: `then(ticket)` calls the dining room. The oldest ticket first (`urgency`).
  */
-const FROM_FRIDGE = 10;
-const TAKE_OFF = 20;
-const TO_PASS = 5;
-const CHECK = 15;
+const FROM_FRIDGE = 20;
+const TAKE_OFF = 30;
+const TO_PASS = 10;
+const CHECK = 30;
 const BASE = Object.freeze({ dish: 70, hot: 75, check: 90 });
 
 /** A task's priority: a thousandth of a level per second, so an older ticket comes first, a little before the nearest. */
@@ -41,7 +41,8 @@ function offerFinish(world, { ticket, dish, station }) {
 function fireDish(world, ticket, dish) {
   const [first] = dish.service;
   if (!first.alone) {
-    offer(world, { skill: first.skill, priority: urgency(world, BASE.dish, ticket), legs: [fromFridge(dish), ...plateLegs(world, ticket, dish)] });
+    const watched = dish.service.slice(0, -1).map((step) => ({ at: step.at, seconds: step.seconds, label: `${step.do} ${dish.label}`, carry: null }));
+    offer(world, { skill: first.skill, priority: urgency(world, BASE.dish, ticket), legs: [fromFridge(dish), ...watched, ...plateLegs(world, ticket, dish)] });
     return;
   }
   const put = {
@@ -86,7 +87,6 @@ export function fireCourse(world, course) {
   const ticket = { ...course, number: world.ticketCount, openedAt: world.t, plates: [], sentAt: null };
   world.ticketCount += 1;
   addStock(world, "bons", 1);
-  gauge(world, "attente", 0);
   for (const dish of course.dishes) fireDish(world, ticket, dish);
   return ticket;
 }

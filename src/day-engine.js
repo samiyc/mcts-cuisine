@@ -14,8 +14,10 @@ import { START, WALK } from "./day-program.js";
  * the nearest one, in line.
  */
 
+const HOT = new Set(["P", "A"]);
+
 export function createWorld(layout, seed) {
-  return { layout, rng: createRng(seed), events: createEvents(START), t: START, staff: [], people: [], tasks: [], taskCount: 0, claims: new Map(), lines: new Map(), stock: new Map(), gauges: {}, marks: [], uses: [], log: [], end: START, crates: 0, washing: false, ticketCount: 0 };
+  return { layout, rng: createRng(seed), events: createEvents(START), t: START, staff: [], people: [], tasks: [], taskCount: 0, claims: new Map(), lines: new Map(), stock: new Map(), gauges: {}, marks: [], uses: [], log: [], end: START, crates: 0, washing: false, platesWashing: false, ticketCount: 0, room: null, body: null };
 }
 
 /** Runs `run` at `time`, or now if that has passed. */
@@ -31,7 +33,7 @@ export function addPerson(world, spec, cell) {
 
 /** A new segment of `person`'s track, from now on. */
 export function segment(world, person, parts) {
-  person.track.push({ t0: world.t, x: person.cell.x, y: person.cell.y, carry: person.carry, kind: "idle", label: "", ...parts });
+  person.track.push({ t0: world.t, x: person.cell.x, y: person.cell.y, carry: person.carry, kind: "idle", label: "", ...world.body?.now(person), ...parts });
 }
 
 /** Sets a gauge, kept for the page: the value from now on. */
@@ -79,7 +81,7 @@ function nearestFree(world, person, kind) {
 
 /** Lets `station` go: the first in line for its kind tries again. */
 export function release(world, station) {
-  world.claims.delete(station.key);
+  if (world.claims.delete(station.key)) addStock(world, `pris:${station.kind}`, -1);
   const next = world.lines.get(station.kind)?.shift();
   if (next) startLeg(world, next);
 }
@@ -100,7 +102,10 @@ function queueFor(world, person, { kind, label }) {
 function stationFor(world, person, leg) {
   if (leg.station) return leg.station;
   const station = nearestFree(world, person, leg.at);
-  if (station) world.claims.set(station.key, person.id);
+  if (station) {
+    world.claims.set(station.key, person.id);
+    addStock(world, `pris:${station.kind}`, 1);
+  }
   return station;
 }
 
@@ -122,9 +127,11 @@ function moveStock(world, moves = {}, sign = 1) {
 function work(world, person, { leg, station }) {
   moveStock(world, leg.take, -1);
   if (leg.carry !== undefined) person.carry = leg.carry;
-  segment(world, person, { kind: "work", label: leg.label, at: { x: station.x, y: station.y }, until: world.t + leg.seconds });
+  person.hot = HOT.has(station.kind);
+  const seconds = leg.seconds * (world.body?.pace(person) ?? 1);
+  segment(world, person, { kind: "work", label: leg.label, at: { x: station.x, y: station.y }, until: world.t + seconds });
   const t0 = world.t;
-  at(world, world.t + leg.seconds, () => {
+  at(world, world.t + seconds, () => {
     world.uses.push({ key: station.key, kind: station.kind, t0, t1: world.t, who: person.id });
     person.worked += world.t - t0;
     moveStock(world, leg.put);
@@ -138,8 +145,9 @@ function work(world, person, { leg, station }) {
 function finishTask(world, person) {
   const { task } = person;
   Object.assign(person, { task: null, leg: 0, busy: false });
-  segment(world, person, { kind: "idle", label: "cherche quoi faire" });
+  segment(world, person, { kind: "idle", label: "attend" });
   task.done?.(person);
+  if (!person.off) world.body?.free(person);
 }
 
 /** Offers a task to whoever can take it. */
@@ -173,8 +181,8 @@ function choose(world, person) {
 /** Every free person takes the task they want most. */
 export function dispatch(world) {
   if (!world.tasks.length) return;
-  for (const person of world.staff) {
-    if (person.busy || person.off) continue;
+  // The one who has worked least chooses first, so the work is shared out.
+  for (const person of world.staff.filter((one) => !one.busy && !one.off).sort((a, b) => a.worked - b.worked)) {
     const task = choose(world, person);
     if (!task) continue;
     world.tasks.splice(world.tasks.indexOf(task), 1);

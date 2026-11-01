@@ -3,6 +3,7 @@ import assert from "node:assert/strict";
 import { DAY_PLAN, dayLayout } from "../src/day-plan.js";
 import { MENU, portionsOf } from "../src/day-menu.js";
 import { DELIVERY, WALK } from "../src/day-program.js";
+import { dayMeasures } from "../src/day-measures.js";
 import { runDay } from "../src/day.js";
 import { clockOf, sceneAt } from "../src/day-scene.js";
 
@@ -46,7 +47,7 @@ describe("the day (src/day.js)", () => {
 
   for (const seed of SEEDS) {
     it(`puts one person at a time at a station (seed ${seed})`, () => {
-      const byStation = Map.groupBy(dayOf(seed).uses, (use) => use.key);
+      const byStation = Map.groupBy(dayOf(seed).uses.filter((use) => !["floor", "table"].includes(use.kind)), (use) => use.key);
       for (const [key, uses] of byStation) {
         const sorted = uses.toSorted((a, b) => a.t0 - b.t0);
         sorted.slice(1).forEach((use, i) => assert.ok(use.t0 >= sorted[i].t1, `${key} : ${sorted[i].who} et ${use.who}`));
@@ -77,6 +78,43 @@ describe("the day (src/day.js)", () => {
       assert.equal(gauges.envoyes.at(-1)[1], tickets.reduce((sum, ticket) => sum + ticket.dishes, 0));
     });
 
+    it(`serves every group of guests, who all leave, a table to one group at a time (seed ${seed})`, () => {
+      const { people, log, gauges } = dayOf(seed);
+      const guests = people.filter((one) => one.kind === "guest");
+      assert.ok(guests.length >= 56, String(guests.length));
+      for (const guest of guests) assert.equal(guest.track.at(-1).kind, "gone", guest.name);
+      assert.equal(gauges.clients.at(-1)[1], 0);
+      assert.equal(gauges.partis.at(-1)[1], guests.length);
+      assert.ok(log.filter((one) => one.type === "group").every((group) => group.seconds > 20 * 60));
+    });
+
+    it(`closes: everyone gone by the end of the night, each cook out once for a break (seed ${seed})`, () => {
+      const { people, log, end } = dayOf(seed);
+      for (const person of people) assert.equal(person.track.at(-1).kind, "gone", person.name);
+      assert.equal(log.filter((one) => one.type === "closed").length, 1);
+      assert.ok(end < 25 * 3600, `fin : ${clockOf(end)}`);
+      const cooks = people.filter((one) => one.kind === "cook");
+      assert.equal(log.filter((one) => one.type === "break").length, cooks.length);
+      for (const cook of cooks) assert.ok(log.some((one) => one.type === "drink" && one.who === cook.id), `${cook.name} n'a jamais bu`);
+    });
+
+    it(`measures the day (seed ${seed})`, () => {
+      const measures = dayMeasures(dayOf(seed));
+      assert.ok(measures.guests >= 56 && measures.plates > measures.guests, JSON.stringify(measures));
+      assert.ok(measures.ticketMean > 0 && measures.ticketMean <= measures.ticketP90 && measures.ticketP90 <= measures.ticketMax);
+      assert.ok(measures.cooledMax <= 120);
+      assert.equal(measures.staff.length, 16);
+      for (const station of measures.stations) assert.ok(station.highest <= station.count, station.kind);
+    });
+
+    it(`writes each cook's thirst and fatigue, within their bounds, the fatigue up by the night (seed ${seed})`, () => {
+      for (const cook of dayOf(seed).people.filter((one) => one.kind === "cook")) {
+        const parts = cook.track.filter((part) => part.fatigue !== undefined);
+        assert.ok(parts.every((part) => part.thirst >= 0 && part.thirst <= 1 && part.fatigue >= 0 && part.fatigue <= 1), cook.name);
+        assert.ok(parts.at(-1).fatigue > parts[0].fatigue, cook.name);
+      }
+    });
+
     it(`keeps everyone on the floor as they walk (seed ${seed})`, () => {
       const { layout, people } = dayOf(seed);
       for (const part of people.flatMap((person) => person.track).filter((one) => one.path)) {
@@ -96,6 +134,14 @@ describe("the scene of the day (src/day-scene.js)", () => {
     const [a, b] = part.path;
     assert.deepEqual([seen.x, seen.y], [(a.x + b.x) / 2, (a.y + b.y) / 2]);
     assert.equal(seen.doing, "walk");
+  });
+
+  it("shows a guest on their seat, as a guest", () => {
+    const day = dayOf(1);
+    const guest = day.people.find((person) => person.kind === "guest");
+    const part = guest.track.find((one) => one.kind === "sit");
+    const seen = sceneAt(day, part.t0 + 1).people.find((one) => one.id === guest.id);
+    assert.deepEqual([seen.kind, seen.x, seen.y], ["guest", part.seat.x, part.seat.y]);
   });
 
   it("gives the clock and the phase", () => {

@@ -4,7 +4,9 @@ import { addPerson, addStock, at, createWorld, offer, runWorld, segment } from "
 import { MENU } from "./day-menu.js";
 import { startPhases } from "./day-phases.js";
 import { startProduction } from "./day-production.js";
-import { startStream } from "./day-stream.js";
+import { startBody } from "./day-body.js";
+import { startClosing } from "./day-closing.js";
+import { startGuests } from "./day-guests.js";
 
 /**
  * A whole day of the showcase (Sami, 1/11/2026, docs/journee.md): the kitchen's day played once, from a seed, by simple
@@ -91,6 +93,8 @@ export function runDay({ text, seed = 1 } = {}) {
   arrive(world, layout);
   receive(world);
   startPhases(world, { dishes: MENU, brigade: BRIGADE });
-  startStream(world);
+  startGuests(world);
+  startBody(world);
+  startClosing(world);
   return traceOf(runWorld(world));
 }

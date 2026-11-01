@@ -6,6 +6,7 @@ import { HOUR, MINUTE } from "./day-program.js";
  * Hypotheses: question 25.
  */
 const CLEANED = Object.freeze(["C", "P", "M", "_"]);
+const GARNISHES = Object.freeze({ count: 24, minutes: 12 });
 const TO_POST = Object.freeze({ passe: "S", chaud: "P", froid: "_", patisserie: "M", plonge: "L", prep: "_" });
 
 /** The boards, stoves, pastry and plating benches wiped, one station at a time. */
@@ -29,9 +30,14 @@ function traysToPost(world, dishes) {
   }
 }
 
+/** The small preparations of each post, by hand, for the service. */
+function garnishes(world) {
+  for (let n = 0; n < GARNISHES.count; n += 1) offer(world, { skill: "prep", priority: 18, legs: [{ at: n % 2 ? "C" : "_", seconds: GARNISHES.minutes * MINUTE, label: "préparer les garnitures et les sauces", carry: null }] });
+}
+
 /** Everyone to their post, their service's skills on. */
 function toPosts(world, brigade) {
-  world.staff.forEach((person, i) => {
+  world.staff.filter((person) => person.kind === "cook").forEach((person, i) => {
     const { service } = brigade[i];
     person.skills = service;
     offer(world, { who: person.id, priority: 85, legs: [{ at: TO_POST[service[0]], seconds: 2 * MINUTE, label: "se mettre en place" }] });
@@ -43,6 +49,7 @@ export function startPhases(world, { dishes, brigade }) {
   at(world, 16.5 * HOUR, () => {
     intermediateCleaning(world);
     traysToPost(world, dishes);
+    garnishes(world);
   });
   at(world, 18.5 * HOUR, () => toPosts(world, brigade));
 }

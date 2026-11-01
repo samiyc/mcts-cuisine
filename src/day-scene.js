@@ -35,7 +35,8 @@ function along(part, t) {
 /** Where a segment puts someone at `t`: along their walk, on their seat, or where they stand. */
 function placeOf(part, t) {
   if (part.kind === "walk") return along(part, t);
-  return part.seat ?? { x: part.x, y: part.y };
+  const { x, y } = part.seat ?? part;
+  return { x, y };
 }
 
 /** Someone at `t`: their mark and where they are, or null before their first segment and once gone. */

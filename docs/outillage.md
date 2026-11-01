@@ -16,6 +16,7 @@ commande, `npm run check`, que le hook relance avant chaque commit.
 | `npm run compare` | les règles (et `--search`, la recherche) sur les mêmes services ; `--croisement` : les cuisiniers se croisent dans les allées ; `--sans-ensemble` (avec `--tables`) : les robots commencent n'importe quel plat d'une table, comme avant le 30/10 (la table part ensemble par défaut depuis) ; `--contre budget=128` (ou `grace=30`, `depth=3`, `rootWidth=8` : 8 coups à la racine, `width` plus bas, `widening=1` : l'élargissement progressif ; plusieurs séparés par des virgules) : une variante de la recherche à côté de celle par défaut, par paires ; le diagnose dit aussi les `closeCall` tranchés par l'arrêt anticipé et le rang du coup joué dans la liste de la racine |
 | `npm run bench` | `scripts/search-bench.js` : la recherche contre les règles, par paires (`--diagnose` : les codes de `diagnose` à chaque décision) |
 | `npm run replay -- fichier.json` | rejoue un service du chef au clavier, dit ce qui a semblé anormal (`--gaps` : les écarts) |
+| `npm run journee -- 20` | la cuisine vitrine sur 20 journées : ses mesures, 44 ms par journée, sans la file (`docs/journee.md`) |
 | `npm run changelog` | refait `web/changelog.html` à partir de `docs/changelog.json` |
 | `npm run page` | la page, sur le port 4803 (le serveur de mcts-commun) |
 

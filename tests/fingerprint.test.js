@@ -2,6 +2,8 @@ import { describe, it } from "node:test";
 import assert from "node:assert/strict";
 import { createHash } from "node:crypto";
 import { readFileSync } from "node:fs";
+import { dayMeasures } from "../src/day-measures.js";
+import { runDay } from "../src/day.js";
 import { KITCHENS } from "../src/kitchens.js";
 import { playReplay } from "../src/replay.js";
 import { HUMANS, RULES, humansOf } from "../src/rules.js";
@@ -25,6 +27,7 @@ const EXPECTED = {
   added: "fb30b3733e4da0c8",
   // 30/10/2026 (Sami): the options had none; added with the table out together by default (62484b7698721c1d without it).
   options: "2bf8be9b82db32d8",
+  day: "68fb1c3d5fed85fb",
 };
 
 const digest = (value) => createHash("sha256").update(JSON.stringify(value)).digest("hex").slice(0, 16);
@@ -72,6 +75,12 @@ const FINGERPRINTS = {
       { ...KITCHENS.dark, delivery: KITCHENS.dark.delivery },
       { ...KITCHENS.petite, supply: SUPPLY },
     ].flatMap((setup) => [1, 2].flatMap((seed) => [RULES.quickest, RULES.table].map((rule) => played(setup, seed, rule, "urgent")))),
+  // The showcase's day (1/11/2026, a model apart, docs/journee.md): two days, what they measure, log and how each one moves.
+  day: () =>
+    [1, 2].map((seed) => {
+      const trace = runDay({ seed });
+      return { measures: dayMeasures(trace), log: trace.log, tracks: trace.people.map((person) => [person.track.length, person.walked, person.worked]) };
+    }),
   // A service played by the search, at a small budget.
   search: () => played(KITCHENS.petite, 1, searchRule({ budget: 16 }), "urgent"),
 };

@@ -9,7 +9,7 @@ import { MINUTE } from "./day-program.js";
  * +10 °C in less than 2 hours, or thrown away), and from there to a fridge.
  */
 /** The chains' minutes by hand are a batch's alone; the sauces, garnishes and small preparations around them take this much more. */
-const BY_HAND = 1.6;
+const BY_HAND = 1.5;
 const TAKE_OFF = 60;
 const FETCH = 30;
 const PRIORITY = Object.freeze({ step: 20, shelve: 40, hot: 60 });
